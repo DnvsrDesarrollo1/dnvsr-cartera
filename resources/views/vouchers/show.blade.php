@@ -1,0 +1,8 @@
+{{-- {{$vouchers}} --}}
+
+{{$detalle}}
+
+{{
+    $vouchers
+}}
+
