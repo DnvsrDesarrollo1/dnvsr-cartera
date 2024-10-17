@@ -5,28 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Readjustment extends Model
+class Helper extends Model
 {
-
     use HasFactory;
 
     protected $fillable = [
         'idepro',
-        'fecha_ppg',
-        'prppgnpag',
-        'prppgcapi',
-        'prppginte',
-        'prppggral',
-        'prppgsegu',
-        'prppgotro',
-        'prppgcarg',
-        'prppgtota',
-        'prppgahor',
-        'prppgmpag',
+        'indice',
+        'capital',
+        'interes',
+        'vencimiento',
         'estado',
     ];
-
-    protected $guarded = [];
 
     public function beneficiary()
     {

@@ -10,7 +10,37 @@ class Beneficiary extends Model
 {
     use HasFactory;
 
-/*     public function payments(): HasMany
+    protected $fillable = [
+        'nombre',
+        'ci',
+        'complemento',
+        'expedido',
+        'mail',
+        'estado',
+        'entidad_financiera',
+        'cod_proy',
+        'idepro',
+        'cod_promotor',
+        'cod_cristorey',
+        'cod_fondesif',
+        'cod_smp',
+        'proyecto',
+        'genero',
+        'fecha_nacimiento',
+        'monto_credito',
+        'monto_activado',
+        'total_activado',
+        'saldo_credito',
+        'monto_recuperado',
+        'fecha_activacion',
+        'plazo_credito',
+        'tasa_interes',
+        'departamento',
+    ];
+
+    protected $guarded = ['id', 'created_at', 'updated_at'];
+
+    /*     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class, 'numprestamo', 'idepro');
     }
@@ -28,5 +58,10 @@ class Beneficiary extends Model
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class, 'cod_proy', 'cod_proy_credito');
+    }
+
+    public function helpers()
+    {
+        return $this->hasMany(Helper::class, 'idepro', 'idepro');
     }
 }

@@ -3,64 +3,63 @@
 namespace App\Http\Controllers;
 
 use App\Models\Readjustment;
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class ReadjustmentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $readjustments = Readjustment::all();
+        return view('readjustments.index', compact('readjustments'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        return view('readjustments.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'amount' => 'required|numeric',
+            'reason' => 'required|string|max:255',
+            'date' => 'required|date',
+            // Add other validation rules as needed
+        ]);
+
+        Readjustment::create($validated);
+
+        return redirect()->route('readjustments.index')->with('success', 'Readjustment created successfully.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Readjustment $readjustment)
     {
-        //
+        return view('readjustments.show', compact('readjustment'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Readjustment $readjustment)
     {
-        //
+        return view('readjustments.edit', compact('readjustment'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Readjustment $readjustment)
     {
-        //
+        $validated = $request->validate([
+            'amount' => 'required|numeric',
+            'reason' => 'required|string|max:255',
+            'date' => 'required|date',
+            // Add other validation rules as needed
+        ]);
+
+        $readjustment->update($validated);
+
+        return redirect()->route('readjustments.index')->with('success', 'Readjustment updated successfully.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Readjustment $readjustment)
     {
-        //
+        $readjustment->delete();
+
+        return redirect()->route('readjustments.index')->with('success', 'Readjustment deleted successfully.');
     }
 }

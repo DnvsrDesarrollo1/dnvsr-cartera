@@ -1,8 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Traits;
 
-abstract class Controller
+use Illuminate\Database\Eloquent\Builder;
+
+trait LogicTrait
 {
     public function generarPlan($capital_inicial, $meses, $taza_interes, $correlativo, $plazo_credito, $fecha_inicio)
     {
@@ -88,24 +90,5 @@ abstract class Controller
         }
 
         return $data;
-    }
-
-    public function generarDiferimento($diffCuotas, $diffCapital, $diffInteres, $indiceInicial, $fechaInicial)
-    {
-        $cap = round((float)$diffCapital / $diffCuotas,2);
-        $int = round((float)$diffInteres / $diffCuotas,2);
-
-        $data = new \Illuminate\Database\Eloquent\Collection();
-
-        for ($i = 1; $i <= $diffCuotas; $i++) {
-            $data->push((object)[
-                'nro_cuota' => $i + $indiceInicial,
-                'capital' => $cap,
-                'interes' => $int,
-                'vencimiento' => date('Y/m/15', strtotime($fechaInicial.'+ '. $i.'month')),
-                'estado' => 'ACTIVO'
-            ]);
-        }
-        return new \Illuminate\Database\Eloquent\Collection($data);
     }
 }

@@ -13,6 +13,19 @@ return new class extends Migration
     {
         Schema::create('readjustments', function (Blueprint $table) {
             $table->id();
+            $table->string('idepro')->nullable();
+            $table->date('fecha_ppg')->nullable();
+            $table->string('prppgnpag')->nullable();
+            $table->double('prppgcapi')->nullable();
+            $table->double('prppginte')->nullable();
+            $table->double('prppggral')->nullable();
+            $table->double('prppgsegu')->nullable();
+            $table->double('prppgotro')->nullable();
+            $table->double('prppgcarg')->nullable();
+            $table->double('prppgtota')->nullable();
+            $table->string('prppgahor')->nullable();
+            $table->string('prppgmpag')->nullable();
+            $table->string('estado')->default('ACTIVO');
             $table->timestamps();
         });
     }
