@@ -1,26 +1,9 @@
 <x-app-layout>
     <div class="mt-4 overflow-x-scroll">
-        <div class="ml-4">
-            <button type="button" onclick="history.back();">
-                <svg width="45px" height="45px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                    <g id="SVGRepo_iconCarrier">
-                        <path opacity="0.4"
-                            d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
-                            fill="#292D32"></path>
-                        <path
-                            d="M13.2599 16.2802C13.0699 16.2802 12.8799 16.2102 12.7299 16.0602L9.19992 12.5302C8.90992 12.2402 8.90992 11.7602 9.19992 11.4702L12.7299 7.94016C13.0199 7.65016 13.4999 7.65016 13.7899 7.94016C14.0799 8.23016 14.0799 8.71016 13.7899 9.00016L10.7899 12.0002L13.7899 15.0002C14.0799 15.2902 14.0799 15.7702 13.7899 16.0602C13.6499 16.2102 13.4599 16.2802 13.2599 16.2802Z"
-                            fill="#292D32"></path>
-                    </g>
-                </svg>
-            </button>
-        </div>
         <div class="grid sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-2 w-full px-4">
             <div class="bg-white shadow-lg rounded-lg p-6 mb-4 h-fit" id="profile_preview">
                 <div class="flex items-center">
-                    <svg width="105px" height="105px" viewBox="0 0 24 24" fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
+                    <svg width="105px" height="105px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                         <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
                         <g id="SVGRepo_iconCarrier">
@@ -122,8 +105,8 @@
                                 <label for="capital_inicial" class="block text-gray-700 font-bold mb-2">
                                     Capital Inicial:
                                 </label>
-                                <input type="text" inputmode="decimal" id="capital_inicial"
-                                    name="capital_inicial" placeholder="Ej: 25000.75" pattern="[0-9]*[.,]?[0-9]*"
+                                <input type="text" inputmode="decimal" id="capital_inicial" name="capital_inicial"
+                                    placeholder="Ej: 25000.75" pattern="[0-9]*[.,]?[0-9]*"
                                     class="appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:bg-white"
                                     required value="{{ $beneficiary->total_activado + $totalVouchers }}"
                                     title="Saldo restante de (Monto Activado menos Monto en Cuotas).">
@@ -206,10 +189,10 @@
                     </div>
                 </div>
             </div>
-            <div class="bg-white shadow-lg rounded-lg p-6 mb-4" id="profile_payments">
+            <div class="bg-white shadow-lg rounded-lg p-4" id="profile_payments">
                 <table class="w-full overflow-hidden rounded-lg dark:divide-gray-700">
                     <thead>
-                        <tr class="text-lg text-gray-800 dark:text-gray-400 bg-gray-200 dark:bg-gray-800"">
+                        <tr class="text-gray-800 dark:text-gray-400 bg-gray-200 dark:bg-gray-800"">
                             <th class="px-4 py-4 font-medium text-gray-500 whitespace-nowrap">
                                 N° Cuota
                             </th>
@@ -269,10 +252,10 @@
                                             @foreach ($v->payments as $p)
                                                 <x-dropdown-link>
                                                     <span class="cursor-pointer text-xs">
-                                                        {{ $p->prtdtdesc}}
+                                                        {{ $p->prtdtdesc }}
                                                     </span>
                                                     <span class="cursor-pointer text-xs font-bold">
-                                                        {{number_format($p->montopago * -1, 2) }}
+                                                        {{ number_format($p->montopago * -1, 2) }}
                                                     </span>
                                                 </x-dropdown-link>
                                             @endforeach
@@ -291,6 +274,69 @@
                     </tfoot>
                 </table>
             </div>
+        </div>
+        <div class="bg-white shadow-lg rounded-lg p-6 m-4" id="profile_plans">
+            <table class="w-full overflow-hidden rounded-lg dark:divide-gray-700">
+                <thead>
+                    <tr class="text-gray-800 dark:text-gray-400 bg-gray-200 dark:bg-gray-800">
+                        <th class="px-4 py-4 font-medium text-gray-500 whitespace-nowrap">
+                            #
+                        </th>
+                        <th>Cuota</th>
+                        <th>
+                            <span class="block">
+                                Capital
+                            </span>
+                            <span class="block text-green-600">
+                                ({{ $plans->sum('prppgcapi') }})
+                            </span>
+                        </th>
+                        <th>
+                            <span class="block">
+                                Interés
+                            </span>
+                            <hr>
+                            <span class="block text-green-600">
+                                ({{ $plans->sum('prppginte') }})
+                            </span>
+                        </th>
+                        <th>
+                            <span class="block">
+                                Seguro Desgravamen
+                            </span>
+                            <hr>
+                            <span class="block text-green-600">
+                                ({{ $plans->sum('prppgsegu') }})
+                            </span>
+                        </th>
+                        <th>
+                            <span class="block">
+                                Total a Pagar
+                            </span>
+                            <hr>
+                            <span class="block text-green-600">
+                                ({{ $plans->sum('prppgtota') }})
+                            </span>
+                        </th>
+                        <th>Vencimiento</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @foreach ($plans as $p)
+                        <tr class="border-b-2 px-3 py-4 text-center text-sm p-2 h-auto">
+                            <td class="px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
+                                {{ $loop->index + 1 }}
+                            </td>
+                            <td>{{ $p->prppgnpag }}</td>
+                            <td>{{ $p->prppgcapi }}</td>
+                            <td>{{ $p->prppginte }}</td>
+                            <td>{{ $p->prppgsegu }}</td>
+                            <td>{{ $p->prppgtota }}</td>
+                            <td>{{ $p->fecha_ppg }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
     </div>
 </x-app-layout>

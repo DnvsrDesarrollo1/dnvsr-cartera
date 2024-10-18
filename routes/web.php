@@ -30,6 +30,7 @@ Route::middleware([
     Route::get('plan/{plan}/editar', [\App\Http\Controllers\PlanController::class, 'edit'])->name('plan.edit');
     Route::post('plan', [\App\Http\Controllers\PlanController::class, 'store'])->name('plan.store');
     Route::post('plan/reajuste', [\App\Http\Controllers\PlanController::class, 'reajuste'])->name('plan.reajuste');
+    Route::get('plan/ajuste-masivo/{data}', [\App\Http\Controllers\PlanController::class, 'bulkAdjust'])->name('plan.bulk-adjust');
     Route::put('plan/{plan}', [\App\Http\Controllers\PlanController::class, 'update'])->name('plan.update');
     Route::delete('plan/{plan}', [\App\Http\Controllers\PlanController::class, 'destroy'])->name('plan.destroy');
 

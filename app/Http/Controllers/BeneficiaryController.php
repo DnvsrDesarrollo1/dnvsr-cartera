@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Beneficiary;
-use App\Models\Voucher;
-use App\Models\Payment;
 use DateTime;
 use Illuminate\Http\Request;
 
@@ -12,12 +9,12 @@ class BeneficiaryController extends Controller
 {
     public function index()
     {
-        $beneficiaries = Beneficiary::orderBy('estado', 'asc')->paginate(500);
+        $beneficiaries = \App\Models\Beneficiary::orderBy('estado', 'asc')->paginate(500);
 
-        $cancelados = Beneficiary::where('estado', 'like', '%CANCELADO%')->count();
-        $vigentes = Beneficiary::where('estado', 'like', '%VIGENTE%')->count();
-        $ejecuciones = Beneficiary::where('estado', 'like', '%EJECUCION%')->count();
-        $vencidos = Beneficiary::where('estado', 'like', '%VENCIDO%')->count();
+        $cancelados = \App\Models\Beneficiary::where('estado', 'like', '%CANCELADO%')->count();
+        $vigentes = \App\Models\Beneficiary::where('estado', 'like', '%VIGENTE%')->count();
+        $ejecuciones = \App\Models\Beneficiary::where('estado', 'like', '%EJECUCION%')->count();
+        $vencidos = \App\Models\Beneficiary::where('estado', 'like', '%VENCIDO%')->count();
 
         return view('beneficiaries.index', compact(
                                                             'beneficiaries',
@@ -34,12 +31,24 @@ class BeneficiaryController extends Controller
 
     public function show($cedula)
     {
-        $beneficiary = Beneficiary::where('ci', $cedula)->first();
-        $vouchers = Voucher::with('payments')
+        $beneficiary = \App\Models\Beneficiary::where('ci', $cedula)
+                                ->first();
+
+        $vouchers = \App\Models\Voucher::with('payments')
             ->where('numprestamo', $beneficiary->idepro)
             ->paginate(15);
 
-        $totalVouchers = Voucher::where('numprestamo', $beneficiary->idepro)->sum('montopago');
+        $plans = \App\Models\Readjustment::where('idepro', $beneficiary->idepro)
+                                        ->where('estado', 'like', '%ACTIVO%')
+                                        ->get();
+
+        if ($plans->count() <= 0) {
+            $plans = \App\Models\Plan::where('idepro', $beneficiary->idepro)
+                    ->where('estado', 'like', '%ACTIVO%')
+                    ->get();
+        }
+
+        $totalVouchers = \App\Models\Voucher::where('numprestamo', $beneficiary->idepro)->sum('montopago');
 
         $paymentTotals = $this->calculatePaymentTotals($beneficiary->idepro);
 
@@ -48,6 +57,7 @@ class BeneficiaryController extends Controller
         return view('beneficiaries.show', compact(
             'beneficiary',
             'vouchers',
+            'plans',
             'totalVouchers',
             'mesesRestantes',
             'paymentTotals'
@@ -65,13 +75,13 @@ class BeneficiaryController extends Controller
 
     private function sumPaymentsByType($idepro, $type)
     {
-        return Payment::where('numprestamo', $idepro)
+        return \App\Models\Payment::where('numprestamo', $idepro)
             ->where('prtdtdesc', 'like', "%$type%")
             ->where('montopago', '<', 0)
             ->sum('montopago');
     }
 
-    private function calculateRemainingMonths(Beneficiary $beneficiary)
+    private function calculateRemainingMonths(\App\Models\Beneficiary $beneficiary)
     {
         $now = new DateTime('now');
         $endDate = (new DateTime($beneficiary->fecha_activacion))

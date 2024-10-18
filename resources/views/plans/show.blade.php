@@ -15,16 +15,56 @@
         </div>
         <div class="overflow-x-auto shadow-lg rounded-lg overflow-y-auto">
             <table class="w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead class="bg-gray-50">
-                    <tr class="text-lg text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 border-2">
+                <thead>
+                    <tr class="text-gray-800 dark:text-gray-400 bg-gray-200 dark:bg-gray-800">
                         <th class="px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">#</th>
                         <th>Indice Cuota</th>
                         <th>Saldo Inicial</th>
-                        <th>Amortizacion</th>
-                        <th>Abono Capital</th>
-                        <th>Interes</th>
-                        <th>Seguro</th>
-                        <th>Total a Pagar</th>
+                        <th>
+                            <span class="block">
+                                Amortización
+                            </span>
+                            <hr>
+                            <span class="block text-green-600">
+                                ({{ number_format($data->sum('amortizacion'), 2, '.', ',') }})
+                            </span>
+                        </th>
+                        <th>
+                            <span class="block">
+                                Abono Capital
+                            </span>
+                            <hr>
+                            <span class="block text-green-600">
+                                ({{ number_format($data->sum('abono_capital'), 2, '.', ',') }})
+                            </span>
+                        </th>
+                        <th>
+                            <span class="block">
+                                Interés
+                            </span>
+                            <hr>
+                            <span class="block text-green-600">
+                                ({{ number_format($data->sum('interes'), 2, '.', ',') }})
+                            </span>
+                        </th>
+                        <th>
+                            <span class="block">
+                                Seguro
+                            </span>
+                            <hr>
+                            <span class="block text-green-600">
+                                ({{ number_format($data->sum('seguro'), 2, '.', ',') }})
+                            </span>
+                        </th>
+                        <th>
+                            <span class="block">
+                                Total a Pagar
+                            </span>
+                            <hr>
+                            <span class="block text-green-600">
+                                ({{ number_format($data->sum('total_cuota'), 2, '.', ',') }})
+                            </span>
+                        </th>
                         <th>Saldo Final</th>
                         <th>Fecha Vencimiento</th>
                     </tr>

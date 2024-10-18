@@ -89,7 +89,6 @@ class ExcelController extends Controller
             File::delete($filePath);
 
             return redirect()->route('dashboard')->with('success', 'Importación exitosa');
-
         } catch (\Illuminate\Database\QueryException $e) {
             \Illuminate\Support\Facades\Log::error('Error during data import: ' . $e->getMessage());
 
@@ -198,9 +197,12 @@ class ExcelController extends Controller
         $data->prepend(collect($headers));
 
         $d1 = $this->generateExcelFile($data, $title, $fileName);
-        $d2 = $this->generateExcelFile($diferimento, 'diferimiento', 'exportacion_' . uniqid() . '_diferimiento.xlsx');
-
-        return $d1 . ' --- ' . $d2;
+        if ($diferimento->count() > 0) {
+            $d2 = $this->generateExcelFile($diferimento, 'diferimiento', 'exportacion_' . uniqid() . '_diferimiento.xlsx');
+            return $d1 . '--- ' . $d2;
+        } else {
+            return $d1;
+        }
     }
 
     private function generateExcelFile($data, $sheetTitle, $fileName)
