@@ -40,12 +40,12 @@ class BeneficiaryController extends Controller
 
         $plans = \App\Models\Readjustment::where('idepro', $beneficiary->idepro)
                                         ->where('estado', 'like', '%ACTIVO%')
-                                        ->get();
+                                        ->paginate(15);
 
         if ($plans->count() <= 0) {
             $plans = \App\Models\Plan::where('idepro', $beneficiary->idepro)
                     ->where('estado', 'like', '%ACTIVO%')
-                    ->get();
+                    ->paginate(15);
         }
 
         $totalVouchers = \App\Models\Voucher::where('numprestamo', $beneficiary->idepro)->sum('montopago');

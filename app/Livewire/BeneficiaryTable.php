@@ -24,8 +24,8 @@ final class BeneficiaryTable extends PowerGridComponent
             PowerGrid::header(),
 
             PowerGrid::footer()
-                ->showPerPage(10)
-                ->showRecordCount()
+                ->showPerPage()
+                ->showRecordCount('short')
         ];
     }
 
@@ -51,6 +51,7 @@ final class BeneficiaryTable extends PowerGridComponent
             ->add('fecha_nacimiento')
             ->add('monto_credito')
             ->add('monto_activado')
+            ->add('gastos_judiciales')
             ->add('saldo_credito')
             ->add('fecha_activacion');
     }
@@ -75,16 +76,18 @@ final class BeneficiaryTable extends PowerGridComponent
             Column::make('Estado', 'estado')
                 ->sortable(),
 
-            Column::make('IEF', 'entidad_financiera')
+            Column::make('EIF', 'entidad_financiera')
                 ->sortable(),
 
             Column::make('Total Activado', 'total_activado')
                 ->sortable(),
 
+            Column::make('Gastos Judiciales', 'gastos_judiciales'),
+
             Column::make('Saldo Crédito', 'saldo_credito')
                 ->sortable(),
 
-            Column::make('Fecha Activación', 'fecha_activacion_formatted', 'fecha_activacion')
+            Column::make('Fecha Activación', 'fecha_activacion')
                 ->sortable(),
 
             Column::action('')

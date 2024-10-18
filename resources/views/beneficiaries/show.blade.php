@@ -216,7 +216,7 @@
                                 <td>{{ $v->fecha_pago }}</td>
                                 <td>{{ $v->hora_pago }}</td>
                                 <td>{{ $v->descripcion }}</td>
-                                <td>{{ 'Bs. ' . number_format($v->montopago * -1, 2) }}</td>
+                                <td>{{ 'Bs. ' . number_format($v->montopago, 2) }}</td>
                                 <td class="h-auto flex flex-row justify-center py-2">
                                     <x-dropdown align="right" width="40">
                                         <x-slot name="trigger">
@@ -287,36 +287,36 @@
                             <span class="block">
                                 Capital
                             </span>
-                            <span class="block text-green-600">
-                                ({{ $plans->sum('prppgcapi') }})
-                            </span>
+                            {{-- <span class="block text-green-600">
+                                ({{ number_format($plans->sum('prppgcapi'), 2) }})
+                            </span> --}}
                         </th>
                         <th>
                             <span class="block">
                                 Interés
                             </span>
-                            <hr>
+                            {{-- <hr>
                             <span class="block text-green-600">
-                                ({{ $plans->sum('prppginte') }})
-                            </span>
+                                ({{ number_format($plans->sum('prppginte'), 2) }})
+                            </span> --}}
                         </th>
                         <th>
                             <span class="block">
                                 Seguro Desgravamen
                             </span>
-                            <hr>
+                            {{-- <hr>
                             <span class="block text-green-600">
-                                ({{ $plans->sum('prppgsegu') }})
-                            </span>
+                                ({{ number_format($plans->sum('prppgsegu'), 2) }})
+                            </span> --}}
                         </th>
                         <th>
                             <span class="block">
                                 Total a Pagar
                             </span>
-                            <hr>
+                            {{-- <hr>
                             <span class="block text-green-600">
-                                ({{ $plans->sum('prppgtota') }})
-                            </span>
+                                ({{ number_format($plans->sum('prppgtota'), 2) }})
+                            </span> --}}
                         </th>
                         <th>Vencimiento</th>
                     </tr>
@@ -328,14 +328,21 @@
                                 {{ $loop->index + 1 }}
                             </td>
                             <td>{{ $p->prppgnpag }}</td>
-                            <td>{{ $p->prppgcapi }}</td>
-                            <td>{{ $p->prppginte }}</td>
-                            <td>{{ $p->prppgsegu }}</td>
-                            <td>{{ $p->prppgtota }}</td>
+                            <td>{{ number_format($p->prppgcapi, 2) }}</td>
+                            <td>{{ number_format($p->prppginte, 2) }}</td>
+                            <td>{{ number_format($p->prppgsegu, 2) }}</td>
+                            <td>{{ number_format($p->prppgtota, 2) }}</td>
                             <td>{{ $p->fecha_ppg }}</td>
                         </tr>
                     @endforeach
                 </tbody>
+                <tfoot>
+                    <tr class="text-lg text-gray-500 bg-gray-100">
+                        <th colspan="12">
+                            {!! $plans->render() !!}
+                        </th>
+                    </tr>
+                </tfoot>
             </table>
         </div>
     </div>

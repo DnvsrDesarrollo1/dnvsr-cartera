@@ -30,6 +30,7 @@ class Beneficiary extends Model
         'monto_credito',
         'monto_activado',
         'total_activado',
+        'gastos_judiciales',
         'saldo_credito',
         'monto_recuperado',
         'fecha_activacion',

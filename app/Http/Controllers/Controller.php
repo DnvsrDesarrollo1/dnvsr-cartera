@@ -106,6 +106,6 @@ abstract class Controller
                 'estado' => 'ACTIVO'
             ]);
         }
-        return new \Illuminate\Database\Eloquent\Collection($data);
+        return $data;
     }
 }
