@@ -50,17 +50,12 @@ class ExcelController extends Controller
 
         // DELETE 'id', 'created_at', 'updated_at' FROM $HEADERS
         $headers = $headers->reject(function ($item, $key) {
-            return in_array($item, ['id', 'created_at', 'updated_at']);
+            return in_array($item, ['id', 'cod_promotor', 'cod_cristorey', 'cod_fondesif', 'cod_smp', 'created_at', 'updated_at']);
         });
 
         $headers = collect((object)$headers->flatten());
 
         $data = new \Illuminate\Database\Eloquent\Collection();
-
-        //consider that, $headers has {'col1', 'col2', 'col3'} and $collection has {'0' => 'value1', '1' => 'value2', '3' => 'value3'}
-        //i need to sustitute '0' with 'col1', '1' with 'col2', '3' with 'col3' and so on the $data collection for export to excel file
-
-        //return 'cols ' . count($headers) . ' rows ' . count($collection);
 
         foreach ($collection as $item) {
             $row = new \stdClass();
@@ -72,6 +67,11 @@ class ExcelController extends Controller
                     $value = $this->convertToMySQLDate($value);
                 }
 
+                // Handle empty strings for numeric fields
+                if ($value === '') {
+                    $value = null;
+                }
+
                 $row->{$header} = $value;
             }
             $data->push($row);
@@ -80,7 +80,10 @@ class ExcelController extends Controller
         // prepare $data to be created at $dynaModel's table
 
         $dataArray = $data->map(function ($item) {
-            return (array)$item;
+            $itemArray = (array)$item;
+            // Remove 'id' from the array if it exists
+            unset($itemArray['id']);
+            return $itemArray;
         })->toArray();
 
         try {
@@ -88,7 +91,7 @@ class ExcelController extends Controller
 
             File::delete($filePath);
 
-            return redirect()->route('dashboard')->with('success', 'Importación exitosa');
+            return redirect()->route('importaciones')->with('success', 'Se lograron importar ' . count($dataArray) . ' registros');
         } catch (\Illuminate\Database\QueryException $e) {
             \Illuminate\Support\Facades\Log::error('Error during data import: ' . $e->getMessage());
 
@@ -96,7 +99,7 @@ class ExcelController extends Controller
             File::delete($filePath);
 
             // Redirect back with an error message
-            return redirect()->route('dashboard')->with('error', 'Motivo de la falla:' . $e->getMessage());
+            return redirect()->route('importaciones')->with('error', 'Motivo de la falla: ' . $e->getMessage());
         }
     }
 
@@ -116,24 +119,41 @@ class ExcelController extends Controller
     public function exportCollection(Request $request, $title = 'datos')
     {
         $fileName = 'exportacion_' . uniqid() . '.xlsx';
+        $idepro = $request->input('idepro');
+        $userId = auth()->id();
 
-        $diferimento = new \Illuminate\Database\Eloquent\Collection();
+        $data = $this->generatePlanData($request);
+        $diferimento = $this->generateDiferimentoIfNeeded($request, $data);
 
-        $data = $this->generarPlan(
+        $this->deactivateExistingRecords($idepro, $userId);
+        $this->createNewRecords($data, $diferimento, $request, $userId);
+
+        $headers = $this->prepareHeaders($data);
+        $data->prepend(collect($headers));
+
+        $excelFilePath = $this->generateExcelFile($data, $title, $fileName);
+
+        return response()->download($excelFilePath)->deleteFileAfterSend(true);
+    }
+
+    private function generatePlanData(Request $request)
+    {
+        return $this->generarPlan(
             $request->input('capital_inicial'),
+            $request->input('gastos_judiciales'),
             $request->input('meses'),
             $request->input('taza_interes'),
+            $request->input('seguro'),
             $request->input('correlativo'),
             $request->input('plazo_credito'),
             $request->input('fecha_inicio')
         );
+    }
 
-        if (
-            $request->input('diff_cuotas') and
-            $request->input('diff_capital') and
-            $request->input('diff_interes')
-        ) {
-            $diferimento = $this->generarDiferimento(
+    private function generateDiferimentoIfNeeded(Request $request, $data)
+    {
+        if ($request->filled(['diff_cuotas', 'diff_capital', 'diff_interes'])) {
+            return $this->generarDiferimento(
                 $request->input('diff_cuotas'),
                 $request->input('diff_capital'),
                 $request->input('diff_interes'),
@@ -141,68 +161,58 @@ class ExcelController extends Controller
                 $data->last()->vencimiento
             );
         }
+        return collect();
+    }
 
-        $helperData = \App\Models\Helper::where('idepro', $request->input('idepro'))->get();
-        foreach ($helperData as $h) {
-            $h->estado = 'INACTIVO';
-            $h->save();
+    private function deactivateExistingRecords($idepro, $userId)
+    {
+        $models = [\App\Models\Helper::class, \App\Models\Plan::class, \App\Models\Readjustment::class];
+
+        foreach ($models as $model) {
+            $model::where('idepro', $idepro)->update([
+                'estado' => 'INACTIVO',
+                'user_id' => $userId
+            ]);
         }
+    }
 
-        $helperData = null;
-
-        $planData = \App\Models\Plan::where('idepro', $request->input('idepro'))->get();
-
-        foreach ($planData as $plan) {
-            $plan->estado = 'INACTIVO';
-            $plan->save();
-        }
-
-        $planData = null;
-
-        $readjustmentData = \App\Models\Readjustment::where('idepro', $request->input('idepro'))->get();
-
-        foreach ($readjustmentData as $readjustment) {
-            $readjustment->estado = 'INACTIVO';
-            $readjustment->save();
-        }
-
-        $readjustmentData = null;
+    private function createNewRecords($data, $diferimento, Request $request, $userId)
+    {
+        $dynaModel = $request->input('correlativo') ? 'App\\Models\\Readjustment' : 'App\\Models\\Plan';
+        $idepro = $request->input('idepro');
 
         foreach ($data as $d) {
-            \App\Models\Readjustment::create([
-                'idepro' => $request->input('idepro'),
+            $dynaModel::create([
+                'idepro' => $idepro,
                 'fecha_ppg' => $d->vencimiento,
                 'prppgnpag' => $d->nro_cuota,
                 'prppgcapi' => $d->abono_capital,
                 'prppginte' => $d->interes,
                 'prppgsegu' => $d->seguro,
+                'prppgotro' => $d->gastos_judiciales,
                 'prppgtota' => $d->total_cuota,
                 'estado' => 'ACTIVO',
+                'user_id' => $userId,
             ]);
         }
 
         foreach ($diferimento as $d) {
             \App\Models\Helper::create([
-                'idepro' => $request->input('idepro'),
+                'idepro' => $idepro,
                 'indice' => $d->nro_cuota,
                 'capital' => $d->capital,
                 'interes' => $d->interes,
                 'vencimiento' => $d->vencimiento,
                 'estado' => $d->estado,
+                'user_id' => $userId,
             ]);
         }
+    }
 
+    private function prepareHeaders($data)
+    {
         $headers = collect($data->first())->keys();
-        $headers = $headers->combine($headers);
-        $data->prepend(collect($headers));
-
-        $d1 = $this->generateExcelFile($data, $title, $fileName);
-        if ($diferimento->count() > 0) {
-            $d2 = $this->generateExcelFile($diferimento, 'diferimiento', 'exportacion_' . uniqid() . '_diferimiento.xlsx');
-            return $d1 . '--- ' . $d2;
-        } else {
-            return $d1;
-        }
+        return $headers->combine($headers);
     }
 
     private function generateExcelFile($data, $sheetTitle, $fileName)

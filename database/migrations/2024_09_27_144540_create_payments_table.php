@@ -13,25 +13,23 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-                $table->string('numtramite', 255)->nullable()->default(null);
-                $table->string('prtdtitem', 255)->nullable()->default('0');
-                $table->string('prtdtttrn', 255)->nullable()->default('0');
-                $table->string('numprestamo', 255)->nullable()->default(null);
-                $table->date('fecha_pago')->nullable()->default(null);
-                $table->string('prtdtpref', 255)->nullable()->default(null);
-                $table->string('prtdtccon', 255)->nullable()->default(null);
-                $table->string('prtdtdesc', 255)->nullable()->default(null);
-                $table->double('montopago', 11, 2)->nullable()->default(null);
-                $table->string('prtdtcmon', 255)->nullable()->default(null);
-                $table->string('prtdtmrcb', 255)->nullable()->default(null);
-                $table->string('prtdtuser', 255)->nullable()->default(null);
-                $table->time('hora_pago')->nullable()->default(null);
-                $table->date('prtdtfpro')->nullable()->default(null);
-                $table->integer('prtdtnpag')->nullable()->default(null);
-                $table->string('agencia_pago', 255)->nullable()->default(null);
-                $table->string('depto_pago', 255)->nullable()->default(null);
-                $table->string('observacion', 255)->nullable()->default(null);
-            $table->timestamps();
+                $table->string('numtramite');
+                $table->string('numprestamo');
+                $table->string('prtdtpref')->nullable();
+                $table->string('prtdtccon')->nullable();
+                $table->date('fecha_pago');
+                $table->string('prtdtdesc')->nullable();
+                $table->decimal('montopago', 10, 2);
+                $table->string('prtdtuser')->nullable();
+                $table->time('hora_pago')->nullable();
+                $table->date('prtdtfpro')->nullable();
+                $table->integer('prtdtnpag')->nullable();
+                $table->string('depto_pago')->nullable();
+                $table->text('observacion')->nullable();
+                $table->timestamps();
+
+            $table->foreign('numprestamo')->references('idepro')->on('beneficiaries');
+            $table->foreign('numtramite')->references('numtramite')->on('vouchers');
         });
     }
 

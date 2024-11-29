@@ -23,6 +23,8 @@ class Plan extends Model
         'prppgtota',
         'prppgahor',
         'prppgmpag',
+        'estado',
+        'user_id'
     ];
 
     public function beneficiary(): BelongsTo

@@ -24,6 +24,7 @@ class Readjustment extends Model
         'prppgahor',
         'prppgmpag',
         'estado',
+        'user_id',
     ];
 
     protected $guarded = [];

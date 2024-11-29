@@ -1,21 +1,36 @@
 <x-app-layout>
-    <div class="mt-4 overflow-x-scroll">
-        <div class="grid sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-2 w-full px-4">
+    <div class="mt-4">
+        <div class="w-full px-4 grid sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-2">
             <div class="bg-white shadow-lg rounded-lg p-6 mb-4 h-fit" id="profile_preview">
-                <div class="flex items-center">
-                    <svg width="105px" height="105px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                        <g id="SVGRepo_iconCarrier">
-                            <path
-                                d="M14 19.2857L15.8 21L20 17M16.5 14.4018C16.2052 14.2315 15.8784 14.1098 15.5303 14.0472C15.4548 14.0337 15.3748 14.024 15.2842 14.0171C15.059 14 14.9464 13.9915 14.7961 14.0027C14.6399 14.0143 14.5527 14.0297 14.4019 14.0723C14.2569 14.1132 13.9957 14.2315 13.4732 14.4682C12.7191 14.8098 11.8817 15 11 15C10.1183 15 9.28093 14.8098 8.52682 14.4682C8.00429 14.2315 7.74302 14.1131 7.59797 14.0722C7.4472 14.0297 7.35983 14.0143 7.20361 14.0026C7.05331 13.9914 6.94079 14 6.71575 14.0172C6.6237 14.0242 6.5425 14.0341 6.46558 14.048C5.23442 14.2709 4.27087 15.2344 4.04798 16.4656C4 16.7306 4 17.0485 4 17.6841V19.4C4 19.9601 4 20.2401 4.10899 20.454C4.20487 20.6422 4.35785 20.7951 4.54601 20.891C4.75992 21 5.03995 21 5.6 21H10.5M15 7C15 9.20914 13.2091 11 11 11C8.79086 11 7 9.20914 7 7C7 4.79086 8.79086 3 11 3C13.2091 3 15 4.79086 15 7Z"
-                                stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            </path>
-                        </g>
-                    </svg>
+                <div class="flex items-center justify-center mb-2">
+                    @if ($beneficiary->genero == 'MA')
+                        <svg fill="#000000" width="64px" height="64px" viewBox="-3.2 -3.2 38.40 38.40" version="1.1"
+                            xmlns="http://www.w3.org/2000/svg" stroke="#000000" stroke-width="0.00032">
+                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"
+                                stroke="#CCCCCC" stroke-width="3.008"></g>
+                            <g id="SVGRepo_iconCarrier">
+                                <path
+                                    d="M15.992 2c3.396 0 6.998 2.86 6.998 4.995v4.997c0 1.924-0.8 5.604-2.945 7.293-0.547 0.43-0.831 1.115-0.749 1.807 0.082 0.692 0.518 1.291 1.151 1.582l8.703 4.127c0.068 0.031 0.834 0.16 0.834 1.23l0.001 1.952-27.984 0.002v-2.029c0-0.795 0.596-1.045 0.835-1.154l8.782-4.145c0.63-0.289 1.065-0.885 1.149-1.573s-0.193-1.37-0.733-1.803c-2.078-1.668-3.046-5.335-3.046-7.287v-4.997c0.001-2.089 3.638-4.995 7.004-4.995zM15.992-0c-4.416 0-9.004 3.686-9.004 6.996v4.997c0 2.184 0.997 6.601 3.793 8.847l-8.783 4.145s-1.998 0.89-1.998 1.999v3.001c0 1.105 0.895 1.999 1.998 1.999h27.986c1.105 0 1.999-0.895 1.999-1.999v-3.001c0-1.175-1.999-1.999-1.999-1.999l-8.703-4.127c2.77-2.18 3.708-6.464 3.708-8.865v-4.997c0-3.31-4.582-6.995-8.998-6.995v0z">
+                                </path>
+                            </g>
+                        </svg>
+                    @else
+                        <svg fill="#000000" width="64px" height="64px" viewBox="-3.2 -3.2 38.40 38.40" version="1.1"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                            <g id="SVGRepo_iconCarrier">
+                                <path
+                                    d="M30.001 25.084l-8.703-4.127c1.161-0.582 5.695-0.767 6.070-1.79 0 0-1.792-2.75-2.229-6.323-0.17-1.386-0.461-3.206-0.75-5.769-0.469-4.157-3.965-7.075-8.381-7.075h-0.016c-4.416 0-7.912 2.919-8.38 7.075-0.289 2.563-0.58 4.382-0.75 5.769-0.438 3.573-2.229 6.323-2.229 6.323 0.375 1.023 4.909 1.208 6.071 1.79l-8.704 4.128s-1.999 0.702-1.999 2.358v2.642c0 1.105 0.894 1.916 1.999 1.916h28.002c1.105 0 1.999-0.811 1.999-1.916v-2.642c0-1.657-1.999-2.358-1.999-2.358zM2 30v-2.558c0-0.107 0.378-0.363 0.685-0.48 0.067-0.023 0.107-0.042 0.17-0.072l8.703-4.127c0.691-0.327 1.135-1.021 1.144-1.786s-0.42-1.468-1.104-1.81c-0.678-0.34-1.573-0.508-2.976-0.751-0.333-0.058-0.788-0.14-1.229-0.229 0.572-1.285 1.205-3.081 1.454-5.114 0.062-0.506 0.14-1.075 0.229-1.706 0.152-1.073 0.339-2.434 0.524-4.069 0.349-3.090 2.977-5.299 6.393-5.299h0.016c3.416 0 6.045 2.209 6.393 5.299 0.184 1.635 0.372 2.997 0.523 4.069 0.088 0.63 0.167 1.2 0.229 1.706 0.249 2.032 0.882 3.829 1.454 5.114-0.442 0.088-0.896 0.17-1.23 0.229-1.404 0.243-2.299 0.411-2.977 0.751-0.683 0.343-1.111 1.046-1.104 1.811 0.009 0.764 0.452 1.459 1.143 1.786l8.703 4.127c0.063 0.030 0.104 0.049 0.17 0.072 0.308 0.117 0.64 0.373 0.686 0.48l0.001 2.557h-28.001z">
+                                </path>
+                            </g>
+                        </svg>
+                    @endif
                     <div class="ml-4">
-                        <p class="text-lg font-semibold text-gray-800">{{ $beneficiary->nombre }} -
-                            {{ $beneficiary->ci . " ($beneficiary->complemento) " . $beneficiary->expedido }}</p>
+                        <p class="text-lg font-semibold text-gray-800">
+                            {{ $beneficiary->nombre }} - {{ $beneficiary->ci }} {{$beneficiary->complemento}} {{ $beneficiary->expedido }}
+                        </p>
                         <p class="text-gray-600">
                             <i>
                                 COD.CREDITO: {{ $beneficiary->idepro }}
@@ -24,56 +39,78 @@
                     </div>
                 </div>
                 <hr>
-                <div class="flex justify-between mt-4">
-                    <div>
-                        <p class="text-gray-600">Estado de Credito</p>
-                        <p class="text-gray-800">{{ $beneficiary->estado }}</p>
+                <div class="mt-6 grid grid-cols-2 gap-2">
+                    <div class="bg-gray-100 rounded-lg p-4 shadow">
+                        <h3 class="font-semibold text-gray-700 mb-2">Estado de Crédito</h3>
+                        <p class="font-bold {{ $beneficiary->estado == 'CANCELADO' ? 'text-green-500' : '' }}">
+                            {{ $beneficiary->estado }}</p>
                     </div>
-                    <div>
-                        <p class="text-gray-600">Proyecto</p>
-                        <p class="text-gray-800">{{ $beneficiary->proyecto }}</p>
+                    <div class="bg-gray-100 rounded-lg p-4 shadow">
+                        <h3 class="font-semibold text-gray-700 mb-2">Proyecto</h3>
+                        <p class="font-bold">{{ $beneficiary->proyecto }}</p>
                     </div>
-                </div>
-                <div class="flex justify-between mt-4">
-                    <div>
-                        <p class="text-gray-600">Total Activado</p>
-                        <p class="text-gray-800">{{ 'Bs. ' . number_format($beneficiary->total_activado, 2) }}</p>
+                    <div class="bg-gray-100 rounded-lg p-4 shadow">
+                        <h3 class="font-semibold text-gray-700 mb-2">Departamento</h3>
+                        <p class="font-bold">{{ $beneficiary->departamento }}</p>
                     </div>
-                    <div>
-                        <p class="text-gray-600">Fecha de Activacion</p>
-                        <p class="text-gray-800">{{ $beneficiary->fecha_activacion }}</p>
+                    <div class="bg-gray-100 rounded-lg p-4 shadow">
+                        <h3 class="font-semibold text-gray-700 mb-2">Fecha de Activación</h3>
+                        <p class="font-bold">{{ $beneficiary->fecha_activacion }}</p>
                     </div>
-                </div>
-                <div class="flex justify-between mt-4">
-                    <div>
-                        <p class="text-gray-600">Monto Recuperado (Segun Cartera)</p>
-                        <p class="text-gray-800">{{ 'Bs. ' . number_format($beneficiary->monto_recuperado, 2) }}</p>
+                    <div class="bg-gray-100 rounded-lg p-4 shadow">
+                        <h3 class="font-semibold text-gray-700 mb-2">Total Activado</h3>
+                        <p class="font-bold text-sky-800">Bs.
+                            {{ number_format($beneficiary->total_activado, 2) }}</p>
                     </div>
-                    <div>
-                        <p class="text-gray-600">Departamento</p>
-                        <p class="text-gray-800">{{ $beneficiary->departamento }}</p>
+                    <div class="bg-gray-100 rounded-lg p-4 shadow">
+                        <h3 class="font-semibold text-gray-700 mb-2">Monto Recuperado (Según Cartera)</h3>
+                        <p class="font-bold text-sky-800">Bs.
+                            {{ number_format($beneficiary->monto_recuperado, 2) }}</p>
                     </div>
-                </div>
-                <div class="flex justify-between mt-4">
-                    <div>
-                        <p class="text-gray-600">Total en Pagos</p>
-                        <p class="text-gray-800">
-                            {{ 'Bs. ' . number_format($totalVouchers * -1, 2) }}
+                    <div class="bg-gray-100 rounded-lg p-4 shadow">
+                        <h3 class="font-semibold text-gray-700 mb-2">Total en Pagos</h3>
+                        <p class="font-bold text-sky-800">Bs.
+                            {{ number_format($beneficiary->payments()->where('prtdtdesc', 'like', '%CAPI%')->sum('montopago'), 2) }}
                         </p>
                     </div>
+                    <div class="bg-gray-100 border rounded-lg shadow-md p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                @if ($beneficiary->plans()->count() > 0)
+                                    <livewire:plan-modal lazy :beneficiary="$beneficiary" title="Plan de pagos vigente" />
+                                @else
+                                    <p class="text-gray-500 italic">Sin plan de pagos registrado</p>
+                                @endif
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                @if ($beneficiary->payments()->count() > 0)
+                                    <livewire:payment-modal lazy :beneficiary="$beneficiary"
+                                        title="Historial de pagos y glosas" />
+                                @else
+                                    <p class="text-gray-500 italic">Sin historial de pagos registrado</p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <hr class="mt-4">
-                <div class="flex justify-between mt-4">
-                    <p class=@if ($beneficiary->estado == 'CANCELADO') "text-gray-400" @else "text-gray-600" @endif>
-                        Generador de Planes:</p>
-                    <p class=@if ($beneficiary->estado == 'CANCELADO') "text-gray-400" @else "text-gray-800" @endif>
-                        Permite realizar una nueva serie (plan) de pagos en base a los <b>meses especificados</b> y
-                        el <b>saldo a capital.</b>
+            </div>
+            <div class="bg-gray-100 p-4 rounded-lg shadow" id="profile_management">
+                <div class="bg-white p-4 rounded-lg flex justify-between mt-4">
+                    <h3 class="font-bold">
+                        Generador de Planes de Pago:
+                    </h3>
+                    <p>
+                        @if ($beneficiary->estado != 'CANCELADO')
+                            Permite realizar una nueva serie (plan) de pagos en base a los meses especificados y el
+                            saldo a capital.
+                        @else
+                            No disponible para este beneficiario.
+                        @endif
                     </p>
                 </div>
                 <div x-data="{ show: false }">
                     @if ($beneficiary->estado != 'CANCELADO')
-                        <button @click="show = !show">
+                        <button @click="show = !show" class="rounded-full mt-2 overflow-hidden">
                             <svg x-show="!show" width="64px" height="64px" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -101,14 +138,17 @@
                             @csrf
                             <input type="hidden" name="idepro" value="{{ $beneficiary->idepro }}" />
                             <input type="hidden" name="plazo_credito" value="{{ $beneficiary->plazo_credito }}" />
+                            <input type="hidden" name="gastos_judiciales"
+                                value="{{ $beneficiary->gastos_judiciales }}" />
                             <div class="mb-4">
                                 <label for="capital_inicial" class="block text-gray-700 font-bold mb-2">
                                     Capital Inicial:
                                 </label>
-                                <input type="text" inputmode="decimal" id="capital_inicial" name="capital_inicial"
-                                    placeholder="Ej: 25000.75" pattern="[0-9]*[.,]?[0-9]*"
+                                <input type="text" inputmode="decimal" id="capital_inicial"
+                                    name="capital_inicial" placeholder="Ej: 25000.75" pattern="[0-9]*[.,]?[0-9]*"
                                     class="appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:bg-white"
-                                    required value="{{ $beneficiary->total_activado + $totalVouchers }}"
+                                    required
+                                    value="{{ $beneficiary->total_activado - $beneficiary->payments()->where('prtdtdesc', 'like', '%CAPI%')->sum('montopago') }}"
                                     title="Saldo restante de (Monto Activado menos Monto en Cuotas).">
                             </div>
                             <div class="mb-4">
@@ -120,24 +160,37 @@
                                     required value="{{ $mesesRestantes }}"
                                     title="Meses restantes desde hoy, a la fecha de activacion (+ 20 años).">
                             </div>
-                            <div class="mb-4">
-                                <label for="taza_interes" class="block text-gray-700 font-bold mb-2">
-                                    Interes:
-                                </label>
-                                <input type="number" id="taza_interes" name="taza_interes"
-                                    placeholder="Ej: 13 (no es necesario agregar simbolo %)"
-                                    class="appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:bg-white"
-                                    required value="3" title="Taza por defecto 3%.">
-                                <span>
-                                </span>
+                            <div class="mb-4 grid grid-cols-2 gap-2">
+                                <div>
+                                    <label for="taza_interes" class="block text-gray-700 font-bold mb-2">
+                                        Interes:
+                                    </label>
+                                    <input type="text" inputmode="decimal" name="taza_interes"
+                                        placeholder="Ej: 13 (no es necesario agregar simbolo %)"
+                                        pattern="[0-9]*[.,]?[0-9]*"
+                                        class="appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:bg-white"
+                                        required value="3" title="Taza por defecto 3%.">
+                                </div>
+                                <div>
+                                    <label for="seguro" class="block text-gray-700 font-bold mb-2">
+                                        Seguro:
+                                    </label>
+                                    <input type="text" inputmode="decimal" name="seguro"
+                                        placeholder="Ej: 13 (no es necesario agregar simbolo %)"
+                                        pattern="[0-9]*[.,]?[0-9]*"
+                                        class="appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:bg-white"
+                                        required value="3" title="Seguro por defecto 0.04%.">
+                                </div>
                             </div>
                             <div class="mb-4">
                                 <div class="block mt-4">
-                                    <label for="correlativo" class="flex items-center text-gray-700 font-bold mb-2"
+                                    <label for="correlativo"
+                                        class="bg-gray-100 flex items-center text-gray-700 font-bold mb-2 p-4 border rounded-md cursor-pointer"
                                         title="Desactivado: el n# de cuota empezará desde el 1 para adelante, de lo contrario, desde la ultima cuota correspondiente a los meses restantes.">
                                         <x-checkbox checked id="correlativo" name="correlativo" />
-                                        <span class="ms-2 text-gray-600 dark:text-gray-400">Mantener
-                                            correlatividad</span>
+                                        <span class="ms-2 text-gray-600 dark:text-gray-400">
+                                            Reajuste (marcado) / Activacion (desmarcado)
+                                        </span>
                                     </label>
                                     <label for="fecha_inicio" class="block text-gray-700 font-bold mb-2">
                                         Fecha de inicio:
@@ -165,19 +218,74 @@
                                     title="Interes del diferimiento." />
                             </div>
                             <div class="flex justify-end mt-4">
-                                <button type="submit" class="mt-4">
+                                <button type="submit"
+                                    class="border mt-2 px-2 py-1 rounded-md cursor-pointer shadow-md"
+                                    title="Calcular plan de pagos">
                                     <span>
-                                        <svg fill="#000000" height="75px" width="75px" version="1.1"
-                                            id="Capa_1" xmlns="http://www.w3.org/2000/svg"
-                                            xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 290 290"
-                                            xml:space="preserve">
+                                        <svg fill="#0c272a" version="1.1" id="Layer_1"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            xmlns:xlink="http://www.w3.org/1999/xlink" width="64px" height="64px"
+                                            viewBox="-7 -7 84.00 84.00" enable-background="new 0 0 70 70"
+                                            xml:space="preserve" stroke="#000000" stroke-width="0.0007"
+                                            transform="rotate(0)matrix(1, 0, 0, 1, 0, 0)">
                                             <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                                             <g id="SVGRepo_tracerCarrier" stroke-linecap="round"
-                                                stroke-linejoin="round"></g>
+                                                stroke-linejoin="round" stroke="#CCCCCC" stroke-width="1.26"></g>
                                             <g id="SVGRepo_iconCarrier">
                                                 <g>
-                                                    <path id="circle34669"
-                                                        d="M165.862,46.682c-0.688-0.009-1.376-0.009-2.064,0.002c-13.223,0.207-26.518,4.065-38.291,11.84 c-5.703,3.645-0.079,12.159,5.512,8.344c27.088-17.889,63.28-11.773,82.986,14.023c19.706,25.797,16.09,62.324-8.293,83.754 c-24.383,21.43-61.073,20.33-84.127-2.525c-4.735-4.798-11.88,2.408-7.041,7.102c23.295,23.094,58.803,27.024,86.25,11.193 l53.785,61.211c1.906,2.169,5.248,2.278,7.291,0.236l26.666-26.666c2.016-2.016,1.941-5.306-0.164-7.229l-60.518-55.236 c13.22-24.202,11.725-54.835-5.902-77.91C208.123,56.718,187.193,46.961,165.862,46.682z M162.426,75.754 c-2.76,0.041-4.965,2.31-4.926,5.07v47.5h-7.5v-6.666c0.04-2.818-2.256-5.112-5.074-5.07c-2.76,0.041-4.965,2.31-4.926,5.07v6.666 h-7.5V92.492c0.04-2.818-2.256-5.112-5.074-5.07c-2.76,0.041-4.965,2.31-4.926,5.07v35.832h-7.5v-18.332 c0.04-2.818-2.256-5.112-5.074-5.07c-2.76,0.041-4.965,2.31-4.926,5.07v18.332h-7.5v-0.832c0.04-2.818-2.256-5.112-5.074-5.07 c-2.76,0.041-4.965,2.31-4.926,5.07v0.832h-25v-24.166c0.04-2.818-2.256-5.112-5.074-5.07c-2.76,0.041-4.965,2.31-4.926,5.07 v24.166h-25V86.658c0.04-2.818-2.256-5.112-5.074-5.07c-2.76,0.041-4.965,2.31-4.926,5.07v41.666h-7.5v-30 c0.04-2.818-2.256-5.112-5.074-5.07c-2.76,0.041-4.965,2.31-4.926,5.07v35c0,2.761,2.239,5,5,5h30v12.5 c-0.096,6.762,10.096,6.762,10,0v-12.5h25v12.5c-0.096,6.762,10.096,6.762,10,0v-12.5h100c2.761,0,5-2.239,5-5v-17.5 c0.096-6.762-10.096-6.762-10,0v12.5h-7.5v-47.5C167.54,78.006,165.244,75.712,162.426,75.754z M215.223,115.789 c-1.379,0.021-2.48,1.156-2.461,2.535c0,26.407-21.355,47.762-47.762,47.762c-3.381-0.048-3.381,5.048,0,5 c29.109,0,52.762-23.652,52.762-52.762C217.782,116.915,216.633,115.767,215.223,115.789z M222.368,161.264l43.764,39.943 l-18.584,17.27l-38.402-43.707c1.073-0.84,2.133-1.704,3.168-2.613C216.105,168.824,219.449,165.162,222.368,161.264z M269.838,204.59l7.926,7.234l-19.195,19.195l-7.719-8.785L269.838,204.59z">
+                                                    <path
+                                                        d="M59.427,2.583h-48c-2.209,0-4.844,2.305-4.844,4.514v56c0,2.209,2.635,3.486,4.844,3.486h48 c2.209,0,3.156-1.277,3.156-3.486v-56C62.583,4.888,61.636,2.583,59.427,2.583z M58.583,62.583h-48v-56h48V62.583z">
+                                                    </path>
+                                                    <path
+                                                        d="M54.583,11.583c0-0.552-0.447-1-1-1h-39c-0.552,0-1,0.448-1,1v12c0,0.552,0.448,1,1,1h39c0.553,0,1-0.448,1-1V11.583z M15.583,12.583h37v10h-37V12.583z">
+                                                    </path>
+                                                    <path
+                                                        d="M21.583,28.583c0-0.552-0.448-1-1-1h-6c-0.552,0-1,0.448-1,1v4c0,0.552,0.448,1,1,1h6c0.552,0,1-0.448,1-1V28.583z M15.583,29.583h4v2h-4V29.583z">
+                                                    </path>
+                                                    <path
+                                                        d="M32.583,28.583c0-0.552-0.448-1-1-1h-6c-0.552,0-1,0.448-1,1v4c0,0.552,0.448,1,1,1h6c0.552,0,1-0.448,1-1V28.583z M30.583,31.583h-4v-2h4V31.583z">
+                                                    </path>
+                                                    <path
+                                                        d="M43.583,28.583c0-0.552-0.447-1-1-1h-6c-0.552,0-1,0.448-1,1v4c0,0.552,0.448,1,1,1h6c0.553,0,1-0.448,1-1V28.583z M41.583,31.583h-4v-2h4V31.583z">
+                                                    </path>
+                                                    <path
+                                                        d="M54.583,28.583c0-0.552-0.447-1-1-1h-6c-0.553,0-1,0.448-1,1v4c0,0.552,0.447,1,1,1h6c0.553,0,1-0.448,1-1V28.583z M52.583,31.583h-4v-2h4V31.583z">
+                                                    </path>
+                                                    <path
+                                                        d="M21.583,36.583c0-0.552-0.448-1-1-1h-6c-0.552,0-1,0.448-1,1v4c0,0.553,0.448,1,1,1h6c0.552,0,1-0.447,1-1V36.583z M15.583,37.583h4v2h-4V37.583z">
+                                                    </path>
+                                                    <path
+                                                        d="M32.583,36.583c0-0.552-0.448-1-1-1h-6c-0.552,0-1,0.448-1,1v4c0,0.553,0.448,1,1,1h6c0.552,0,1-0.447,1-1V36.583z M30.583,39.583h-4v-2h4V39.583z">
+                                                    </path>
+                                                    <path
+                                                        d="M43.583,36.583c0-0.552-0.447-1-1-1h-6c-0.552,0-1,0.448-1,1v4c0,0.553,0.448,1,1,1h6c0.553,0,1-0.447,1-1V36.583z M41.583,39.583h-4v-2h4V39.583z">
+                                                    </path>
+                                                    <path
+                                                        d="M54.583,36.583c0-0.552-0.447-1-1-1h-6c-0.553,0-1,0.448-1,1v4c0,0.553,0.447,1,1,1h6c0.553,0,1-0.447,1-1V36.583z M52.583,39.583h-4v-2h4V39.583z">
+                                                    </path>
+                                                    <path
+                                                        d="M21.583,44.583c0-0.553-0.448-1-1-1h-6c-0.552,0-1,0.447-1,1v4c0,0.553,0.448,1,1,1h6c0.552,0,1-0.447,1-1V44.583z M15.583,45.583h4v2h-4V45.583z">
+                                                    </path>
+                                                    <path
+                                                        d="M32.583,44.583c0-0.553-0.448-1-1-1h-6c-0.552,0-1,0.447-1,1v4c0,0.553,0.448,1,1,1h6c0.552,0,1-0.447,1-1V44.583z M30.583,47.583h-4v-2h4V47.583z">
+                                                    </path>
+                                                    <path
+                                                        d="M43.583,44.583c0-0.553-0.447-1-1-1h-6c-0.552,0-1,0.447-1,1v4c0,0.553,0.448,1,1,1h6c0.553,0,1-0.447,1-1V44.583z M41.583,47.583h-4v-2h4V47.583z">
+                                                    </path>
+                                                    <path
+                                                        d="M54.583,44.583c0-0.553-0.447-1-1-1h-6c-0.553,0-1,0.447-1,1v12c0,0.553,0.447,1,1,1h6c0.553,0,1-0.447,1-1V44.583z M52.583,55.583h-4v-10h4V55.583z">
+                                                    </path>
+                                                    <path
+                                                        d="M21.583,52.583c0-0.553-0.448-1-1-1h-6c-0.552,0-1,0.447-1,1v4c0,0.553,0.448,1,1,1h6c0.552,0,1-0.447,1-1V52.583z M15.583,53.583h4v2h-4V53.583z">
+                                                    </path>
+                                                    <path
+                                                        d="M32.583,52.583c0-0.553-0.448-1-1-1h-6c-0.552,0-1,0.447-1,1v4c0,0.553,0.448,1,1,1h6c0.552,0,1-0.447,1-1V52.583z M30.583,55.583h-4v-2h4V55.583z">
+                                                    </path>
+                                                    <path
+                                                        d="M43.583,52.583c0-0.553-0.447-1-1-1h-6c-0.552,0-1,0.447-1,1v4c0,0.553,0.448,1,1,1h6c0.553,0,1-0.447,1-1V52.583z M41.583,55.583h-4v-2h4V55.583z">
+                                                    </path>
+                                                    <path
+                                                        d="M23,13.583h-5c-0.553,0-1.417,1.281-1.417,1.834v3c0,0.553,0.447,1,1,1s1-0.447,1-1v-2.834H23c0.553,0,1-0.447,1-1 S23.553,13.583,23,13.583z">
                                                     </path>
                                                 </g>
                                             </g>
@@ -189,161 +297,6 @@
                     </div>
                 </div>
             </div>
-            <div class="bg-white shadow-lg rounded-lg p-4" id="profile_payments">
-                <table class="w-full overflow-hidden rounded-lg dark:divide-gray-700">
-                    <thead>
-                        <tr class="text-gray-800 dark:text-gray-400 bg-gray-200 dark:bg-gray-800"">
-                            <th class="px-4 py-4 font-medium text-gray-500 whitespace-nowrap">
-                                N° Cuota
-                            </th>
-                            <th>Comprobante BUSA</th>
-                            <th>Codigo Prestamo</th>
-                            <th>Fecha Pago</th>
-                            <th>Hora Pago</th>
-                            <th>Descripcion</th>
-                            <th>Monto</th>
-                            <th>Operaciones</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @foreach ($vouchers as $v)
-                            <tr class="border-b-2 px-3 py-4 text-sm p-2 h-auto">
-                                <td class="px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
-                                    {{ $v->numpago }}
-                                </td>
-                                <td>{{ $v->numtramite }}</td>
-                                <td>{{ $v->numprestamo }}</td>
-                                <td>{{ $v->fecha_pago }}</td>
-                                <td>{{ $v->hora_pago }}</td>
-                                <td>{{ $v->descripcion }}</td>
-                                <td>{{ 'Bs. ' . number_format($v->montopago, 2) }}</td>
-                                <td class="h-auto flex flex-row justify-center py-2">
-                                    <x-dropdown align="right" width="40">
-                                        <x-slot name="trigger">
-                                            <span class="inline-flex rounded-md">
-                                                <button type="button"
-                                                    class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-full text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-50 dark:active:bg-gray-700 transition ease-in-out duration-150">
-                                                    <svg width="24px" height="24px" viewBox="0 0 24 24"
-                                                        fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                                                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round"
-                                                            stroke-linejoin="round"></g>
-                                                        <g id="SVGRepo_iconCarrier">
-                                                            <rect width="24" height="24" fill="transparent">
-                                                            </rect>
-                                                            <circle cx="12" cy="7" r="0.5"
-                                                                transform="rotate(90 12 7)" stroke="#000000"
-                                                                stroke-linecap="round" stroke-linejoin="round">
-                                                            </circle>
-                                                            <circle cx="12" cy="12" r="0.5"
-                                                                transform="rotate(90 12 12)" stroke="#000000"
-                                                                stroke-linecap="round" stroke-linejoin="round">
-                                                            </circle>
-                                                            <circle cx="12" cy="17" r="0.5"
-                                                                transform="rotate(90 12 17)" stroke="#000000"
-                                                                stroke-linecap="round" stroke-linejoin="round">
-                                                            </circle>
-                                                        </g>
-                                                    </svg>
-                                                </button>
-                                            </span>
-                                        </x-slot>
-                                        <x-slot name="content">
-                                            @foreach ($v->payments as $p)
-                                                <x-dropdown-link>
-                                                    <span class="cursor-pointer text-xs">
-                                                        {{ $p->prtdtdesc }}
-                                                    </span>
-                                                    <span class="cursor-pointer text-xs font-bold">
-                                                        {{ number_format($p->montopago * -1, 2) }}
-                                                    </span>
-                                                </x-dropdown-link>
-                                            @endforeach
-                                        </x-slot>
-                                    </x-dropdown>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                    <tfoot>
-                        <tr class="text-lg text-gray-500 bg-gray-100">
-                            <th colspan="12">
-                                {!! $vouchers->render() !!}
-                            </th>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-        </div>
-        <div class="bg-white shadow-lg rounded-lg p-6 m-4" id="profile_plans">
-            <table class="w-full overflow-hidden rounded-lg dark:divide-gray-700">
-                <thead>
-                    <tr class="text-gray-800 dark:text-gray-400 bg-gray-200 dark:bg-gray-800">
-                        <th class="px-4 py-4 font-medium text-gray-500 whitespace-nowrap">
-                            #
-                        </th>
-                        <th>Cuota</th>
-                        <th>
-                            <span class="block">
-                                Capital
-                            </span>
-                            {{-- <span class="block text-green-600">
-                                ({{ number_format($plans->sum('prppgcapi'), 2) }})
-                            </span> --}}
-                        </th>
-                        <th>
-                            <span class="block">
-                                Interés
-                            </span>
-                            {{-- <hr>
-                            <span class="block text-green-600">
-                                ({{ number_format($plans->sum('prppginte'), 2) }})
-                            </span> --}}
-                        </th>
-                        <th>
-                            <span class="block">
-                                Seguro Desgravamen
-                            </span>
-                            {{-- <hr>
-                            <span class="block text-green-600">
-                                ({{ number_format($plans->sum('prppgsegu'), 2) }})
-                            </span> --}}
-                        </th>
-                        <th>
-                            <span class="block">
-                                Total a Pagar
-                            </span>
-                            {{-- <hr>
-                            <span class="block text-green-600">
-                                ({{ number_format($plans->sum('prppgtota'), 2) }})
-                            </span> --}}
-                        </th>
-                        <th>Vencimiento</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @foreach ($plans as $p)
-                        <tr class="border-b-2 px-3 py-4 text-center text-sm p-2 h-auto">
-                            <td class="px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
-                                {{ $loop->index + 1 }}
-                            </td>
-                            <td>{{ $p->prppgnpag }}</td>
-                            <td>{{ number_format($p->prppgcapi, 2) }}</td>
-                            <td>{{ number_format($p->prppginte, 2) }}</td>
-                            <td>{{ number_format($p->prppgsegu, 2) }}</td>
-                            <td>{{ number_format($p->prppgtota, 2) }}</td>
-                            <td>{{ $p->fecha_ppg }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-                <tfoot>
-                    <tr class="text-lg text-gray-500 bg-gray-100">
-                        <th colspan="12">
-                            {!! $plans->render() !!}
-                        </th>
-                    </tr>
-                </tfoot>
-            </table>
         </div>
     </div>
 </x-app-layout>

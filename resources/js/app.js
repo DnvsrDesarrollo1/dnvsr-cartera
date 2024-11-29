@@ -1,42 +1,39 @@
 import './bootstrap';
+import 'flowbite';
 import './../../vendor/power-components/livewire-powergrid/dist/powergrid'
 import './../../vendor/power-components/livewire-powergrid/dist/tailwind.css'
 
 // DARK MODE TOGGLE BUTTON
-var themeToggleDarkIcon = document.getElementById("theme-toggle-dark-icon");
-var themeToggleLightIcon = document.getElementById("theme-toggle-light-icon");
+const themeToggleDarkIcon = document.getElementById("theme-toggle-dark-icon");
+const themeToggleLightIcon = document.getElementById("theme-toggle-light-icon");
+const themeToggleBtn = document.getElementById("theme-toggle");
 
-if (
-    localStorage.getItem("color-theme") == "dark" ||
-    (!("color-theme" in localStorage) &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches)
-) {
-    themeToggleLightIcon.classList.remove("hidden");
-} else {
-    themeToggleDarkIcon.classList.remove("hidden");
-}
 
-var themeToggleBtn = document.getElementById("theme-toggle");
+const isDarkMode = () =>
+    localStorage.getItem("color-theme") === "dark";
 
-themeToggleBtn.addEventListener("click", function () {
-    themeToggleDarkIcon.classList.toggle("hidden");
-    themeToggleLightIcon.classList.toggle("hidden");
+const setTheme = (isDark) => {
+    document.documentElement.classList.toggle("dark", isDark);
+    localStorage.setItem("color-theme", isDark ? "dark" : "light");
+    updateThemeIcon(isDark);
+};
 
-    if (localStorage.getItem("color-theme")) {
-        if (localStorage.getItem("color-theme") == "light") {
-            document.documentElement.classList.add("dark");
-            localStorage.setItem("color-theme", "dark");
-        } else {
-            document.documentElement.classList.remove("dark");
-            localStorage.setItem("color-theme", "light");
-        }
-    } else {
-        if (document.documentElement.classList.contains("dark")) {
-            document.documentElement.classList.remove("dark");
-            localStorage.setItem("color-theme", "light");
-        } else {
-            document.documentElement.classList.add("dark");
-            localStorage.setItem("color-theme", "dark");
-        }
-    }
+const updateThemeIcon = (isDark) => {
+    themeToggleDarkIcon.classList.toggle("hidden", !isDark);
+    themeToggleLightIcon.classList.toggle("hidden", isDark);
+};
+
+// Initialize theme
+const initializeTheme = () => {
+    const storedTheme = localStorage.getItem("color-theme");
+    const isDark = storedTheme === "dark" || (!storedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    setTheme(isDark);
+};
+
+// Set initial theme when DOM is loaded
+document.addEventListener('DOMContentLoaded', initializeTheme);
+// Toggle theme on button click
+themeToggleBtn.addEventListener("click", () => {
+    const newDarkMode = !isDarkMode();
+    setTheme(newDarkMode);
 });

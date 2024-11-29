@@ -13,13 +13,18 @@ return new class extends Migration
     {
         Schema::create('helpers', function (Blueprint $table) {
             $table->id();
-            $table->string('idepro')->nullable();
-            $table->smallInteger('indice');
-            $table->decimal('capital', 10, 2);
-            $table->decimal('interes', 10, 2);
-            $table->date('vencimiento');
-            $table->string('estado')->default('ACTIVO');
-            $table->timestamps();
+
+                $table->string('idepro');
+                $table->integer('indice');
+                $table->decimal('capital', 10, 2);
+                $table->decimal('interes', 10, 2);
+                $table->date('vencimiento');
+                $table->string('estado');
+                $table->unsignedBigInteger('user_id');
+                $table->timestamps();
+
+            $table->foreign('idepro')->references('idepro')->on('beneficiaries');
+            $table->foreign('user_id')->references('id')->on('users');
         });
     }
 

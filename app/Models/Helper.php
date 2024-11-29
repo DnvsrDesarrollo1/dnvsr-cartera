@@ -16,6 +16,7 @@ class Helper extends Model
         'interes',
         'vencimiento',
         'estado',
+        'user_id'
     ];
 
     public function beneficiary()

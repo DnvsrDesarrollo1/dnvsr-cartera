@@ -10,8 +10,8 @@ class PlanController extends Controller
 {
     public function index()
     {
-        $plans = Plan::paginate(500);
-        return view('plans.index', compact('plans'));
+        //$plans = Plan::paginate(500);
+        //return view('plans.index', compact('plans'));
     }
 
     public function create() {}
@@ -43,8 +43,10 @@ class PlanController extends Controller
 
         $data = $this->generarPlan(
             $validatedData['capital_inicial'],
+            $request->input('gastos_judiciales'),
             $validatedData['meses'],
             $validatedData['taza_interes'],
+            $request->input('seguro'),
             $request->input('correlativo'),
             $request->input('plazo_credito'),
             $validatedData['fecha_inicio']
@@ -71,84 +73,151 @@ class PlanController extends Controller
         ));
     }
 
-    public function bulkAdjust($data)
+    public function bulkActivation($data)
     {
-        $lista = json_decode($data, true);
-        $l = [];
+        $decodedData = json_decode($data, true);
+        $interestRate = $decodedData['interes'] ?? 0;
+        $secureRate = $decodedData['seguro']?? 0;
+        $identificationNumbers = array_diff(array_values($decodedData), [$interestRate]);
 
-        for ($i = 0; $i < count($lista); $i++) {
-            $l[] = $lista[$i];
-        }
-
-        $beneficiaries = \App\Models\Beneficiary::whereIn('ci', $l)
+        $beneficiaries = \App\Models\Beneficiary::whereIn('ci', $identificationNumbers)
             ->where('estado', '<>', 'CANCELADO')
             ->get();
 
         try {
-            foreach ($beneficiaries as $index => $value) {
-                $capital_inicial = $value->total_activado - (\App\Models\Payment::where('numprestamo', $value->idepro)->sum('montopago') ?? 0);
-                $meses = $this->calculateRemainingMonths($value);
-                $taza_interes = 3;
-                $correlativo = 'on';
-                $plazo_credito = $value->plazo_credito;
-                $fecha_inicio = now()->format('Y-m-d');
-                $data = $this->generarPlan($capital_inicial, $meses, $taza_interes, $correlativo, $plazo_credito, $fecha_inicio);
-
-                $helperData = \App\Models\Helper::where('idepro', $value->idepro)->get();
-                foreach ($helperData as $h) {
-                    $h->estado = 'INACTIVO';
-                    $h->save();
+            \DB::transaction(function () use ($beneficiaries, $interestRate, $secureRate) {
+                foreach ($beneficiaries as $beneficiary) {
+                    $this->activateBeneficiary($beneficiary, $interestRate, $secureRate);
                 }
-
-                $helperData = null;
-
-                $planData = \App\Models\Plan::where('idepro', $value->idepro)->get();
-
-                foreach ($planData as $plan) {
-                    $plan->estado = 'INACTIVO';
-                    $plan->save();
-                }
-
-                $planData = null;
-
-                $readjustmentData = \App\Models\Readjustment::where('idepro', $value->idepro)->get();
-
-                foreach ($readjustmentData as $readjustment) {
-                    $readjustment->estado = 'INACTIVO';
-                    $readjustment->save();
-                }
-
-                $readjustmentData = null;
-
-                foreach ($data as $d) {
-                    \App\Models\Readjustment::create([
-                        'idepro' => $value->idepro,
-                        'fecha_ppg' => $d->vencimiento,
-                        'prppgnpag' => $d->nro_cuota,
-                        'prppgcapi' => $d->abono_capital,
-                        'prppginte' => $d->interes,
-                        'prppgsegu' => $d->seguro,
-                        'prppgtota' => $d->total_cuota,
-                        'estado' => 'ACTIVO',
-                    ]);
-                }
-            }
+            });
 
             return redirect()->route('beneficiario.index')
-                ->with('success', 'El reajuste masivo-automatico de ' . $beneficiaries->count() . ' beneficiarios fue realizado');
-        } catch (\Illuminate\Database\QueryException $e) {
+                ->with('success', "La activación masivo-automática de {$beneficiaries->count()} beneficiarios fue realizada");
+        } catch (\Exception $e) {
             return redirect()->route('beneficiario.index')
-                ->with('error', 'El reajuste masivo-automatico de ' . $beneficiaries->count() . ' beneficiarios no fue realizado');
+                ->with('error', "La activación masivo-automática de {$beneficiaries->count()} beneficiarios no fue realizada");
         }
     }
 
-    private function calculateRemainingMonths(\App\Models\Beneficiary $beneficiary)
+    private function activateBeneficiary(\App\Models\Beneficiary $beneficiary, $interestRate, $secureRate)
     {
-        $now = new \DateTime('now');
-        $endDate = (new \DateTime($beneficiary->fecha_activacion))
-            ->modify("+{$beneficiary->plazo_credito} months");
+        $initialCapital = $beneficiary->total_activado - ($beneficiary->payments()->sum('montopago') ?? 0);
+        $months = $beneficiary->plazo_credito;
+        $sequential = $beneficiary->plans()->exists() ? 'on' : null;
 
-        $dias = $endDate->diff($now)->format('%a');
-        return round($dias / 30.5, 0);
+        $startDate = now();
+
+        $planData = $this->generarPlan(
+            $initialCapital,
+            $beneficiary->gastos_judiciales,
+            $months,
+            $interestRate,
+            $secureRate,
+            $sequential,
+            $beneficiary->plazo_credito,
+            $startDate
+        );
+
+        $this->deactivateRelatedRecords($beneficiary);
+        $this->createNewPlans($beneficiary, $planData);
+    }
+
+    private function deactivateRelatedRecords(\App\Models\Beneficiary $beneficiary)
+    {
+        $relatedModels = ['helpers', 'plans', 'readjustments'];
+
+        foreach ($relatedModels as $relation) {
+            $beneficiary->$relation()->update([
+                'estado' => 'INACTIVO',
+                'user_id' => auth()->id()
+            ]);
+        }
+    }
+
+    private function createNewPlans(\App\Models\Beneficiary $beneficiary, $planData)
+    {
+        $newPlans = $planData->map(function ($item) use ($beneficiary) {
+            return [
+                'idepro' => $beneficiary->idepro,
+                'fecha_ppg' => $item->vencimiento,
+                'prppgnpag' => $item->nro_cuota,
+                'prppgcapi' => $item->abono_capital,
+                'prppginte' => $item->interes,
+                'prppgsegu' => $item->seguro,|
+                'prppgotro' => $item->gastos_judiciales,
+                'prppgtota' => $item->total_cuota,
+                'estado' => 'ACTIVO',
+                'user_id' => auth()->id(),
+            ];
+        })->toArray();
+
+        \App\Models\Plan::insert($newPlans);
+    }
+
+    public function bulkAdjust($data)
+    {
+        $identificationNumbers = json_decode($data, true);
+
+        $beneficiaries = \App\Models\Beneficiary::whereIn('ci', $identificationNumbers)
+            ->where('estado', '<>', 'CANCELADO')
+            ->get();
+
+        try {
+            \DB::transaction(function () use ($beneficiaries) {
+                foreach ($beneficiaries as $beneficiary) {
+                    $this->adjustBeneficiary($beneficiary);
+                }
+            });
+
+            return redirect()->route('beneficiario.index')
+                ->with('success', "El reajuste masivo-automático de {$beneficiaries->count()} beneficiarios fue realizado");
+        } catch (\Exception $e) {
+            return redirect()->route('beneficiario.index')
+                ->with('error', "El reajuste masivo-automático de {$beneficiaries->count()} beneficiarios no fue realizado");
+        }
+    }
+
+    private function adjustBeneficiary(\App\Models\Beneficiary $beneficiary)
+    {
+        $initialCapital = $beneficiary->total_activado - ($beneficiary->payments()->sum('montopago') ?? 0);
+        $months = $beneficiary->plazo_credito;
+        $interestRate = 0;
+        $sequential = $beneficiary->plans()->exists() ? 'on' : null;
+
+        $startDate = now();
+
+        $planData = $this->generarPlan(
+            $initialCapital,
+            $beneficiary->gastos_judiciales,
+            $months,
+            $interestRate,
+            null,
+            $sequential,
+            $beneficiary->plazo_credito,
+            $startDate
+        );
+
+        $this->deactivateRelatedRecords($beneficiary);
+        $this->createNewReadjustments($beneficiary, $planData);
+    }
+
+    private function createNewReadjustments(\App\Models\Beneficiary $beneficiary, $planData)
+    {
+        $newReadjustments = $planData->map(function ($item) use ($beneficiary) {
+            return [
+                'idepro' => $beneficiary->idepro,
+                'fecha_ppg' => $item->vencimiento,
+                'prppgnpag' => $item->nro_cuota,
+                'prppgcapi' => $item->abono_capital,
+                'prppginte' => $item->interes,
+                'prppgsegu' => $item->seguro,
+                'prppgotro' => $item->gastos_judiciales,
+                'prppgtota' => $item->total_cuota,
+                'estado' => 'ACTIVO',
+                'user_id' => auth()->id(),
+            ];
+        })->toArray();
+
+        \App\Models\Readjustment::insert($newReadjustments);
     }
 }

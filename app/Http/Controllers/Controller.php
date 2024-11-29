@@ -4,14 +4,24 @@ namespace App\Http\Controllers;
 
 abstract class Controller
 {
-    public function generarPlan($capital_inicial, $meses, $taza_interes, $correlativo, $plazo_credito, $fecha_inicio)
+    public function generarPlan($capital_inicial, $gastos_judiciales = 0, $meses, $taza_interes, $seguro = 0.040, $correlativo, $plazo_credito, $fecha_inicio)
     {
         $c = (float)$capital_inicial;
         $n = $meses;
         $i = ($taza_interes / 100) / 12;
-        $s = 0.00040;
+        $s = $seguro / 100;
 
-        $a = round($c * (($i) / (1 - pow((1 + $i), ($n) * -1))), 2);
+        $gj = 0;
+
+        if ($gastos_judiciales > 0) {
+            $gj = bcdiv($gastos_judiciales, '12', 8);
+        }
+
+        $a = round($c / $meses, 2);
+
+        if ($taza_interes > 0) {
+            $a = round($c * (($i) / (1 - pow((1 + $i), ($n) * -1))), 2);
+        }
 
         $saldo_inicial = round($c, 2);
 
@@ -27,15 +37,33 @@ abstract class Controller
             $ix = ($plazo_credito - $n) + 1;
             $n = $plazo_credito;
         }
+        $gjx = 0;
+
+        if ($fecha_inicio->day < 15) {
+            $ms = 0;
+        }
+        if ($fecha_inicio->day >= 15) {
+            $fecha_inicio = date('Y-m-20', strtotime($fecha_inicio));
+        }
 
         for ($ix; $ix <= $n; $ix++) {
+            $gjx += $gj;
             $interes = round($saldo_inicial * $i, 2);
             $abono_capital = round($a - $interes, 2);
             $saldo_final = round($saldo_inicial - $abono_capital, 2);
-            $seguro = round(($saldo_final + $interes) * $s, 2);
+            $seguro = round(($saldo_inicial + $interes) * $s, 2);
 
-            if ($saldo_inicial < $a) {
-                $interes -= $saldo_final;
+            $fecha_vencimiento = $this->obtenerFechaVencimiento($fecha_inicio, $ms);
+
+            if ($ix >= $n or $saldo_inicial <= $a) {
+                if ($taza_interes > 0) {
+                    $interes -= $saldo_final;
+                    $abono_capital += $saldo_final;
+                } else {
+                    $interes = 0;
+                    $a += $saldo_final;
+                }
+
                 $abono_capital += $saldo_final;
                 $seguro = 0;
                 $saldo_final = 0;
@@ -47,9 +75,10 @@ abstract class Controller
                     $abono_capital,
                     $interes,
                     $seguro,
-                    round($a + $seguro, 2),
+                    $gj,
+                    round($a + $seguro + $gj, 2),
                     $saldo_final,
-                    date('Y/m/16', strtotime($fecha_inicio . '+' . $ms . ' month'))
+                    $fecha_vencimiento
                 ];
 
                 break;
@@ -62,13 +91,19 @@ abstract class Controller
                 $abono_capital,
                 $interes,
                 $seguro,
-                round($a + $seguro, 2),
+                $gj,
+                round($a + $seguro + $gj, 2),
                 $saldo_final,
-                date('Y/m/15', strtotime($fecha_inicio . '+' . $ms . ' month'))
+                $fecha_vencimiento
             ];
 
             $saldo_inicial = $saldo_final;
+
             $ms++;
+
+            if ($gjx >= ($gj * 12)) {
+                $gj = 0;
+            }
         }
 
         $data = new \Illuminate\Database\Eloquent\Collection();
@@ -81,9 +116,10 @@ abstract class Controller
                 'abono_capital' => ($n[3]),
                 'interes' => ($n[4]),
                 'seguro' => ($n[5]),
-                'total_cuota' => ($n[6]),
-                'saldo_final' => ($n[7]),
-                'vencimiento' => ($n[8])
+                'gastos_judiciales' => ($n[6]),
+                'total_cuota' => ($n[7]),
+                'saldo_final' => ($n[8]),
+                'vencimiento' => ($n[9])
             ]);
         }
 
@@ -92,8 +128,8 @@ abstract class Controller
 
     public function generarDiferimento($diffCuotas, $diffCapital, $diffInteres, $indiceInicial, $fechaInicial)
     {
-        $cap = round((float)$diffCapital / $diffCuotas,2);
-        $int = round((float)$diffInteres / $diffCuotas,2);
+        $cap = round((float)$diffCapital / $diffCuotas, 2);
+        $int = round((float)$diffInteres / $diffCuotas, 2);
 
         $data = new \Illuminate\Database\Eloquent\Collection();
 
@@ -102,10 +138,24 @@ abstract class Controller
                 'nro_cuota' => $i + $indiceInicial,
                 'capital' => $cap,
                 'interes' => $int,
-                'vencimiento' => date('Y/m/15', strtotime($fechaInicial.'+ '. $i.'month')),
+                'vencimiento' => date('Y/m/15', strtotime($fechaInicial . '+ ' . $i . 'month')),
                 'estado' => 'ACTIVO'
             ]);
         }
         return $data;
+    }
+
+    function obtenerFechaVencimiento($fecha_inicio, $ms)
+    {
+        $fecha = date('Y-m-15', strtotime($fecha_inicio . '+' . $ms . ' month'));
+        $diaSemana = date('w', strtotime($fecha));
+
+        if ($diaSemana == 6) {
+            $fecha = date('Y-m-d', strtotime($fecha . '+2 days'));
+        } elseif ($diaSemana == 0) {
+            $fecha = date('Y-m-d', strtotime($fecha . '+1 day'));
+        }
+
+        return $fecha;
     }
 }

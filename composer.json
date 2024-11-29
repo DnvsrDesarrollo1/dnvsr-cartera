@@ -5,12 +5,16 @@
     "keywords": ["laravel", "framework"],
     "license": "MIT",
     "require": {
-        "php": "^8.2",
+        "php": "^8.3",
+        "bacon/bacon-qr-code": "*",
+        "barryvdh/laravel-dompdf": "^3.0",
+        "laravel-lang/common": "^6.4",
         "laravel/framework": "^11.9",
         "laravel/jetstream": "^5.2",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
         "livewire/livewire": "^3.5",
+        "openspout/openspout": "^4.26",
         "phpoffice/phpspreadsheet": "^3.3",
         "power-components/livewire-powergrid": "^6.0"
     },

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Payment;
 use App\Models\Project;
+use App\Models\Voucher;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller
@@ -10,7 +12,22 @@ class ProjectController extends Controller
     public function index()
     {
         $projects = Project::all();
-        return view('projects.index', compact('projects'));
+
+        $procLegal = Project::where('proy_estado', 'like', '%PROCESO LEGAL%')->count();
+
+        $paraCierre = Project::where('proy_estado', 'like', '%PARA CIERRE%')->count();
+
+        $conCierre = Project::where('proy_estado', 'like', '%CON CIERRE%')->count();
+
+        $ejecucion = Project::where('proy_estado', 'like', '%EJECUCION%')->count();
+
+        return view('projects.index', compact(
+            'projects',
+            'procLegal',
+            'paraCierre',
+            'conCierre',
+            'ejecucion'
+        ));
     }
 
     public function create()
@@ -31,8 +48,9 @@ class ProjectController extends Controller
         return redirect()->route('projects.index')->with('success', 'Project created successfully.');
     }
 
-    public function show(Project $project)
+    public function show($codigo)
     {
+        $project = Project::where('proy_cod', $codigo)->first();
         return view('projects.show', compact('project'));
     }
 

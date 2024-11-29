@@ -1,162 +1,165 @@
 <x-app-layout>
-    {{--    {{$data}} --}}
-    <div>
+    <div class="max-w-fit mx-auto py-10 sm:px-6 lg:px-8">
         @if ($errors->any())
-            <div class="p-4 bg-red-500 text-white">
-                @foreach ($errors->all() as $error)
-                    <p>{{ $error }}</p>
-                @endforeach
+            <div class="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
             </div>
         @endif
-    </div>
-    <div class="max-w-9xl mx-auto py-10 sm:px-6 lg:px-8">
-        <div class="bg-white shadow-md rounded-lg mb-2 p-4 flex justify-between items-center">
-            <h1 class="text-xl text-gray-800">Reajuste al plan de cuotas: <i>Cod. {{ $request->idepro }}</i></h1>
+
+        <div class="bg-white shadow-md rounded-lg mb-6 p-6">
+            <h1 class="text-2xl font-bold text-gray-800">
+                Reajuste al plan de cuotas: <span class="text-blue-600">{{ $request->idepro }}</span>
+            </h1>
         </div>
-        <div class="overflow-x-auto shadow-lg rounded-lg overflow-y-auto">
-            <table class="w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead>
-                    <tr class="text-gray-800 dark:text-gray-400 bg-gray-200 dark:bg-gray-800">
-                        <th class="px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">#</th>
-                        <th>Indice Cuota</th>
-                        <th>Saldo Inicial</th>
-                        <th>
-                            <span class="block">
-                                Amortización
-                            </span>
-                            <hr>
-                            <span class="block text-green-600">
-                                ({{ number_format($data->sum('amortizacion'), 2, '.', ',') }})
-                            </span>
-                        </th>
-                        <th>
-                            <span class="block">
-                                Abono Capital
-                            </span>
-                            <hr>
-                            <span class="block text-green-600">
-                                ({{ number_format($data->sum('abono_capital'), 2, '.', ',') }})
-                            </span>
-                        </th>
-                        <th>
-                            <span class="block">
-                                Interés
-                            </span>
-                            <hr>
-                            <span class="block text-green-600">
-                                ({{ number_format($data->sum('interes'), 2, '.', ',') }})
-                            </span>
-                        </th>
-                        <th>
-                            <span class="block">
-                                Seguro
-                            </span>
-                            <hr>
-                            <span class="block text-green-600">
-                                ({{ number_format($data->sum('seguro'), 2, '.', ',') }})
-                            </span>
-                        </th>
-                        <th>
-                            <span class="block">
-                                Total a Pagar
-                            </span>
-                            <hr>
-                            <span class="block text-green-600">
-                                ({{ number_format($data->sum('total_cuota'), 2, '.', ',') }})
-                            </span>
-                        </th>
-                        <th>Saldo Final</th>
-                        <th>Fecha Vencimiento</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @foreach ($data as $d)
-                        <tr @class([
-                            'px-3 py-4 text-sm p-2 h-auto text-center',
-                            'text-green-600 font-bold' => $loop->first,
-                            'text-red-500 font-bold' => $loop->last,
-                        ])>
-                            <td class="px-4 py-4 text-sm font-medium text-gray-400 whitespace-nowrap">
-                                {{ $loop->index + 1 }}</td>
-                            <td>{{ $d->nro_cuota }}</td>
-                            <td>{{ number_format($d->saldo_inicial, 2, '.', ',') }}</td>
-                            <td>{{ number_format($d->amortizacion, 2, '.', ',') }}</td>
-                            <td>{{ number_format($d->abono_capital, 2, '.', ',') }}</td>
-                            <td>{{ number_format($d->interes, 2, '.', ',') }}</td>
-                            <td>{{ number_format($d->seguro, 2, '.', ',') }}</td>
-                            <td>{{ number_format($d->total_cuota, 2, '.', ',') }} </td>
-                            <td>{{ number_format($d->saldo_final, 2, '.', ',') }}</td>
-                            <td>{{ $d->vencimiento }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-                <tfoot>
-                    <tr class="text-lg text-gray-500 bg-white">
-                        <th class="flex items-center">
-                            <div class="m-4">
-                                <form action="{{ route('excel.export-collection') }}" method="post">
-                                    @csrf
-                                    <input type="hidden" id="diff_cuotas" name="diff_cuotas" value="{{$request->input('diff_cuotas')}}" />
-                                    <input type="hidden" id="diff_capital" name="diff_capital" value="{{$request->input('diff_capital')}}" />
-                                    <input type="hidden" id="diff_interes" name="diff_interes" value="{{$request->input('diff_interes')}}" />
-                                    <input type="hidden" id="plazo_credito" name="plazo_credito" value="{{$request->input('plazo_credito')}}" />
-                                    <input type="hidden" id="idepro" name="idepro" value="{{$request->input('idepro')}}" />
-                                    <input type="hidden" name="capital_inicial"
-                                        value="{{ $request->input('capital_inicial') }}">
-                                    <input type="hidden" name="meses" value="{{ $request->input('meses') }}">
-                                    <input type="hidden" name="taza_interes"
-                                        value="{{ $request->input('taza_interes') }}">
-                                    <input type="hidden" name="correlativo"
-                                        value="{{ $request->input('correlativo') }}">
-                                    <input type="hidden" name="plazo_credito"
-                                        value="{{ $request->input('plazo_credito') }}">
-                                    <input type="hidden" name="fecha_inicio" value="<?php echo date('Y/m/d', strtotime($request->input('fecha_inicio'))); ?>">
-                                    <x-button>
-                                        guardar y exportar
-                                    </x-button>
-                                </form>
-                            </div>
-                        </th>
-                        <th>
-                            <x-danger-button onclick="history.back();">
-                                Cancelar
-                            </x-danger-button>
-                        </th>
-                    </tr>
-                </tfoot>
-            </table>
-            @isset($diferimento)
-                <div class="bg-white shadow-md rounded-lg mt-2 mb-2 p-4">
-                    <h1 class="text-xl text-gray-800">Diferimentos:</i></h1>
-                </div>
-                <table class="w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead class="bg-gray-50">
-                        <tr class="text-lg text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 border-2">
-                            <th class="px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">#</th>
-                            <th>Indice Cuota</th>
-                            <th>Capital</th>
-                            <th>Interes</th>
-                            <th>Vencimiento</th>
+
+        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-700 uppercase text-sm leading-normal">
+                            <th class="py-3 px-6 text-left">#</th>
+                            <th class="py-3 px-6 text-left">Indice Cuota</th>
+                            <th class="py-3 px-6 text-right">Saldo Inicial</th>
+                            <th class="py-3 px-6 text-right">Amortización</th>
+                            <th class="py-3 px-6 text-right">Abono Capital</th>
+                            <th class="py-3 px-6 text-right">Interés</th>
+                            <th class="py-3 px-6 text-right">Seguro</th>
+                            <th class="py-3 px-6 text-right">Otros</th>
+                            <th class="py-3 px-6 text-right">Total a Pagar</th>
+                            <th class="py-3 px-6 text-right">Saldo Final</th>
+                            <th class="py-3 px-6 text-center">Fecha Vencimiento</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @foreach ($diferimento as $d)
-                            <tr @class([
-                                'px-3 py-4 text-sm p-2 h-auto text-center',
-                                'text-green-600 font-bold' => $loop->first,
-                                'text-red-500 font-bold' => $loop->last,
-                            ])>
-                                <td class="px-4 py-4 text-sm font-medium text-gray-400 whitespace-nowrap">
-                                    {{ $loop->index + 1 }}</td>
-                                <td>{{ $d->nro_cuota }}</td>
-                                <td>{{ number_format($d->capital, 2, '.', ',') }}</td>
-                                <td>{{ number_format($d->interes, 2, '.', ',') }}</td>
-                                <td>{{ $d->vencimiento }}</td>
+                    <tbody class="text-gray-600 text-sm font-light text-center">
+                        @foreach ($data as $d)
+                            <tr class="border-b border-gray-200 hover:bg-gray-100">
+                                <td class="py-3 px-6 text-left whitespace-nowrap italic text-gray-200">{{ $loop->index + 1 }}</td>
+                                <td class="py-3 px-6 text-left">{{ $d->nro_cuota }}</td>
+                                <td class="py-3 px-6 text-right">{{ number_format($d->saldo_inicial, 2, '.', ',') }}
+                                </td>
+                                <td class="py-3 px-6 text-right">{{ number_format($d->amortizacion, 2, '.', ',') }}</td>
+                                <td class="py-3 px-6 text-right">{{ number_format($d->abono_capital, 2, '.', ',') }}
+                                </td>
+                                <td class="py-3 px-6 text-right">{{ number_format($d->interes, 2, '.', ',') }}</td>
+                                <td class="py-3 px-6 text-right">{{ number_format($d->seguro, 2, '.', ',') }}</td>
+                                <td class="py-3 px-6 text-right">
+                                    @if ($d->gastos_judiciales > 0)
+                                        {{ number_format($d->gastos_judiciales, 2, '.', ',') }}
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td class="py-3 px-6 text-right font-medium">
+                                    {{ number_format($d->total_cuota, 2, '.', ',') }}</td>
+                                <td class="py-3 px-6 text-right">{{ number_format($d->saldo_final, 2, '.', ',') }}</td>
+                                <td class="py-3 px-6 text-center">{{ $d->vencimiento }}</td>
                             </tr>
                         @endforeach
                     </tbody>
+                    <tfoot class="text-center">
+                        <tr class="bg-gray-200 text-gray-700 font-bold">
+                            <td colspan="3" class="py-3 px-6 text-right bg-white">Totales:</td>
+                            <td class="py-3 px-6 text-right">
+                                <h3 class="text-sm">Total del Credito:</h3>
+                                <p class="text-green-500 text-sm">
+                                    {{ number_format($data->sum('amortizacion'), 2, '.', ',') }}
+                                </p>
+                            </td>
+                            <td class="py-3 px-6 text-right">
+                                <h3 class="text-sm">Pago a Capital:</h3>
+                                <p class="text-green-500 text-sm">
+                                    {{ number_format($data->sum('abono_capital'), 2, '.', ',') }}
+                                </p>
+                            </td>
+                            <td class="py-3 px-6 text-right">
+                                <h3 class="text-sm">Pago a Interes:</h3>
+                                <p class="text-green-500 text-sm">
+                                    {{ number_format($data->sum('interes'), 2, '.', ',') }}
+                                </p>
+                            </td>
+                            <td class="py-3 px-6 text-right">
+                                <h3 class="text-sm">Pago al Seguro:</h3>
+                                <p class="text-green-500 text-sm">
+                                    {{ number_format($data->sum('seguro'), 2, '.', ',') }}
+                                </p>
+                            </td>
+                            <td class="py-3 px-6 text-right">
+                                <h3 class="text-sm">Gastos Judiciales:</h3>
+                                <p class="text-green-500 text-sm">
+                                    {{ number_format($data->sum('gastos_judiciales'), 2, '.', ',') }}
+                                </p>
+                            </td>
+                            <td class="py-3 px-6 text-right">
+                                <h3 class="text-sm">Pago en Cuotas:</h3>
+                                <p class="text-green-500 text-sm">
+                                    {{ number_format($data->sum('total_cuota'), 2, '.', ',') }}
+                                </p>
+                            </td>
+                            <td colspan="2"></td>
+                        </tr>
+                    </tfoot>
                 </table>
-            @endisset
+            </div>
         </div>
+
+        <div class="mt-4 flex justify-between bg-white p-4 rounded-lg">
+            <form action="{{ route('excel.export-collection') }}" method="post" class="flex space-x-4">
+                @csrf
+                <input type="hidden" name="diff_cuotas" value="{{ $request->input('diff_cuotas') }}" />
+                <input type="hidden" name="diff_capital" value="{{ $request->input('diff_capital') }}" />
+                <input type="hidden" name="diff_interes" value="{{ $request->input('diff_interes') }}" />
+                <input type="hidden" name="plazo_credito" value="{{ $request->input('plazo_credito') }}" />
+                <input type="hidden" name="idepro" value="{{ $request->input('idepro') }}" />
+                <input type="hidden" name="capital_inicial" value="{{ $request->input('capital_inicial') }}" />
+                <input type="hidden" name="meses" value="{{ $request->input('meses') }}" />
+                <input type="hidden" name="taza_interes" value="{{ $request->input('taza_interes') }}" />
+                <input type="hidden" name="seguro" id="seguro" value="{{$request->input('seguro')}}" />
+                <input type="hidden" name="correlativo" value="{{ $request->input('correlativo') }}" />
+                <input type="hidden" name="fecha_inicio"
+                    value="{{ date('Y/m/d', strtotime($request->input('fecha_inicio'))) }}">
+                <input type="hidden" name="gastos_judiciales" value="{{ $request->input('gastos_judiciales') }}" />
+                <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition ease-in-out">
+                    Guardar y Exportar
+                </button>
+            </form>
+            <button onclick="history.back();"
+                class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition ease-in-out">
+                Cancelar
+            </button>
+        </div>
+
+        @isset($diferimento)
+            <div class="mt-10 bg-white shadow-md rounded-lg p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Diferimentos</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-700 uppercase text-sm leading-normal">
+                                <th class="py-3 px-6 text-left">#</th>
+                                <th class="py-3 px-6 text-left">Indice Cuota</th>
+                                <th class="py-3 px-6 text-right">Capital</th>
+                                <th class="py-3 px-6 text-right">Interés</th>
+                                <th class="py-3 px-6 text-center">Vencimiento</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-600 text-sm font-light">
+                            @foreach ($diferimento as $d)
+                                <tr class="border-b border-gray-200 hover:bg-gray-100">
+                                    <td class="py-3 px-6 text-left whitespace-nowrap">{{ $loop->index + 1 }}</td>
+                                    <td class="py-3 px-6 text-left">{{ $d->nro_cuota }}</td>
+                                    <td class="py-3 px-6 text-right">{{ number_format($d->capital, 2, '.', ',') }}</td>
+                                    <td class="py-3 px-6 text-right">{{ number_format($d->interes, 2, '.', ',') }}</td>
+                                    <td class="py-3 px-6 text-center">{{ $d->vencimiento }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        @endisset
     </div>
 </x-app-layout>

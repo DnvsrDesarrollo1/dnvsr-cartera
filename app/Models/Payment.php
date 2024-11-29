@@ -23,19 +23,18 @@ class Payment extends Model
         'prtdtnpag',
         'depto_pago',
         'observacion',
-        ];
+    ];
 
     protected $guarded = [];
 
 
-/*     public function beneficiary()
+    public function beneficiary()
     {
         return $this->belongsTo(Beneficiary::class, 'numprestamo', 'idepro');
-    } */
+    }
 
     public function voucher()
     {
         return $this->belongsTo(Voucher::class, 'numtramite', 'numtramite');
     }
-
 }
