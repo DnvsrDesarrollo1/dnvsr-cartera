@@ -37,6 +37,7 @@ class Beneficiary extends Model
         'plazo_credito',
         'tasa_interes',
         'departamento',
+        'user_id'
     ];
 
     protected $guarded = ['id', 'created_at', 'updated_at'];

@@ -29,13 +29,19 @@
                     @endif
                     <div class="ml-4">
                         <p class="text-lg font-semibold text-gray-800">
-                            {{ $beneficiary->nombre }} - {{ $beneficiary->ci }} {{$beneficiary->complemento}} {{ $beneficiary->expedido }}
+                            {{ $beneficiary->nombre }} - {{ $beneficiary->ci }} {{ $beneficiary->complemento }}
+                            {{ $beneficiary->expedido }}
                         </p>
                         <p class="text-gray-600">
                             <i>
                                 COD.CREDITO: {{ $beneficiary->idepro }}
                             </i>
                         </p>
+                    </div>
+                    <div class="ml-auto">
+                        @if (auth()->user()->hasRole('escritor'))
+                            @livewire('beneficiary-update', ['beneficiary' => $beneficiary])
+                        @endif
                     </div>
                 </div>
                 <hr>
@@ -95,7 +101,7 @@
                 </div>
             </div>
             <div class="bg-gray-100 p-4 rounded-lg shadow" id="profile_management">
-                <div class="bg-white p-4 rounded-lg flex justify-between mt-4">
+                <div class="bg-white p-4 rounded-lg flex justify-between border-l-8 border-gray-800">
                     <h3 class="font-bold">
                         Generador de Planes de Pago:
                     </h3>
@@ -110,7 +116,7 @@
                 </div>
                 <div x-data="{ show: false }">
                     @if ($beneficiary->estado != 'CANCELADO')
-                        <button @click="show = !show" class="rounded-full mt-2 overflow-hidden">
+                        <button @click="show = !show" class="rounded-full m-2 overflow-hidden block mx-auto">
                             <svg x-show="!show" width="64px" height="64px" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <g id="SVGRepo_bgCarrier" stroke-width="0"></g>

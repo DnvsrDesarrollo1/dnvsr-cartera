@@ -79,11 +79,12 @@ class BeneficiaryController extends Controller
 
     private function calculateRemainingMonths(Beneficiary $beneficiary)
     {
-        $now = new DateTime('now');
+        $now = new DateTime();
         $endDate = (new DateTime($beneficiary->fecha_activacion))
             ->modify("+{$beneficiary->plazo_credito} months");
 
-        return round($endDate->diff($now)->days / 30.5);
+        $interval = $now->diff($endDate);
+        return $interval->y * 12 + $interval->m;
     }
 
     private function getActivePlans($idepro)

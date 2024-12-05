@@ -22,6 +22,25 @@
 </head>
 
 <body class="font-sans antialiased bg-gradient-to-r from-blue-100 to-indigo-100">
+    <div class="absolute top-0 right-0 mt-4 mr-4">
+        @auth
+            <div class="flex items-center space-x-4">
+                <span class="text-gray-700">{{ Auth::user()->name }}</span>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit"
+                        class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition duration-300">
+                        Cerrar sesión
+                    </button>
+                </form>
+            </div>
+        @else
+            <a href="{{ route('login') }}"
+                class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300">
+                Iniciar sesión
+            </a>
+        @endauth
+    </div>
     <div class="min-h-screen flex flex-col justify-center items-center px-4">
         <div class="max-w-4xl w-full space-y-8">
             <div class="text-center">

@@ -143,7 +143,7 @@ class PlanController extends Controller
                 'prppgnpag' => $item->nro_cuota,
                 'prppgcapi' => $item->abono_capital,
                 'prppginte' => $item->interes,
-                'prppgsegu' => $item->seguro,|
+                'prppgsegu' => $item->seguro,
                 'prppgotro' => $item->gastos_judiciales,
                 'prppgtota' => $item->total_cuota,
                 'estado' => 'ACTIVO',
