@@ -8,7 +8,9 @@ use Livewire\Component;
 class BeneficiaryUpdate extends Component
 {
     public $beneficiary;
-    public $nombre, $ci, $complemento, $expedido, $estado, $idepro, $fecha_nacimiento, $total_activado, $gastos_judiciales, $saldo_credito, $monto_recuperado, $fecha_activacion, $plazo_credito, $tasa_interes, $departamento;
+    public $nombre, $ci, $complemento, $expedido, $estado, $idepro, $fecha_nacimiento, $total_activado,
+    $gastos_judiciales, $saldo_credito, $monto_recuperado, $fecha_activacion, $plazo_credito, $tasa_interes,
+    $departamento, $seguro;
     public $showModal = false;
     public $confirmingSave = false;
 
@@ -28,12 +30,19 @@ class BeneficiaryUpdate extends Component
         'plazo_credito' => 'required|integer',
         'tasa_interes' => 'required|numeric',
         'departamento' => 'required|string|max:50',
+        'seguro' => 'required|numeric',
     ];
 
     public function mount(Beneficiary $beneficiary)
     {
         $this->beneficiary = $beneficiary;
         $this->fill($beneficiary->toArray());
+        $this->seguro = ($beneficiary->insurance()->exists()) ? $beneficiary->insurance->tasa_seguro : 0;
+        if($this->seguro == 0) {
+            $this->seguro = ($this->beneficiary->plans()->exists()) ? ($this->beneficiary->plans()->orderBy('fecha_ppg', 'desc')->first()->prppgsegu / $beneficiary->saldo_credito) * 100 : 0;
+        }
+
+        $this->seguro = number_format($this->seguro, 4);
     }
 
     public function update()

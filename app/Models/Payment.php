@@ -35,6 +35,6 @@ class Payment extends Model
 
     public function voucher()
     {
-        return $this->belongsTo(Voucher::class, 'numtramite', 'numtramite');
+        return $this->belongsTo(Voucher::class, 'numprestamo', 'numprestamo');
     }
 }

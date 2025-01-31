@@ -11,38 +11,34 @@ class Beneficiary extends Model
     use HasFactory;
 
     protected $fillable = [
-        'nombre',
-        'ci',
-        'complemento',
-        'expedido',
-        'mail',
-        'estado',
-        'entidad_financiera',
-        'cod_proy',
-        'idepro',
-        'cod_promotor',
-        'cod_cristorey',
-        'cod_fondesif',
-        'cod_smp',
-        'proyecto',
-        'genero',
-        'fecha_nacimiento',
-        'monto_credito',
-        'monto_activado',
-        'total_activado',
-        'gastos_judiciales',
-        'saldo_credito',
-        'monto_recuperado',
-        'fecha_activacion',
-        'plazo_credito',
-        'tasa_interes',
-        'departamento',
-        'user_id'
+        "nombre",
+        "ci",
+        "complemento",
+        "expedido",
+        "mail",
+        "estado",
+        "entidad_financiera",
+        "cod_proy",
+        "idepro",
+        "proyecto",
+        "genero",
+        "fecha_nacimiento",
+        "monto_credito",
+        "monto_activado",
+        "total_activado",
+        "gastos_judiciales",
+        "saldo_credito",
+        "monto_recuperado",
+        "fecha_activacion",
+        "plazo_credito",
+        "tasa_interes",
+        "departamento",
+        "user_id",
     ];
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
 
-    public $incrementing = false;
+    //public $incrementing = false;
 
     public function payments()
     {
@@ -77,5 +73,9 @@ class Beneficiary extends Model
     public function images()
     {
         return $this->hasMany(Image::class, 'idepro', 'idepro');
+    }
+
+    public function insurance() {
+        return $this->hasOne(Insurance::class, 'idepro', 'idepro');
     }
 }

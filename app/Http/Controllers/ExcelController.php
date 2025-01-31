@@ -11,6 +11,97 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 class ExcelController extends Controller
 {
+    public function importDifferiments(Request $request)
+    {
+        $validatedData = $request->validate([
+            'file-differiments' => 'required|max:10240',
+            'separator-differiments' => 'required|string|max:1',
+        ], [
+            'file-differiments.required' => 'El archivo es requerido',
+            'file-differiments.max' => 'El archivo no debe superar los 10MB',
+            'separator-differiments.required' => 'El separador es requerido',
+        ]);
+
+        $file = $request->file('file-differiments');
+        $separator = $validatedData['separator-differiments'];
+
+        $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
+        $filePath = 'storage/uploads/' . $fileName;
+        $file->move(public_path('storage/uploads'), $fileName);
+
+        $rows = array_map('str_getcsv', file($filePath));
+
+        //return $rows;
+
+        foreach ($rows as $row) {
+            $array[] = explode($separator, $row[0]);
+        }
+
+        //return $array;
+
+        $collection = new \Illuminate\Database\Eloquent\Collection();
+
+        foreach ($array as $key => $value) {
+            $collection->push(collect((object)[
+                'idepro' => $value[0],
+                'capital' => $value[1],
+                'interes' => $value[2],
+                'cuotas' => $value[3],
+            ]));
+        }
+
+        //return $collection;
+
+        try {
+            $data = new \Illuminate\Database\Eloquent\Collection();
+
+            foreach ($collection as $key => $value) {
+
+                $startIndex = \App\Models\Plan::where('idepro', $value['idepro'])->where('estado', 'ACTIVO')->orderBy('fecha_ppg', 'desc')->first();
+
+                if ($startIndex != null) {
+                    $cap = round((float)$value['capital'] / $value['cuotas'], 8);
+                    $int = round((float)$value['interes'] / $value['cuotas'], 8);
+
+                    for ($i = 1; $i <= $value['cuotas']; $i++) {
+                        $data->push(collect((object)[
+                            'idepro' => $value['idepro'],
+                            'nro_cuota' => $i + ($startIndex->prppgnpag ?? 0),
+                            'capital' => $cap,
+                            'interes' => $int,
+                            'vencimiento' => date('Y/m/15', strtotime(($startIndex->fecha_ppg ?? now()) . ' + ' . $i . ' months')),
+                            'estado' => 'ACTIVO'
+                        ]));
+                    }
+                }
+            }
+
+            foreach ($data as $d) {
+                if ($d != null) {
+                    \App\Models\Helper::create([
+                        'idepro' => $d['idepro'],
+                        'indice' => $d['nro_cuota'],
+                        'capital' => $d['capital'],
+                        'interes' => $d['interes'],
+                        'vencimiento' => $d['vencimiento'],
+                        'estado' => $d['estado'],
+                        'user_id' => auth()->user()->id,
+                    ]);
+                }
+            }
+
+            //return $data;
+
+            return redirect()->route('importaciones')->with('successD', 'Se lograron importar ' . count($rows) . ' registros para diferimentos.');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error during differimento generation: ' . $e->getMessage());
+
+            return $e;
+
+            return redirect()->route('importaciones')->with('errorD', 'Motivo de la falla: ' . $e->getMessage());
+        }
+    }
+
     public function importModelCSV(Request $request)
     {
         $validatedData = $request->validate([
@@ -43,10 +134,25 @@ class ExcelController extends Controller
             $collection->push((object) $array);
         }
 
-        //return $collection;
+        // Reemplazar la obtención de headers con:
+        $tableName = (new $dynaModel)->getTable();
+        $headers = \Schema::getColumnListing($tableName);
 
-        $data = $dynaModel::first();
-        $headers = collect($data->first())->keys();
+        // Filtrar las columnas no deseadas
+        $headers = collect($headers)->reject(function ($item) {
+            return in_array($item, [
+                'id',
+                'cod_promotor',
+                'cod_cristorey',
+                'cod_fondesif',
+                'cod_smp',
+                'created_at',
+                'updated_at'
+            ]);
+        });
+
+        $headers = collect((object)$headers->flatten());
+
 
         // DELETE 'id', 'created_at', 'updated_at' FROM $HEADERS
         $headers = $headers->reject(function ($item, $key) {
@@ -54,6 +160,8 @@ class ExcelController extends Controller
         });
 
         $headers = collect((object)$headers->flatten());
+
+        //return $headers;
 
         $data = new \Illuminate\Database\Eloquent\Collection();
 
@@ -74,24 +182,25 @@ class ExcelController extends Controller
 
                 $row->{$header} = $value;
             }
+            $row->{'user_id'} = auth()->user()->id;
             $data->push($row);
         }
 
-        // prepare $data to be created at $dynaModel's table
-
-        $dataArray = $data->map(function ($item) {
-            $itemArray = (array)$item;
-            // Remove 'id' from the array if it exists
-            unset($itemArray['id']);
-            return $itemArray;
-        })->toArray();
+        $updt = 0;
 
         try {
-            $dynaModel::insert($dataArray);
+            foreach ($data as $d) {
+                if ($dynaModel::where('idepro', $d->idepro)->exists())
+                {
+                    $dynaModel::where('idepro', $d->idepro)->update((array)$d);
+                } else {
+                    $dynaModel::create((array)$d);
+                }
+            }
 
             File::delete($filePath);
 
-            return redirect()->route('importaciones')->with('success', 'Se lograron importar ' . count($dataArray) . ' registros');
+            return redirect()->route('importaciones')->with('success', 'Se lograron importar ' . count($data) . ' registros, actualizados: ' . $updt);
         } catch (\Illuminate\Database\QueryException $e) {
             \Illuminate\Support\Facades\Log::error('Error during data import: ' . $e->getMessage());
 
@@ -120,7 +229,8 @@ class ExcelController extends Controller
     {
         $fileName = 'exportacion_' . uniqid() . '.xlsx';
         $idepro = $request->input('idepro');
-        $userId = auth()->id();
+
+        $userId = auth()->user()->id;
 
         $data = $this->generatePlanData($request);
         $diferimento = $this->generateDiferimentoIfNeeded($request, $data);
@@ -134,79 +244,6 @@ class ExcelController extends Controller
         $excelFilePath = $this->generateExcelFile($data, $title, $fileName);
 
         return response()->download($excelFilePath)->deleteFileAfterSend(true);
-    }
-
-    private function generatePlanData(Request $request)
-    {
-        return $this->generarPlan(
-            $request->input('capital_inicial'),
-            $request->input('gastos_judiciales'),
-            $request->input('meses'),
-            $request->input('taza_interes'),
-            $request->input('seguro'),
-            $request->input('correlativo'),
-            $request->input('plazo_credito'),
-            $request->input('fecha_inicio')
-        );
-    }
-
-    private function generateDiferimentoIfNeeded(Request $request, $data)
-    {
-        if ($request->filled(['diff_cuotas', 'diff_capital', 'diff_interes'])) {
-            return $this->generarDiferimento(
-                $request->input('diff_cuotas'),
-                $request->input('diff_capital'),
-                $request->input('diff_interes'),
-                $request->input('plazo_credito'),
-                $data->last()->vencimiento
-            );
-        }
-        return collect();
-    }
-
-    private function deactivateExistingRecords($idepro, $userId)
-    {
-        $models = [\App\Models\Helper::class, \App\Models\Plan::class, \App\Models\Readjustment::class];
-
-        foreach ($models as $model) {
-            $model::where('idepro', $idepro)->update([
-                'estado' => 'INACTIVO',
-                'user_id' => $userId
-            ]);
-        }
-    }
-
-    private function createNewRecords($data, $diferimento, Request $request, $userId)
-    {
-        $dynaModel = $request->input('correlativo') ? 'App\\Models\\Readjustment' : 'App\\Models\\Plan';
-        $idepro = $request->input('idepro');
-
-        foreach ($data as $d) {
-            $dynaModel::create([
-                'idepro' => $idepro,
-                'fecha_ppg' => $d->vencimiento,
-                'prppgnpag' => $d->nro_cuota,
-                'prppgcapi' => $d->abono_capital,
-                'prppginte' => $d->interes,
-                'prppgsegu' => $d->seguro,
-                'prppgotro' => $d->gastos_judiciales,
-                'prppgtota' => $d->total_cuota,
-                'estado' => 'ACTIVO',
-                'user_id' => $userId,
-            ]);
-        }
-
-        foreach ($diferimento as $d) {
-            \App\Models\Helper::create([
-                'idepro' => $idepro,
-                'indice' => $d->nro_cuota,
-                'capital' => $d->capital,
-                'interes' => $d->interes,
-                'vencimiento' => $d->vencimiento,
-                'estado' => $d->estado,
-                'user_id' => $userId,
-            ]);
-        }
     }
 
     private function prepareHeaders($data)

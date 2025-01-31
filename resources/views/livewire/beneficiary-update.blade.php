@@ -128,6 +128,14 @@
                                             <label for="saldo_credito"
                                                 class="block text-gray-700 text-sm font-bold mb-2">Saldo
                                                 Crédito:</label>
+                                            @if (($beneficiary->total_activado - $beneficiary->payments()->where('prtdtdesc', 'LIKE', '%CAP%')->sum('montopago')) != $beneficiary->saldo_credito)
+                                            <span class="text-gray-500">
+                                                <i>
+                                                    El sistema detecta un saldo aprox. de
+                                                    {{ $beneficiary->total_activado - $beneficiary->payments()->where('prtdtdesc', 'LIKE', '%CAP%')->sum('montopago') }}
+                                                </i>
+                                            </span>
+                                            @endif
                                             <input type="number" wire:model="saldo_credito" id="saldo_credito"
                                                 class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                             @error('saldo_credito')
@@ -183,6 +191,15 @@
                                                 <span class="text-red-500 text-xs">{{ $message }}</span>
                                             @enderror
                                         </div>
+                                        <div class="mb-4">
+                                            <label for="seguro"
+                                                class="block text-gray-700 text-sm font-bold mb-2">seguro:</label>
+                                            <input type="text" wire:model="seguro" id="seguro"
+                                                class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                            @error('seguro')
+                                                <span class="text-red-500 text-xs">{{ $message }}</span>
+                                            @enderror
+                                        </div>
                                         <div class="flex items-center justify-between">
                                             <button type="button" wire:click="$set('confirmingSave', true)"
                                                 class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">
@@ -204,7 +221,10 @@
     @endif
 
     @if ($confirmingSave)
-        <div class="fixed z-10 inset-0 overflow-y-auto">
+        <div class="fixed z-10 inset-0 overflow-y-auto" x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0" x-cloak>
             <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
                 <div class="fixed inset-0 transition-opacity" aria-hidden="true">
                     <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
@@ -219,8 +239,9 @@
                             <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                                 <h3 class="text-xl text-center leading-6 font-bold text-gray-900" id="modal-title">
                                     <span>
-                                        <svg class="mx-auto" width="64px" height="64px" viewBox="-2.5 -2.5 30.00 30.00"
-                                            fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <svg class="mx-auto" width="64px" height="64px"
+                                            viewBox="-2.5 -2.5 30.00 30.00" fill="none"
+                                            xmlns="http://www.w3.org/2000/svg">
                                             <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                                             <g id="SVGRepo_tracerCarrier" stroke-linecap="round"
                                                 stroke-linejoin="round"></g>
@@ -254,7 +275,7 @@
                                     </p>
                                     <div class="flex items-center justify-between mt-4">
                                         <button type="button" wire:click="update"
-                                            class="bg-green-600 hover:bg-green-800 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">
+                                            class="bg-green-500 hover:bg-green-800 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">
                                             Sí, Guardar
                                         </button>
                                         <button type="button" wire:click="$set('confirmingSave', false)"

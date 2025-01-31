@@ -11,8 +11,7 @@
             <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
         </div>
 
-        <div
-            class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-4xl sm:w-full m-4 z-50">
+        <div class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-5xl sm:w-full z-50">
             <div class="bg-gray-100 px-4 py-3 border-b border-gray-200">
                 <div class="flex items-center justify-between">
                     <h3 class="text-xl font-semibold text-gray-900">
@@ -28,10 +27,40 @@
             </div>
 
             <div class="px-4 py-4 sm:p-6 max-h-[calc(100vh-200px)] overflow-y-auto">
-                <div class="bg-white h-fit shadow-lg rounded-lg p-4" id="profile_payments">
-                    <div class="mb-4">
-                        <h2 class="text-2xl font-bold text-gray-800">Historial de Pagos</h2>
-                        <p class="text-gray-600">Detalle de los pagos realizados por el beneficiario</p>
+                <div class="bg-white h-fit shadow-lg rounded-lg" id="profile_payments">
+                    <div class="flex items-center justify-center gap-2 p-2">
+                        <div class="flex justify-between items-center w-fit bg-gray-100 p-2 rounded-lg shadow-sm">
+                            <span class="text-lg text-gray-700 mr-2">
+                                Capital:
+                            </span>
+                            <span class="text-lg font-bold text-gray-900">
+                                {{ number_format($beneficiary->payments()->where('prtdtdesc', 'LIKE', '%CAPI%')->sum('montopago'), 2) }}
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center w-fit bg-gray-100 p-2 rounded-lg shadow-sm">
+                            <span class="text-lg text-gray-700 mr-2">
+                                Interes:
+                            </span>
+                            <span class="text-lg font-bold text-gray-900">
+                                {{ number_format($beneficiary->payments()->where('prtdtdesc', 'LIKE', '%INTE%')->sum('montopago'), 2) }}
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center w-fit bg-gray-100 p-2 rounded-lg shadow-sm">
+                            <span class="text-lg text-gray-700 mr-2">
+                                Seguros:
+                            </span>
+                            <span class="text-lg font-bold text-gray-900">
+                                {{ number_format($beneficiary->payments()->where('prtdtdesc', 'LIKE', '%SEG%')->sum('montopago'), 2) }}
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center w-fit bg-gray-300 p-2 rounded-lg shadow-sm">
+                            <span class="text-lg text-gray-700 mr-2">
+                                Total:
+                            </span>
+                            <span class="text-lg font-bold text-gray-900">
+                                {{ number_format($beneficiary->payments()->sum('montopago'), 2) }}
+                            </span>
+                        </div>
                     </div>
                     <table class="w-full overflow-hidden rounded-lg dark:divide-gray-700">
                         <thead>
@@ -45,11 +74,11 @@
                                 <th>Hora Pago</th>
                                 <th>Descripcion</th>
                                 <th>Monto</th>
-                                <th>Operaciones</th>
+                                <th>Glosas</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse ($beneficiary->vouchers()->get() as $v)
+                            @forelse ($beneficiary->vouchers()->orderBy('fecha_pago')->get() as $v)
                                 <tr class="border-b-2 px-3 py-4 text-sm p-2 h-auto">
                                     <td class="px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
                                         {{ $v->numpago }}
@@ -60,50 +89,27 @@
                                     <td>{{ $v->hora_pago }}</td>
                                     <td>{{ $v->descripcion }}</td>
                                     <td>{{ 'Bs. ' . number_format($v->montopago, 2) }}</td>
-                                    <td class="h-auto flex flex-row justify-center py-2">
-                                        <x-dropdown align="right" width="40">
-                                            <x-slot name="trigger">
-                                                <span class="inline-flex rounded-md">
-                                                    <button type="button"
-                                                        class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-full text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-700 active:bg-gray-50 dark:active:bg-gray-700 transition ease-in-out duration-150">
-                                                        <svg width="24px" height="24px" viewBox="0 0 24 24"
-                                                            fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                                                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round"
-                                                                stroke-linejoin="round"></g>
-                                                            <g id="SVGRepo_iconCarrier">
-                                                                <rect width="24" height="24" fill="transparent">
-                                                                </rect>
-                                                                <circle cx="12" cy="7" r="0.5"
-                                                                    transform="rotate(90 12 7)" stroke="#000000"
-                                                                    stroke-linecap="round" stroke-linejoin="round">
-                                                                </circle>
-                                                                <circle cx="12" cy="12" r="0.5"
-                                                                    transform="rotate(90 12 12)" stroke="#000000"
-                                                                    stroke-linecap="round" stroke-linejoin="round">
-                                                                </circle>
-                                                                <circle cx="12" cy="17" r="0.5"
-                                                                    transform="rotate(90 12 17)" stroke="#000000"
-                                                                    stroke-linecap="round" stroke-linejoin="round">
-                                                                </circle>
-                                                            </g>
-                                                        </svg>
-                                                    </button>
-                                                </span>
-                                            </x-slot>
-                                            <x-slot name="content">
-                                                @foreach ($v->payments()->where('prt') as $p)
-                                                    <x-dropdown-link>
-                                                        <span class="cursor-pointer text-xs">
-                                                            {{ $p->prtdtdesc }}
-                                                        </span>
-                                                        <span class="cursor-pointer text-xs font-bold">
-                                                            {{ number_format($p->montopago, 2) }}
-                                                        </span>
-                                                    </x-dropdown-link>
-                                                @endforeach
-                                            </x-slot>
-                                        </x-dropdown>
+                                    <td class="h-auto p-2">
+                                        <div class="flex flex-col space-y-2">
+                                            @forelse ($v->payments as $p)
+                                                <div
+                                                    class="flex justify-between items-center bg-gray-100 p-2 rounded-lg shadow-sm">
+                                                    <span class="text-xs text-gray-700">
+                                                        {{ $p->prtdtdesc }}
+                                                    </span>
+                                                    <span class="text-xs font-bold text-gray-900">
+                                                        {{ number_format($p->montopago, 2) }}
+                                                    </span>
+                                                </div>
+                                            @empty
+                                                <div
+                                                    class="flex justify-between items-center bg-gray-100 p-2 rounded-lg shadow-sm">
+                                                    <span class="text-xs text-gray-700">
+                                                        No hay glosas
+                                                    </span>
+                                                </div>
+                                            @endforelse
+                                        </div>
                                     </td>
                                 </tr>
                             @empty

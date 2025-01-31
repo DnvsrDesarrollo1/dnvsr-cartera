@@ -6,227 +6,428 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalles del Beneficiario</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-
         body {
-            font-family: 'Inter', sans-serif;
-            line-height: 1.25;
-            color: #333;
+            font-family: Arial, sans-serif;
             margin: 0;
-            padding: 5px;
-
+            padding: 10px;
+            font-size: 11px;
+            line-height: 1.2;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 100%;
             margin: 0 auto;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #4a5568;
-            padding-bottom: 5px;
-            position: relative;
-            width: 100%;
-            height: fit-content;
-            background-image: radial-gradient(circle, #ff0000 1px, transparent 1px);
-            background-size: 20px 20px;
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
         }
 
-        h1 {
-            color: #2d3748;
-            font-size: 20px;
-            font-weight: 700;
+        .header img {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            height: 72px;
+            width: auto;
         }
 
-        h2 {
-            color: #4a5568;
+        .header h1 {
+            margin: 0;
             font-size: 16px;
-            font-weight: 600;
-            margin-top: 5px;
         }
 
-        .details {
-            background-color: #f7fafccc;
-            border-radius: 8px;
-            padding: 0.5rem;
-            margin-bottom: 15px;
-            overflow: hidden;
-            /* Asegura que la marca de agua no se salga del div */
+        .header h2 {
+            margin: 2px 0;
+            font-size: 14px;
         }
 
         .info-grid {
-            display: flex;
-            gap: 5px;
+            margin: 5px 0;
         }
 
         .info-item {
-            margin-bottom: 5px;
-            font-size: 10px;
+            padding: 3px 5px;
+            background: #f9f9f9;
+            border-bottom: 1px solid #eee;
         }
 
         .info-label {
-            font-weight: 600;
-            color: #4a5568;
+            font-weight: bold;
+            display: inline-block;
+            width: 100px;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
+        .info-value {
+            display: inline-block;
+        }
+
+        .signatures {
+            margin-top: 30px;
+            gap: 30px;
+        }
+
+        .signature-line {
+            margin-top: 30px;
+            padding-top: 5px;
+        }
+
+        .footer {
+            margin-top: 20px;
+            padding-top: 10px;
             font-size: 10px;
         }
 
-        th,
-        td {
-            border: 1px solid #e2e8f0;
-            padding: 3px;
+        @media print {
+            body {
+                padding: 0;
+            }
+        }
+
+        .description {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        .description>thead>th {}
+
+        .description>tbody>tr {
+            border-bottom: 1px solid #eee;
+        }
+
+        .plans {
+            margin-top: 15px;
+        }
+
+        .plans table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10px;
+        }
+
+        .plans th {
+            background: #f5f5f5;
+            color: #333;
+            font-weight: normal;
+            padding: 5px;
+            text-align: right;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .plans td {
+            padding: 4px 5px;
+            text-align: right;
+            border-bottom: 1px solid #eee;
+        }
+
+        .plans tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        .plans td:first-child,
+        .plans th:first-child {
+            text-align: center;
+        }
+
+        .plans td:nth-child(2),
+        .plans th:nth-child(2) {
             text-align: left;
         }
 
-        th {
-            background-color: #edf2f7;
+        .plans .total {
             font-weight: 600;
-            color: #4a5568;
+            color: #2d3748;
         }
 
-        tr:nth-child(even) {
-            background-color: #f7fafc;
-        }
-
-        .rotingtxt {
-            -webkit-transform: rotate(310deg);
-            -moz-transform: rotate(310deg);
-            -o-transform: rotate(310deg);
-            transform: rotate(310deg);
-            position: absolute;
-            font-size: 1em;
-            color: rgba(206, 206, 206, 0.25);
-            top: 16%;
-            right: 37%;
-            width: fit-content;
-            padding: 0.3rem;
-            border-radius: 5%;
-            border: rgba(206, 206, 206, 0.100) solid 3px;
-            text-align: center;
+        .plans .saldo {
+            color: #718096;
         }
     </style>
 </head>
 
+@if ($beneficiary->estado == 'BLOQUEADO')
+<h1>Estado de credito BLOQUADO, informacion no disponible</h1>
+@else
 <body>
+    @php
+        $saldo = $plans->sum('prppgcapi');
+        $tasa = 1;
+        if ($beneficiary->insurance()->exists()) {
+            $tasa = $beneficiary->insurance->tasa_seguro;
+        }
+        if ($beneficiary->saldo_credito > 0) {
+            $tasa = $plans->first() ? ($plans->first()->prppgsegu / $beneficiary->saldo_credito) * 100 : 1;
+        }
+    @endphp
     <div class="container">
-        <div class="header">
-            <h1>| PLAN DE PAGOS |</h1>
-            <H2>PROGRAMA DE VIVIENDA SOCIAL Y SOLIDARIA (PVS)</H2>
-            <div class="rotingtxt">
-                <p>
-                    AEVIVIENDA - DNVSR
-                </p>
-            </div>
-        </div>
+        <header class="header">
+            <img src="{{ public_path('assets/main_ico.png') }}" alt="Logo">
+            <h1>AEVIVIENDA</h1>
+            <h2>AGENCIA ESTATAL DE VIVIENDA</h2>
+            <h2>PROGRAMA DE VIVIENDA SOCIAL Y SOLIDARIA - PVS</h2>
+            <hr />
+            <h1>PLAN DE PAGOS</h1>
+            <hr />
+        </header>
         <div class="details">
-            <h2>Proyecto "{{ $beneficiary->proyecto }}"</h2>
-            <div class="info-grid">
-                <div class="info-item">
-                    <span class="info-label">Nombre:</span> {{ $beneficiary->nombre }}
-                </div>
-                <div class="info-item">
-                    <span class="info-label">CI:</span> {{ $beneficiary->ci }} {{ $beneficiary->complemento }}
-                    {{ $beneficiary->expedido }}
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Codigo Credito:</span> {{ $beneficiary->idepro }}
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Total Activado:</span> {{ number_format($beneficiary->total_activado, 2) }}
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Otros Gastos:</span>
-                    {{ number_format($beneficiary->gastos_judiciales, 2) }}
-                </div>
-                <div class="info-item">
-                    <span class="info-label">% Interés:</span>
-                    {{ number_format($beneficiary->tasa_interes) }}%
-                </div>
-                <div class="info-item">
-                    <span class="info-label">% Seg. Desgrv:</span>
-                    {{ number_format($plans->first()->prppgsegu / $beneficiary->total_activado, 5) * 100 }}%
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Fecha Activación:</span>
-                    {{ date('d/m/Y', strtotime($beneficiary->fecha_activacion)) }}
-                </div>
-            </div>
+            <table class="description">
+                <thead>
+                    <th>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    </th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Proyecto:</td>
+                        <td>{{ $beneficiary->proyecto }}</td>
+                        <td></td>
+                        <td>Fecha Emision:</td>
+                        <td>{{ date('Y-m-d', strtotime(now())) }}</td>
+                    </tr>
+                    <tr>
+                        <td>Codigo Prestamo:</td>
+                        <td>{{ $beneficiary->idepro }}</td>
+                        <td></td>
+                        <td>Monto Activado:</td>
+                        <td>Bs. {{ number_format($beneficiary->monto_credito, 2) }}</td>
+                    </tr>
+                    <tr>
+                        <td>Nombres:</td>
+                        <td>{{ $beneficiary->nombre }}</td>
+                        <td></td>
+                        <td>Fecha Activacion:</td>
+                        <td>{{ $beneficiary->fecha_activacion }}</td>
+                    </tr>
+                    <tr>
+                        <td>Moneda:</td>
+                        <td>BOLIVIANOS</td>
+                        <td></td>
+                        <td>Fecha Re-estructuracion:</td>
+                        <td>2025-01-10</td>
+                    </tr>
+                    <tr>
+                        <td>Seguro Desgravamen:</td>
+                        <td>
+                            {{number_format($tasa, 3)}} %
+                        </td>
+                        <td></td>
+                        <td>Fecha Vencimiento del Plan:</td>
+                        <td>{{ date('Y-m-d', strtotime($beneficiary->fecha_activacion . '+ 20 years')) }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Periodicidad de pago:</td>
+                        <td>MENSUAL</td>
+                        <td></td>
+                        <td>Plazo de operacion:</td>
+                        <td>{{ $plans->count() }}</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Interes/Seguro Devengados: <br>
+                            Cuotas/Capital/Interes Diferidos:
+                        </td>
+                        <td>
+                            Bs.
+                            {{ number_format(\App\Models\Earn::where('idepro', $beneficiary->idepro)->where('estado', 'ACTIVO')->sum('interes') ?? 0,2) }}
+                            /
+                            Bs.
+                            {{ number_format(\App\Models\Earn::where('idepro', $beneficiary->idepro)->where('estado', 'ACTIVO')->sum('seguro') ?? 0,2) }}
+                            <br>
+                            {{ $differs->count() ?? 0 }} / Bs. {{ number_format($differs->sum('capital') ?? 0, 2) }} /
+                            Bs. {{ number_format($differs->sum('interes') ?? 0, 2) }}
+                        </td>
+                        <td></td>
+                        <td>Saldo "{{ $beneficiary->entidad_financiera }}":</td>
+                        <td>Bs.
+                            {{ number_format($beneficiary->total_activado + ($differs->sum('capital') + $differs->sum('interes') ?? 0), 2) }}
+                            {{-- {{ number_format($beneficiary->saldo_credito, 2) }} --}}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Tasa de interes:</td>
+                        <td>{{ $beneficiary->tasa_interes }} %</td>
+                        <td></td>
+                        <td>
+                            <b>Saldo:</b>
+                        </td>
+                        <td>Bs. {{ number_format($beneficiary->saldo_credito + ($differs->sum('capital') ?? 0), 2) ?? 0 }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="plans">
+            <table>
+                <thead>
+                    <tr>
+                        <th>N°</th>
+                        <th>Fecha Plazo</th>
+                        <th>Capital</th>
+                        <th>Interés</th>
+                        <th>Seguro</th>
+                        <th>Otros</th>
+                        <th>Interes Devengado</th>
+                        <th>Seguro Devengado</th>
+                        <th>Total</th>
+                        <th style="text-align: center;">
+                            Saldo
+                            <br>
+                            <i>({{number_format($beneficiary->saldo_credito,2)}})</i>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($plans as $plan)
+                        @php
+                            $saldo -= $plan->prppgcapi;
+                        @endphp
+                        <tr>
+                            <td>{{ $loop->index + 1 }}</td>
+                            <td>{{ date('d/m/Y', strtotime($plan->fecha_ppg)) }}</td>
+                            <td>{{ number_format($plan->prppgcapi, 2) }}</td>
+                            <td>{{ number_format($plan->prppginte, 2) }}</td>
+                            <td>{{ number_format($plan->prppgsegu, 2) }}</td>
+                            <td>{{ $plan->prppgotro }}</td>
+                            <th>{{ number_format($plan->prppggral, 2) }}</th>
+                            <th>{{ number_format($plan->prppgcarg, 2) }}</th>
+                            <td style="font-weight: 600;">{{ number_format($plan->prppgtota, 2) }}</td>
+                            <td>{{ number_format($saldo, 2) }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="10" style="text-align: center;">No hay planes de pagos asociados</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th style="padding: 1rem;">Totales:</th>
+                        <th style="padding: 1rem;"></th>
+                        <th style="font-weight: 800; padding: 0.5rem;">
+                            Cap: {{ number_format($plans->sum('prppgcapi'), 2) }}
+                        </th>
+                        <th style="font-weight: 800; padding: 0.5rem;">
+                            Int: {{ number_format($plans->sum('prppginte'), 2) }}
+                        </th>
+                        <th style="font-weight: 800; padding: 0.5rem;">
+                            Seg: {{ number_format($plans->sum('prppgsegu'), 2) }}
+                        </th>
+                        <th style="font-weight: 800; padding: 0.5rem;">
+                            Otr: {{ number_format($plans->sum('prppgotro'), 2) }}
+                        </th>
+                        <th style="font-weight: 800; padding: 0.5rem;">
+                            Int. Dev: {{ number_format($plans->sum('prppggral'), 2) }}
+                        </th>
+                        <th style="font-weight: 800; padding: 0.5rem;">
+                            Seg. Dev: {{ number_format($plans->sum('prppgcarg'), 2) }}
+                        </th>
+                        <th style="font-weight: 800; padding: 0.5rem;">
+                            Total: {{ number_format($plans->sum('prppgtota'), 2) }}
+                        </th>
+                        <th style="font-weight: 800; padding: 0.5rem;">
+                            Saldo: {{ number_format($saldo, 2) }}
+                        </th>
+                    </tr>
+                    <tr>
+                        <th colspan="10">
+                            @if ($plans->count() > 0)
+                                <span style="font-style: italic;">
+                                    En caso que el dia de vencimiento sea fin de semana, se tomará en cuenta el
+                                    siguiente dia
+                                    hábil.
+                                </span>
+                            @else
+                                <span style="font-style: italic;">
+                                    Este beneficiario no tiene planes de pagos asociados.
+                                </span>
+                            @endif
+                        </th>
+                    </tr>
+                    <tr>
+                        <th colspan="10">
+                            <span style="font-style: italic;">
+                                La cuota puede variar en funcion a la tasa de la <b>prima de seguro</b>
+                            </span>
+                        </th>
+                    </tr>
+                </tfoot>
+            </table>
         </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>N°</th>
-                    <th>Fecha Plazo</th>
-                    <th>Capital</th>
-                    <th>Interés</th>
-                    <th>Seguro</th>
-                    <th>Otros</th>
-                    <th>Total</th>
-                    <th>Saldo</th>
-                </tr>
-            </thead>
-            <tbody>
-                @php
-                    $saldo = $beneficiary->total_activado;
-                @endphp
-                @foreach ($plans as $plan)
-                    @php
-                        $saldo -= $plan->prppgcapi;
-                    @endphp
-                    <tr>
-                        <td>{{ $loop->index + 1 }}</td>
-                        <td>{{ date('d/m/Y', strtotime($plan->fecha_ppg)) }}</td>
-                        <td>{{ number_format($plan->prppgcapi, 2) }}</td>
-                        <td>{{ number_format($plan->prppginte, 2) }}</td>
-                        <td>{{ number_format($plan->prppgsegu, 2) }}</td>
-                        <td>{{ $plan->prppgotro }}</td>
-                        <td style="font-weight: 600;">{{ number_format($plan->prppgtota, 2) }}</td>
-                        <td>{{ number_format($saldo, 2) }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-            <tfoot>
-                <tr>
-                    <th>Subtotales:</th>
-                    <th></th>
-                    <th>Cap: {{ number_format($plans->sum('prppgcapi'), 2) }}</th>
-                    <th>Int: {{ number_format($plans->sum('prppginte'), 2) }}</th>
-                    <th>Seg: {{ number_format($plans->sum('prppgsegu'), 2) }}</th>
-                    <th>Otr: {{ number_format($plans->sum('prppgotro'), 2) }}</th>
-                    <th>Total: {{ number_format($plans->sum('prppgtota'), 2) }}</th>
-                    <th></th>
-                </tr>
-                <tr>
-                    <th colspan="8">
-                        @if ($plans->count() > 0)
-                            <span style="font-style: italic;">
-                                En caso que el dia de vencimiento sea domingo, se tomará en cuenta el siguiente dia
-                                hábil.
-                            </span>
-                        @else
-                            <span style="font-style: italic;">
-                                Este beneficiario no tiene planes de pagos asociados.
-                            </span>
-                        @endif
-                    </th>
-                </tr>
-                <tr>
-                    <th colspan="8">
-                        <span style="font-style: italic;">
-                            La cuota puede variar en funcion a la tasa de la <b>prima de seguro</b>
-                        </span>
-                    </th>
-                </tr>
-            </tfoot>
-        </table>
+        @isset($differs)
+            <h4 style="margin-top: 2rem;">Cuotas Diferidas</h4>
+            <div class="plans">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>N°</th>
+                            <th>Fecha</th>
+                            <th>Capital</th>
+                            <th>Interés</th>
+                            <th>Seguro</th>
+                            <th>Otros</th>
+                            <th>Total</th>
+                            <th style="text-align: center;">
+                                Saldo
+                                <br>
+                                ({{number_format($differs->sum('capital') + $differs->sum('interes') + $differs->sum('seguro') + $differs->sum('otros'), 2)}})
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php
+                            $dif = $differs->sum('capital') + $differs->sum('interes');
+                        @endphp
+                        @forelse ($differs as $differ)
+                            @php
+                                $dif -= $differ->capital + $differ->interes;
+                            @endphp
+                            <tr>
+                                <td>{{ $loop->index + 1 }}</td>
+                                <td>{{ $differ->indice }}</td>
+                                <td>{{ $differ->vencimiento }}</td>
+                                <td>{{ number_format($differ->capital, 2) }}</td>
+                                <td>{{ number_format($differ->interes, 2) }}</td>
+                                <td>{{ number_format($differ->seguro, 2) }}</td>
+                                <td>{{ number_format($differ->otros, 2) }}</td>
+                                <td>{{ number_format($differ->capital + $differ->interes + $differ->seguro + $differ->otros, 2) }}
+                                </td>
+                                <td>{{ number_format($dif, 2) }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="9" style="text-align: center;">No hay cuotas diferidas asociadas</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th style="font-weight: 800;">Totales:</th>
+                            <th style="font-weight: 800;">{{ number_format($differs->sum('capital'), 2) }}</th>
+                            <th style="font-weight: 800;">{{ number_format($differs->sum('interes'), 2) }}</th>
+                            <th style="font-weight: 800;">{{ number_format($differs->sum('seguro'), 2) }}</th>
+                            <th style="font-weight: 800;">{{ number_format($differs->sum('otros'), 2) }}</th>
+                            <th style="font-weight: 800;">
+                                {{ number_format($differs->sum('capital') + $differs->sum('interes') + $differs->sum('seguro') + $differs->sum('otros'), 2) }}
+                            </th>
+                            <th>{{ number_format($dif, 2) }}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        @endisset
+
         <div style="margin-top: 5rem;" id="firmas">
             <table style="width: 50%; border: none;">
                 <tr>
@@ -243,5 +444,5 @@
         </div>
     </div>
 </body>
-
+@endif
 </html>

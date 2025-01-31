@@ -21,8 +21,13 @@ final class BeneficiaryTable extends PowerGridComponent
     public string $tableName = 'beneficiaries';
 
     // ORDENAMIENTO
-    public string $sortField = 'fecha_activacion';
+    public string $sortField = 'created_at';
     public string $sortDirection = 'desc';
+
+    public function boot(): void
+    {
+        config(['livewire-powergrid.filter' => 'outside']);
+    }
 
     public function setUp(): array
     {
@@ -36,8 +41,8 @@ final class BeneficiaryTable extends PowerGridComponent
             PowerGrid::header(),
 
             PowerGrid::footer()
-                ->showPerPage()
-                ->showRecordCount('short'),
+                ->showPerPage(perPage: 500, perPageValues: [25, 50, 100, 500, 1000, 0])
+                ->showRecordCount()
         ];
     }
 
@@ -59,6 +64,7 @@ final class BeneficiaryTable extends PowerGridComponent
             ->add('entidad_financiera')
             ->add('idepro')
             ->add('proyecto')
+            ->add('plan')
             ->add('genero')
             ->add('fecha_nacimiento')
             ->add('total_activado', fn($ben) => \Illuminate\Support\Number::currency($ben->total_activado ?? 0, in: 'Bs.'))
@@ -76,6 +82,9 @@ final class BeneficiaryTable extends PowerGridComponent
 
             Column::make('CI', 'ci')
                 ->sortable(),
+
+            Column::make('Prestamo', 'idepro')
+                ->hidden(),
 
             Column::make('Proyecto', 'proyecto')
                 ->hidden(),
@@ -112,7 +121,13 @@ final class BeneficiaryTable extends PowerGridComponent
         return [
             Filter::inputText('nombre')->operators(['contains']),
             Filter::inputText('ci')->operators(['contains']),
-            Filter::inputText('proyecto')->operators(['contains']),
+            Filter::inputText('idepro')->operators(['contains']),
+
+
+            Filter::select('proyecto', 'proyecto')
+                ->dataSource(Beneficiary::select('proyecto')->distinct()->orderBy('proyecto', 'asc')->get())
+                ->optionValue('proyecto')
+                ->optionLabel('proyecto'),
 
             Filter::select('estado', 'estado')
                 ->dataSource(Beneficiary::select('estado')->distinct()->get())
@@ -139,7 +154,7 @@ final class BeneficiaryTable extends PowerGridComponent
                 ->route('beneficiario.show', ['cedula' => $row->ci ?? 0], '_blank'),
             Button::add('pdf')
                 ->slot(__('<svg width="32px" height="32px" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <defs> <style>.cls-1{fill:#ff402f;}</style> </defs> <title></title> <g id="xxx-word"> <path class="cls-1" d="M325,105H250a5,5,0,0,1-5-5V25a5,5,0,0,1,10,0V95h70a5,5,0,0,1,0,10Z"></path> <path class="cls-1" d="M325,154.83a5,5,0,0,1-5-5V102.07L247.93,30H100A20,20,0,0,0,80,50v98.17a5,5,0,0,1-10,0V50a30,30,0,0,1,30-30H250a5,5,0,0,1,3.54,1.46l75,75A5,5,0,0,1,330,100v49.83A5,5,0,0,1,325,154.83Z"></path> <path class="cls-1" d="M300,380H100a30,30,0,0,1-30-30V275a5,5,0,0,1,10,0v75a20,20,0,0,0,20,20H300a20,20,0,0,0,20-20V275a5,5,0,0,1,10,0v75A30,30,0,0,1,300,380Z"></path> <path class="cls-1" d="M275,280H125a5,5,0,0,1,0-10H275a5,5,0,0,1,0,10Z"></path> <path class="cls-1" d="M200,330H125a5,5,0,0,1,0-10h75a5,5,0,0,1,0,10Z"></path> <path class="cls-1" d="M325,280H75a30,30,0,0,1-30-30V173.17a30,30,0,0,1,30-30h.2l250,1.66a30.09,30.09,0,0,1,29.81,30V250A30,30,0,0,1,325,280ZM75,153.17a20,20,0,0,0-20,20V250a20,20,0,0,0,20,20H325a20,20,0,0,0,20-20V174.83a20.06,20.06,0,0,0-19.88-20l-250-1.66Z"></path> <path class="cls-1" d="M145,236h-9.61V182.68h21.84q9.34,0,13.85,4.71a16.37,16.37,0,0,1-.37,22.95,17.49,17.49,0,0,1-12.38,4.53H145Zm0-29.37h11.37q4.45,0,6.8-2.19a7.58,7.58,0,0,0,2.34-5.82,8,8,0,0,0-2.17-5.62q-2.17-2.34-7.83-2.34H145Z"></path> <path class="cls-1" d="M183,236V182.68H202.7q10.9,0,17.5,7.71t6.6,19q0,11.33-6.8,18.95T200.55,236Zm9.88-7.85h8a14.36,14.36,0,0,0,10.94-4.84q4.49-4.84,4.49-14.41a21.91,21.91,0,0,0-3.93-13.22,12.22,12.22,0,0,0-10.37-5.41h-9.14Z"></path> <path class="cls-1" d="M245.59,236H235.7V182.68h33.71v8.24H245.59v14.57h18.75v8H245.59Z"></path> </g> </g></svg>'))
-                ->route('beneficiario.pdf', ['cedula' => $row->ci ?? 0], '_blank'),
+                ->route('beneficiario.pdf', ['cedula' => $row->ci ?? 0], '_blank')
         ];
     }
 
@@ -149,35 +164,35 @@ final class BeneficiaryTable extends PowerGridComponent
         if ($this->checkboxValues) {
             $this->js('
         Swal.fire({
-            title: "Ingrese la tasa de interés (sin símbolo):",
+            title: "Ingrese la tasa de interés (-1 para usar dato del perfil): (0, 1, 2, 3...)",
             input: "number",
             inputAttributes: {
-                min: 0,
+                min: -1,
                 step: 0.01
             },
             showCancelButton: true,
             confirmButtonText: "Siguiente",
             cancelButtonText: "Cancelar",
             inputValidator: (value) => {
-                if (!value || isNaN(value) || value < 0) {
-                    return "Por favor, ingrese un número válido mayor o igual a 0";
+                if (!value || isNaN(value)) {
+                    return "Por favor, ingrese un número válido.";
                 }
             }
         }).then((result) => {
             if (result.isConfirmed) {
                 Swal.fire({
-                    title: "Ingrese la tasa de seguro (sin símbolo):",
+                    title: "Ingrese la tasa de seguro (-1 para usar dato del perfil): (0, 0.040, 0.076...)",
                     input: "number",
                     inputAttributes: {
-                        min: 0,
+                        min: -1,
                         step: 0.01
                     },
                     showCancelButton: true,
                     confirmButtonText: "Confirmar",
                     cancelButtonText: "Cancelar",
                     inputValidator: (value) => {
-                        if (!value || isNaN(value) || value < 0) {
-                            return "Por favor, ingrese un número válido mayor o igual a 0";
+                        if (!value || isNaN(value)) {
+                            return "Por favor, ingrese un número válido.";
                         }
                     }
                 }).then((resultSeguro) => {
@@ -200,6 +215,8 @@ final class BeneficiaryTable extends PowerGridComponent
             $data["seguro"] = strval($inputInsurance);
 
             $this->js('window.pgBulkActions.clearAll()');
+            //show a alert with the data
+            //dd($data);
 
             // Convertir el array a JSON y codificarlo para URL
             $encodedData = urlencode(json_encode($data));

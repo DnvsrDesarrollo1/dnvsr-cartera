@@ -48,9 +48,6 @@
                 <dd class="text-sm text-gray-900 border rounded">{{ $beneficiary->ci ?? 'N/A' }}</dd>
                 <dt class="text-sm font-bold text-gray-800 border rounded bg-gray-50">Código de Crédito:</dt>
                 <dd class="text-sm text-gray-900 border rounded">{{ $beneficiary->idepro ?? 'N/A' }}</dd>
-                <dt class="text-sm font-bold text-gray-800 border rounded bg-gray-50">Saldo Capital:</dt>
-                <dd class="text-sm text-gray-900 border rounded">
-                    {{ 'Bs. ' . number_format($beneficiary->saldo_credito, 2) ?? 'N/A' }}</dd>
                 <dt class="text-sm font-bold text-gray-800 border rounded bg-gray-50">Cuota Correspondiente:</dt>
                 <dd class="text-sm text-gray-900 rounded">
                     <dl class="grid grid-cols-2 gap-x-4 gap-y-2 rounded">

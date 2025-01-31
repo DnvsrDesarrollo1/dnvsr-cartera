@@ -63,12 +63,16 @@
                             </thead>
                             <tbody class="bg-white">
                                 @php
-                                    $plans = $beneficiary->readjustments()->where('estado', 'ACTIVO')
+                                    $plans = $beneficiary->readjustments()
+                                        ->where('estado', 'ACTIVO')
+                                        ->orderBy('fecha_ppg', 'asc')
                                         ->get();
 
                                     if ($plans->count() <= 0) {
-                                        $plans = $beneficiary->plans()->where('estado', 'ACTIVO')
-                                            ->get();
+                                        $plans = $beneficiary->plans()
+                                        ->where('estado', 'ACTIVO')
+                                        ->orderBy('fecha_ppg', 'asc')
+                                        ->get();
                                     }
                                 @endphp
                                 @forelse ($plans as $p)

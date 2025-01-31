@@ -45,10 +45,18 @@
                     </div>
                 </div>
                 <hr>
+                @if (session('success'))
+                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative"
+                        role="alert">
+                        <strong class="font-bold">¡Éxito!</strong>
+                        <span class="block sm:inline">{{ session('success') }}</span>
+                    </div>
+                @endif
+
                 <div class="mt-6 grid grid-cols-2 gap-2">
                     <div class="bg-gray-100 rounded-lg p-4 shadow">
                         <h3 class="font-semibold text-gray-700 mb-2">Estado de Crédito</h3>
-                        <p class="font-bold {{ $beneficiary->estado == 'CANCELADO' ? 'text-green-500' : '' }}">
+                        <p class="font-bold {{ ($beneficiary->estado == 'CANCELADO' || $beneficiary->estado == 'BLOQUEADO') ? 'text-red-500' : '' }}">
                             {{ $beneficiary->estado }}</p>
                     </div>
                     <div class="bg-gray-100 rounded-lg p-4 shadow">
@@ -69,9 +77,9 @@
                             {{ number_format($beneficiary->total_activado, 2) }}</p>
                     </div>
                     <div class="bg-gray-100 rounded-lg p-4 shadow">
-                        <h3 class="font-semibold text-gray-700 mb-2">Monto Recuperado (Según Cartera)</h3>
+                        <h3 class="font-semibold text-gray-700 mb-2">Saldo Credito</h3>
                         <p class="font-bold text-sky-800">Bs.
-                            {{ number_format($beneficiary->monto_recuperado, 2) }}</p>
+                            {{ number_format($beneficiary->saldo_credito, 2) }}</p>
                     </div>
                     <div class="bg-gray-100 rounded-lg p-4 shadow">
                         <h3 class="font-semibold text-gray-700 mb-2">Total en Pagos</h3>
@@ -82,7 +90,13 @@
                     <div class="bg-gray-100 border rounded-lg shadow-md p-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="bg-gray-50 rounded-lg p-4">
-                                @if ($beneficiary->plans()->count() > 0)
+                                @php
+                                    $plans = $beneficiary->plans()->where('estado', 'ACTIVO')->get();
+                                    if ($plans->count() == 0) {
+                                        $plans = $beneficiary->readjustments()->where('estado', 'ACTIVO')->get();
+                                    }
+                                @endphp
+                                @if ($plans->count() > 0)
                                     <livewire:plan-modal lazy :beneficiary="$beneficiary" title="Plan de pagos vigente" />
                                 @else
                                     <p class="text-gray-500 italic">Sin plan de pagos registrado</p>

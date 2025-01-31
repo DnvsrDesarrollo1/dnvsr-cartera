@@ -12,7 +12,11 @@
 
         <div class="bg-white shadow-md rounded-lg mb-6 p-6">
             <h1 class="text-2xl font-bold text-gray-800">
-                Reajuste al plan de cuotas: <span class="text-blue-600">{{ $request->idepro }}</span>
+                @if ($request->correlativo == 'on')
+                    Reajuste
+                @else
+                    Activacion
+                @endif  de plan de cuotas: <span class="text-blue-600">{{ $request->idepro }}</span>
             </h1>
         </div>
 
@@ -29,6 +33,8 @@
                             <th class="py-3 px-6 text-right">Interés</th>
                             <th class="py-3 px-6 text-right">Seguro</th>
                             <th class="py-3 px-6 text-right">Otros</th>
+                            <th class="py-3 px-6 text-right">Interes Devengado</th>
+                            <th class="py-3 px-6 text-right">Seguro Devengado</th>
                             <th class="py-3 px-6 text-right">Total a Pagar</th>
                             <th class="py-3 px-6 text-right">Saldo Final</th>
                             <th class="py-3 px-6 text-center">Fecha Vencimiento</th>
@@ -49,6 +55,20 @@
                                 <td class="py-3 px-6 text-right">
                                     @if ($d->gastos_judiciales > 0)
                                         {{ number_format($d->gastos_judiciales, 2, '.', ',') }}
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td class="py-3 px-6 text-right">
+                                    @if ($d->interes_devengado > 0)
+                                        {{ number_format($d->interes_devengado, 2, '.', ',') }}
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td class="py-3 px-6 text-right">
+                                    @if ($d->seguro_devengado > 0)
+                                        {{ number_format($d->seguro_devengado, 2, '.', ',') }}
                                     @else
                                         -
                                     @endif
@@ -94,6 +114,18 @@
                                 </p>
                             </td>
                             <td class="py-3 px-6 text-right">
+                                <h3 class="text-sm">Interes Devengado:</h3>
+                                <p class="text-green-500 text-sm">
+                                    {{ number_format($data->sum('interes_devengado'), 2, '.', ',') }}
+                                </p>
+                            </td>
+                            <td class="py-3 px-6 text-right">
+                                <h3 class="text-sm">Seguro Devengado:</h3>
+                                <p class="text-green-500 text-sm">
+                                    {{ number_format($data->sum('seguro_devengado'), 2, '.', ',') }}
+                                </p>
+                            </td>
+                            <td class="py-3 px-6 text-right">
                                 <h3 class="text-sm">Pago en Cuotas:</h3>
                                 <p class="text-green-500 text-sm">
                                     {{ number_format($data->sum('total_cuota'), 2, '.', ',') }}
@@ -107,7 +139,7 @@
         </div>
 
         <div class="mt-4 flex justify-between bg-white p-4 rounded-lg">
-            <form action="{{ route('excel.export-collection') }}" method="post" class="flex space-x-4">
+            <form action="{{ route('plan.store') }}" method="post" class="flex space-x-4">
                 @csrf
                 <input type="hidden" name="diff_cuotas" value="{{ $request->input('diff_cuotas') }}" />
                 <input type="hidden" name="diff_capital" value="{{ $request->input('diff_capital') }}" />
@@ -123,7 +155,7 @@
                     value="{{ date('Y/m/d', strtotime($request->input('fecha_inicio'))) }}">
                 <input type="hidden" name="gastos_judiciales" value="{{ $request->input('gastos_judiciales') }}" />
                 <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition ease-in-out">
-                    Guardar y Exportar
+                    Confirmar y Guardar
                 </button>
             </form>
             <button onclick="history.back();"

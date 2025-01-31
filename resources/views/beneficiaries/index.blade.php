@@ -16,8 +16,8 @@
             @if (session('error'))
                 <div class="bg-red-200 border border-red-500 text-red-500 px-4 py-3 rounded relative mb-4"
                     role="alert">
-                    <strong class="font-bold">Oops...</strong>
                     <span class="block sm:inline">{{ session('error') }}</span>
+                    <span>{{session('data')}}</span>
                 </div>
             @endif
             <div class="px-4">

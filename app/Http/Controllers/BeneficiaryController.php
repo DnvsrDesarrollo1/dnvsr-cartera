@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Beneficiary;
+use App\Models\Helper;
 use App\Models\Payment;
 use App\Models\Plan;
 use App\Models\Readjustment;
@@ -37,8 +38,9 @@ class BeneficiaryController extends Controller
     {
         $beneficiary = Beneficiary::where('ci', $cedula)->firstOrFail();
         $plans = $this->getActivePlans($beneficiary->idepro);
+        $differs = $this->getActiveDiffers($beneficiary->idepro);
 
-        $pdf = PDF::loadView('beneficiaries.pdf', compact('beneficiary', 'plans'));
+        $pdf = PDF::loadView('beneficiaries.pdf', compact('beneficiary', 'plans', 'differs'));
         return $pdf->stream("beneficiary_{$cedula}_" . uniqid() . '.pdf');
     }
 
@@ -57,7 +59,8 @@ class BeneficiaryController extends Controller
                 ->with('link', $zipUrl);
         } catch (\Exception $e) {
             return redirect()->route('beneficiario.index')
-                ->with('error', "La exportación masiva de {$beneficiaries->count()} beneficiarios no fue realizada.");
+                ->with('error', "La exportación masiva de {$beneficiaries->count()} beneficiarios no fue realizada.")
+                ->with('data', $e->getMessage());
         }
     }
 
@@ -89,17 +92,26 @@ class BeneficiaryController extends Controller
 
     private function getActivePlans($idepro)
     {
-        $plans = Readjustment::where('idepro', $idepro)->where('estado', 'ACTIVO')->get();
-        return $plans->count() > 0 ? $plans : Plan::where('idepro', $idepro)->where('estado', 'ACTIVO')->get();
+        $plans = Readjustment::where('idepro', $idepro)->where('estado', 'ACTIVO')->orderBy('fecha_ppg', 'asc')->get();
+        return $plans->count() > 0 ? $plans : Plan::where('idepro', $idepro)->where('estado', 'ACTIVO')->orderBy('fecha_ppg', 'asc')->get();
+    }
+
+    private function getActiveDiffers($idepro)
+    {
+        $differs = Helper::where('idepro', $idepro)->where('estado', 'ACTIVO')->orderBy('indice', 'asc')->get();
+        return $differs;
     }
 
     private function generatePDFs($beneficiaries)
     {
         return $beneficiaries->map(function ($beneficiary) {
             $plans = $this->getActivePlans($beneficiary->idepro);
-            $filePath = 'storage/exports/' . $beneficiary->ci . '_' . uniqid() . '.pdf';
+            $differs = $this->getActiveDiffers($beneficiary->idepro);
 
-            PDF::loadView('beneficiaries.pdf', compact('beneficiary', 'plans'))->save($filePath);
+            $cleanName = preg_replace('/[^A-Za-z0-9 \-]/', '_', $beneficiary->nombre);
+            $filePath = 'storage/exports/' . $cleanName . '.pdf';
+
+            PDF::loadView('beneficiaries.pdf', compact('beneficiary', 'plans', 'differs'))->save($filePath);
             return $filePath;
         })->toArray();
     }

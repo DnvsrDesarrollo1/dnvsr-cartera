@@ -19,16 +19,14 @@
                             <span>Buscar proyecto</span>
                         </label>
                         <div class="mt-1 relative rounded-md shadow-sm">
-                            <input
-                                @click="open = true" @click.outside="open = false"
-                                wire:model.live.debounce.500="search"
-                                type="search" id="default-search" autocomplete="off"
+                            <input @click="open = true" @click.outside="open = false"
+                                wire:model.live.debounce.500="search" type="search" id="default-search"
+                                autocomplete="off"
                                 class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-3 pr-12 sm:text-sm border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                                 placeholder="Mostrar por proyecto..." />
                         </div>
                         @if ($projects != '')
-                            <div x-show="open"
-                                x-transition:enter="transition ease-out duration-100"
+                            <div x-show="open" x-transition:enter="transition ease-out duration-100"
                                 x-transition:enter-start="opacity-0 scale-90"
                                 x-transition:enter-end="opacity-100 scale-100"
                                 x-transition:leave="transition ease-in duration-100"
@@ -59,7 +57,7 @@
                             <span class="border p-2 rounded-full dark:border-gray-100 mr-2">2</span><span>Fecha de
                                 inicio</span>
                         </label>
-                        <input type="date" id="start-date" wire:model.live="fechaInicio"
+                        <input type="date" id="start-date" wire:model.live="fechaInicio" min="{{ $fechaInicio }}"
                             class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                     </div>
                     <div class="p-2">
@@ -67,7 +65,7 @@
                             <span class="border p-2 rounded-full dark:border-gray-100 mr-2">3</span><span>Fecha de
                                 fin</span>
                         </label>
-                        <input type="date" id="end-date" wire:model.live="fechaFin"
+                        <input type="date" id="end-date" wire:model.live="fechaFin" max="{{ $fechaFin }}"
                             class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                     </div>
                 </div>
@@ -101,6 +99,25 @@
                     Recaudaciones del {{ $fechaInicio }} al {{ $fechaFin }}
                 </p>
             </div>
+            <dl
+                class="grid max-w-screen-xl grid-cols-2 gap-4 p-4 mx-auto text-gray-900 sm:grid-cols-3 xl:grid-cols-3 border dark:text-white sm:p-8 rounded-md">
+                <div
+                    class="flex flex-col p-1 items-center justify-center border rounded-md border-green-500 cursor-pointer hover:shadow-lg shadow-gray-500 dark:hover:shadow-gray-500">
+                    <dt class="text-xl font-extrabold">Bs. {{ number_format($total_capital, 2) }}</dt>
+                    <dd class="text-gray-500 dark:text-gray-400">CAPITAL</dd>
+                </div>
+                <div
+                    class="flex flex-col p-1 items-center justify-center border rounded-md border-green-500 cursor-pointer hover:shadow-lg shadow-gray-500 dark:hover:shadow-gray-500">
+                    <dt class="text-xl font-extrabold">Bs. {{ number_format($total_interes, 2) }}</dt>
+                    <dd class="text-gray-500 dark:text-gray-400">INTERES</dd>
+                </div>
+                <div
+                    class="flex flex-col p-1 items-center justify-center border rounded-md border-green-500 cursor-pointer hover:shadow-lg shadow-gray-500 dark:hover:shadow-gray-500">
+                    <dt class="text-xl font-extrabold">Bs. {{ number_format($total_seguro, 2) }}</dt>
+                    <dd class="text-gray-500 dark:text-gray-400">SEGURO</dd>
+                </div>
+            </dl>
+            <hr />
             <dl
                 class="grid max-w-screen-xl grid-cols-2 gap-4 p-4 mx-auto text-gray-900 sm:grid-cols-3 xl:grid-cols-6 border dark:text-white sm:p-8 rounded-md">
                 @foreach ($payments as $payment)
