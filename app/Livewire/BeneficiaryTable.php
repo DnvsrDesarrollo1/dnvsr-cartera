@@ -21,7 +21,7 @@ final class BeneficiaryTable extends PowerGridComponent
     public string $tableName = 'beneficiaries';
 
     // ORDENAMIENTO
-    public string $sortField = 'created_at';
+    public string $sortField = 'id';
     public string $sortDirection = 'desc';
 
     public function boot(): void

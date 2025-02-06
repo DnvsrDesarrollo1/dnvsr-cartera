@@ -64,7 +64,7 @@ abstract class Controller
         }
 
         if ($fecha_inicio->day >= 15) {
-            $fecha_inicio = $fecha_inicio->format('Y-m-20');
+            $fecha_inicio = $fecha_inicio->format('Y-m-15');
         }
 
         for ($ix; $ix <= $n; $ix++) {

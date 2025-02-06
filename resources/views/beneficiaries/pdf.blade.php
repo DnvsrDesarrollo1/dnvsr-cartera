@@ -149,8 +149,8 @@
     </style>
 </head>
 
-@if ($beneficiary->estado == 'BLOQUEADO')
-<h1>Estado de credito BLOQUADO, informacion no disponible</h1>
+@if ($beneficiary->estado == 'BLOQUEADO' || $beneficiary->estado == 'CANCELADO')
+<h1>Estado de credito especial, informacion no disponible</h1>
 @else
 <body>
     @php
@@ -248,8 +248,8 @@
                         <td></td>
                         <td>Saldo "{{ $beneficiary->entidad_financiera }}":</td>
                         <td>Bs.
-                            {{ number_format($beneficiary->total_activado + ($differs->sum('capital') + $differs->sum('interes') ?? 0), 2) }}
-                            {{-- {{ number_format($beneficiary->saldo_credito, 2) }} --}}
+                            {{-- {{ number_format($beneficiary->total_activado + ($differs->sum('capital') + $differs->sum('interes') ?? 0), 2) }} --}}
+                            {{ number_format($beneficiary->saldo_credito, 2) }}
                         </td>
                     </tr>
                     <tr>
