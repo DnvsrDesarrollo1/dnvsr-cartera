@@ -75,7 +75,8 @@ class Beneficiary extends Model
         return $this->hasMany(Image::class, 'idepro', 'idepro');
     }
 
-    public function insurance() {
+    public function insurance()
+    {
         return $this->hasOne(Insurance::class, 'idepro', 'idepro');
     }
 }

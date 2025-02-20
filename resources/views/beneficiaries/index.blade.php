@@ -1,4 +1,14 @@
 <x-app-layout>
+    <x-slot name="header">
+        @php
+            $criterio = DB::table('beneficiaries')->distinct()->get('estado');
+        @endphp
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight text-center py-4">
+            @foreach ($criterio as $c)
+                {{ $c->estado }} : {{ DB::table('beneficiaries')->where('estado', $c->estado)->count() }} |
+            @endforeach
+        </h2>
+    </x-slot>
     <div class="mx-auto px-6 py-4 sm:px-4 lg:px-6">
         <div class="bg-white overflow-x-auto shadow-lg rounded-lg overflow-y-auto mt-4 p-2">
             @if (session('success'))
@@ -17,7 +27,7 @@
                 <div class="bg-red-200 border border-red-500 text-red-500 px-4 py-3 rounded relative mb-4"
                     role="alert">
                     <span class="block sm:inline">{{ session('error') }}</span>
-                    <span>{{session('data')}}</span>
+                    <span>{{ session('data') }}</span>
                 </div>
             @endif
             <div class="px-4">

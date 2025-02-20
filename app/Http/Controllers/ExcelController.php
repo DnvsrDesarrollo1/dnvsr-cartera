@@ -29,7 +29,13 @@ class ExcelController extends Controller
         $filePath = 'storage/uploads/' . $fileName;
         $file->move(public_path('storage/uploads'), $fileName);
 
-        $rows = array_map('str_getcsv', file($filePath));
+        //$rows = array_map('str_getcsv', file($filePath));
+        $content = file_get_contents($filePath);
+        $content = mb_convert_encoding($content, 'UTF-8', 'UTF-8');
+        $content = str_replace("\xEF\xBB\xBF", '', $content); // Remove UTF-8 BOM
+        $content = trim($content); // Eliminar espacios y líneas vacías al inicio y final
+
+        $rows = array_map('str_getcsv', explode("\n", $content));
 
         //return $rows;
 
@@ -41,7 +47,7 @@ class ExcelController extends Controller
 
         $collection = new \Illuminate\Database\Eloquent\Collection();
 
-        foreach ($array as $key => $value) {
+        foreach ($array as $value) {
             $collection->push(collect((object)[
                 'idepro' => $value[0],
                 'capital' => $value[1],
@@ -190,8 +196,7 @@ class ExcelController extends Controller
 
         try {
             foreach ($data as $d) {
-                if ($dynaModel::where('idepro', $d->idepro)->exists())
-                {
+                if ($dynaModel::where('idepro', $d->idepro)->exists()) {
                     $dynaModel::where('idepro', $d->idepro)->update((array)$d);
                 } else {
                     $dynaModel::create((array)$d);

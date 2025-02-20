@@ -162,19 +162,13 @@ class PlanController extends Controller
     public function activateBeneficiary(\App\Models\Beneficiary $beneficiary, $interestRate, $secureRate)
     {
         $initialCapital = $beneficiary->saldo_credito;
-        if ($initialCapital <= 0) {
+        if ($initialCapital == 0) {
             $beneficiary->total_activado - ($beneficiary->payments()->where('prtdtdesc', 'like', '%CAPI%')->sum('montopago') ?? 0);
         }
         $finPlazo = date('Y-m-d', strtotime($beneficiary->fecha_activacion . ' + 20 years'));
 
-        $date1 = now();
-
-        if ($date1->format('d') < 15)
-        {
-            $date1 = date('Y-m-d', strtotime($date1->format('Y-m-d') . '-1 month'));
-        }
-
-        //$date1 = '2025-01-16';
+        //$date1 = now();
+        $date1 = '2024-12-16';
         $date2 = $finPlazo;
         $d1 = new \DateTime($date2);
         $d2 = new \DateTime($date1);
@@ -183,13 +177,8 @@ class PlanController extends Controller
 
         $sequential = $beneficiary->plans()->exists() ? 'on' : null;
 
-        //$startDate = '2025-01-16';
-        $startDate = now();
-
-        /* if ($startDate->format('d') < 15)
-        {
-            $startDate = date('Y-m-d', strtotime($startDate->format('Y-m-d') . '-1 month'));
-        } */
+        $startDate = '2024-12-16';
+        //$startDate = now();
 
         if ($interestRate < 0 || $interestRate == -1 || $interestRate == '-1') {
             $interestRate = ($beneficiary->tasa_interes > 0) ? $beneficiary->tasa_interes : 0;

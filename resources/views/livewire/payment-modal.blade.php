@@ -125,11 +125,47 @@
                 </div>
             </div>
 
-            <div class="bg-gray-100 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-200">
+            <div
+                class="bg-gray-100 px-4 py-3 items-center justify-between lg:flex sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-200">
                 <button @click="isOpen = false" type="button"
                     class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-gray-800 text-base font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:ml-3 sm:w-auto sm:text-sm">
                     Cerrar
                 </button>
+                <a target="_blank" href="{{ route('beneficiario.pdf-extract', ['cedula' => $beneficiary->ci]) }}"
+                    class="border mr-2 px-2 py-1 rounded-md relative cursor-pointer">
+                    <svg width="32px" height="32px" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"
+                        stroke-width="2.56" stroke="#34d539" fill="none">
+                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                        <g id="SVGRepo_iconCarrier">
+                            <path
+                                d="M45.77,51a.09.09,0,0,1,.11,0l3.4,3.31s.12,0,.12-.07V9.7H14.6V54.16a.08.08,0,0,0,.13.07l4.38-3.29a.08.08,0,0,1,.1,0l4.53,3.33a.08.08,0,0,0,.11,0l4-3.33s.07,0,.11,0l4.52,3.32a.08.08,0,0,0,.11,0L36.79,51a.09.09,0,0,1,.12,0l4.51,3.31a.09.09,0,0,0,.12,0l4-3.3"
+                                stroke-linecap="round"></path>
+                            <line x1="18.72" y1="31.11" x2="32.02" y2="31.11" stroke-linecap="round">
+                            </line>
+                            <line x1="18.72" y1="25.77" x2="34.69" y2="25.77" stroke-linecap="round">
+                            </line>
+                            <line x1="18.72" y1="15" x2="36.05" y2="15" stroke-linecap="round">
+                            </line>
+                            <line x1="18.72" y1="20.11" x2="33.15" y2="20.11" stroke-linecap="round">
+                            </line>
+                            <line x1="41.01" y1="30.95" x2="45.28" y2="30.95"
+                                stroke-linecap="round"></line>
+                            <line x1="18.72" y1="36.81" x2="34.69" y2="36.81"
+                                stroke-linecap="round"></line>
+                            <line x1="41.86" y1="36.66" x2="45.28" y2="36.66"
+                                stroke-linecap="round"></line>
+                            <line x1="41.01" y1="42.56" x2="45.28" y2="42.56"
+                                stroke-linecap="round"></line>
+                            <line x1="41.01" y1="25.61" x2="45.28" y2="25.61"
+                                stroke-linecap="round"></line>
+                            <line x1="41.86" y1="20.11" x2="45.28" y2="20.11"
+                                stroke-linecap="round"></line>
+                            <line x1="41.01" y1="15" x2="45.28" y2="15"
+                                stroke-linecap="round"></line>
+                        </g>
+                    </svg>
+                </a>
             </div>
         </div>
     </div>

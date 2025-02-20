@@ -44,6 +44,16 @@ class BeneficiaryController extends Controller
         return $pdf->stream("beneficiary_{$cedula}_" . uniqid() . '.pdf');
     }
 
+    public function pdfExtract($cedula)
+    {
+        $beneficiary = Beneficiary::where('ci', $cedula)->firstOrFail();
+        $payments = $this->getPayments($beneficiary->idepro);
+
+        $pdf = PDF::loadView('beneficiaries.pdf-extract', compact('beneficiary', 'payments'));
+
+        return $pdf->stream("beneficiary_{$cedula}_extracto_" . uniqid() . '.pdf');
+    }
+
     public function bulkPdf($data)
     {
         $beneficiaries = Beneficiary::whereIn('ci', json_decode($data, true))->get();
@@ -92,8 +102,14 @@ class BeneficiaryController extends Controller
 
     private function getActivePlans($idepro)
     {
-        $plans = Readjustment::where('idepro', $idepro)->where('estado', 'ACTIVO')->orderBy('fecha_ppg', 'asc')->get();
-        return $plans->count() > 0 ? $plans : Plan::where('idepro', $idepro)->where('estado', 'ACTIVO')->orderBy('fecha_ppg', 'asc')->get();
+        $plans = Plan::where('idepro', $idepro)->where('estado', 'ACTIVO')->orderBy('fecha_ppg', 'asc')->get();
+        return $plans->count() > 0 ? $plans : Readjustment::where('idepro', $idepro)->where('estado', 'ACTIVO')->orderBy('fecha_ppg', 'asc')->get();
+    }
+
+    private function getPayments($idepro)
+    {
+        $payments = Payment::where('numprestamo', $idepro)->orderBy('fecha_pago', 'DESC')->get();
+        return $payments;
     }
 
     private function getActiveDiffers($idepro)

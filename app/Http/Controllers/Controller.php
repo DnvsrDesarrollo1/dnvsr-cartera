@@ -77,7 +77,7 @@ abstract class Controller
             $fecha_vencimiento = $this->obtenerFechaVencimiento($fecha_inicio, $ms);
 
             if ($ix == 1) {
-                $fecha_vencimiento = date('Y-m-d', strtotime($fecha_inicio . '+ ' . $ms . ' month'));
+                $fecha_vencimiento = date('Y-m-27', strtotime($fecha_inicio . '+ ' . $ms . ' month'));
             }
             /* if ($ix == 1) {
                 $fecha = date('Y-m-24', strtotime($fecha_inicio));
