@@ -12,8 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('insurances', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->bigIncrements('id');
+            $table->string('idepro', 255); // Relación con beneficiaries.idepro
+            $table->double('tasa_seguro', 8, 2);
+            $table->timestamps(0); // Precisión 0 según el PDF
+
+            // Clave foránea hacia beneficiaries.idepro
+            $table->foreign('idepro')
+                ->references('idepro')
+                ->on('beneficiaries')
+                ->onDelete('cascade');
         });
     }
 

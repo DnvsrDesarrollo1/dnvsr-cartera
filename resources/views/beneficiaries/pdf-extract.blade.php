@@ -199,11 +199,11 @@
             <table class="description">
                 <thead>
                     <th>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
                     </th>
                 </thead>
                 <tbody>
@@ -234,7 +234,7 @@
                         <td>{{ $beneficiary->nombre }}</td>
                         <td></td>
                         <td>Saldo Credito</td>
-                        <td>Bs. {{ number_format($beneficiary->saldo_credito, 2) }}</td>
+                        <td>Bs. {{ number_format($beneficiary->saldo_credito + ($beneficiary->helpers->count() > 0 ? $beneficiary->helpers()->sum('capital') : 0), 2) }}</td>
                     </tr>
                     <tr>
                         <td>Moneda:</td>
@@ -297,7 +297,7 @@
                             @php
                                 $saldo -= $v
                                     ->payments()
-                                    //->where('prtdtdesc', 'LIKE', '%CAPI%')
+                                    ->where('prtdtdesc', 'LIKE', '%CAPI%')
                                     ->sum('montopago');
                             @endphp
                         </tr>
@@ -328,6 +328,27 @@
                         </td>
                         <td style="text-align: right; padding: 8px; font-weight: bold;">
                             {{ number_format($beneficiary->payments()->where('prtdtdesc', 'LIKE', 'CAPI%')->sum('montopago'), 2) }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="7" style="text-align: right; padding: 8px; font-weight: bold;">Saldo Credito:
+                        </td>
+                        <td style="text-align: right; padding: 8px; font-weight: bold;">
+                            {{ number_format($saldo, 2) }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="7" style="text-align: right; padding: 8px; font-weight: bold;">Monto en Diferimientos:
+                        </td>
+                        <td style="text-align: right; padding: 8px; font-weight: bold;">
+                            {{ number_format($beneficiary->helpers()->sum('capital'), 2) }}
+                        </td>
+                    </tr>
+                    <tr style="border-top: 3px black solid">
+                        <td colspan="7" style="text-align: right; padding: 8px; font-weight: bold;">Saldo SIN Diferimientos:
+                        </td>
+                        <td style="text-align: right; padding: 8px; font-weight: bold;">
+                            {{ number_format($saldo - $beneficiary->helpers()->sum('capital'), 2) }}
                         </td>
                     </tr>
                 </tfoot>

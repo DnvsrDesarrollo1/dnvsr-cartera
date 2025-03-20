@@ -56,7 +56,8 @@
                 <div class="mt-6 grid grid-cols-2 gap-2">
                     <div class="bg-gray-100 rounded-lg p-4 shadow">
                         <h3 class="font-semibold text-gray-700 mb-2">Estado de Crédito</h3>
-                        <p class="font-bold {{ ($beneficiary->estado == 'CANCELADO' || $beneficiary->estado == 'BLOQUEADO') ? 'text-red-500' : '' }}">
+                        <p
+                            class="font-bold {{ $beneficiary->estado == 'CANCELADO' || $beneficiary->estado == 'BLOQUEADO' ? 'text-red-500' : '' }}">
                             {{ $beneficiary->estado }}</p>
                     </div>
                     <div class="bg-gray-100 rounded-lg p-4 shadow">
@@ -109,6 +110,9 @@
                                 @else
                                     <p class="text-gray-500 italic">Sin historial de pagos registrado</p>
                                 @endif
+                                <hr class="my-2"/>
+                                <livewire:voucher-register :beneficiary="$beneficiary"
+                                        title="Registrar Pago" />
                             </div>
                         </div>
                     </div>
@@ -162,7 +166,7 @@
                                 value="{{ $beneficiary->gastos_judiciales }}" />
                             <div class="mb-4">
                                 <label for="capital_inicial" class="block text-gray-700 font-bold mb-2">
-                                    Capital Inicial:
+                                    1) Capital Inicial:
                                 </label>
                                 <input type="text" inputmode="decimal" id="capital_inicial"
                                     name="capital_inicial" placeholder="Ej: 25000.75" pattern="[0-9]*[.,]?[0-9]*"
@@ -173,7 +177,7 @@
                             </div>
                             <div class="mb-4">
                                 <label for="meses" class="block text-gray-700 font-bold mb-2">
-                                    Meses restantes:
+                                    2) Meses restantes:
                                 </label>
                                 <input type="text" id="meses" name="meses" placeholder="Ej: 10"
                                     class="appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:bg-white"
@@ -183,7 +187,7 @@
                             <div class="mb-4 grid grid-cols-2 gap-2">
                                 <div>
                                     <label for="taza_interes" class="block text-gray-700 font-bold mb-2">
-                                        Interes:
+                                        3) Interes:
                                     </label>
                                     <input type="text" inputmode="decimal" name="taza_interes"
                                         placeholder="Ej: 13 (no es necesario agregar simbolo %)"
@@ -193,7 +197,7 @@
                                 </div>
                                 <div>
                                     <label for="seguro" class="block text-gray-700 font-bold mb-2">
-                                        Seguro:
+                                        4) Seguro:
                                     </label>
                                     <input type="text" inputmode="decimal" name="seguro"
                                         placeholder="Ej: 13 (no es necesario agregar simbolo %)"
@@ -207,13 +211,14 @@
                                     <label for="correlativo"
                                         class="bg-gray-100 flex items-center text-gray-700 font-bold mb-2 p-4 border rounded-md cursor-pointer"
                                         title="Desactivado: el n# de cuota empezará desde el 1 para adelante, de lo contrario, desde la ultima cuota correspondiente a los meses restantes.">
+                                        5) &nbsp;
                                         <x-checkbox checked id="correlativo" name="correlativo" />
                                         <span class="ms-2 text-gray-600 dark:text-gray-400">
                                             Reajuste (marcado) / Activacion (desmarcado)
                                         </span>
                                     </label>
                                     <label for="fecha_inicio" class="block text-gray-700 font-bold mb-2">
-                                        Fecha de inicio:
+                                        6) Fecha de inicio:
                                     </label>
                                     <input type="date" id="fecha_inicio" name="fecha_inicio"
                                         class="appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:bg-white"
@@ -223,7 +228,7 @@
                             <hr class="mt-4 mb-4">
                             <div class="mb-4">
                                 <label for="taza_interes" class="block text-gray-700 font-bold mb-2">
-                                    Diferimiento de cobro (de no existir, dejar todos los campos vacios):
+                                    (Opcional) Diferimiento de cobro (de no existir, dejar todos los campos vacios):
                                 </label>
                                 <input type="number" id="diff_cuotas" name="diff_cuotas" placeholder="Ej: 10"
                                     class="mt-2 appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:bg-white"

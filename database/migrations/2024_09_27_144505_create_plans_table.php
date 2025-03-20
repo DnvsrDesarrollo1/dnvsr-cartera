@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('readjustments', function (Blueprint $table) {
+        Schema::create('plans', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('idepro', 255); // Relación con beneficiaries.idepro
             $table->date('fecha_ppg');
@@ -25,7 +25,7 @@ return new class extends Migration
             $table->double('prppgtota', 8, 2);
             $table->string('prppgahor', 255);
             $table->string('prppgmpag', 255);
-            $table->string('estado', 50);
+            $table->string('estado', 100);
             $table->unsignedBigInteger('user_id');
             $table->timestamps(6);
 
@@ -35,7 +35,7 @@ return new class extends Migration
                 ->on('beneficiaries')
                 ->onDelete('cascade');
 
-            // Clave foránea hacia users
+            // Clave foránea hacia users (si es necesario)
             $table->foreign('user_id')
                 ->references('id')
                 ->on('users');
@@ -47,6 +47,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('readjustments');
+        Schema::dropIfExists('plans');
     }
 };

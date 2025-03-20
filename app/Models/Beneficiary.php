@@ -79,4 +79,14 @@ class Beneficiary extends Model
     {
         return $this->hasOne(Insurance::class, 'idepro', 'idepro');
     }
+
+    public function earns()
+    {
+        return $this->hasMany(Earn::class, 'idepro', 'idepro');
+    }
+
+    public function spends()
+    {
+        return $this->hasMany(Spend::class, 'idepro', 'idepro');
+    }
 }

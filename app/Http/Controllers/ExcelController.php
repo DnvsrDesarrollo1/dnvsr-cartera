@@ -65,6 +65,13 @@ class ExcelController extends Controller
 
                 $startIndex = \App\Models\Plan::where('idepro', $value['idepro'])->where('estado', 'ACTIVO')->orderBy('fecha_ppg', 'desc')->first();
 
+                $helpersActivos = \App\Models\Helper::where('idepro', $value['idepro'])->where('estado', 'ACTIVO')->get();
+
+                foreach ($helpersActivos as $helper) {
+                    $helper->estado = 'INACTIVO';
+                    $helper->save();
+                }
+
                 if ($startIndex != null) {
                     $cap = round((float)$value['capital'] / $value['cuotas'], 8);
                     $int = round((float)$value['interes'] / $value['cuotas'], 8);
@@ -196,9 +203,8 @@ class ExcelController extends Controller
 
         try {
             foreach ($data as $d) {
-                if ($dynaModel::where('idepro', $d->idepro)->exists()) {
-                    $dynaModel::where('idepro', $d->idepro)->update((array)$d);
-                } else {
+                $x = $dynaModel::where('idepro', $d->idepro)->first();
+                if (!$x) {
                     $dynaModel::create((array)$d);
                 }
             }

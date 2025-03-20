@@ -41,7 +41,7 @@ final class BeneficiaryTable extends PowerGridComponent
             PowerGrid::header(),
 
             PowerGrid::footer()
-                ->showPerPage(perPage: 500, perPageValues: [25, 50, 100, 500, 1000, 0])
+                ->showPerPage(perPage: 100, perPageValues: [25, 50, 100, 500, 1000, 0])
                 ->showRecordCount()
         ];
     }

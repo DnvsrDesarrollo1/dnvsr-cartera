@@ -17,11 +17,13 @@ class Voucher extends Model
         'descripcion',
         'montopago',
         'hora_pago',
-        'siguiente_pago',
+        //'prtdtfpro',
         'agencia_pago',
-        'departamento_pago',
-        'observaciones',
+        'depto_pago',
+        'obs_pago',
     ];
+
+    protected $guarded = ['id', 'created_at', 'updated_at'];
 
     public function beneficiary()
     {

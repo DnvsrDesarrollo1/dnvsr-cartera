@@ -12,17 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('images', function (Blueprint $table) {
-            $table->id();
-            $table->longText('image_b64')->nullable();
-            $table->json('image_json')->nullable();
-            $table->string('ci');
-            $table->string('idepro');
-            $table->string('request_status')->nullable();
-            $table->longText('image_xml')->nullable();
-            $table->timestamps();
+            $table->bigIncrements('id');
+            $table->text('image_b64'); // Imagen en Base64
+            $table->text('image_json'); // Metadatos en JSON
+            $table->text('ci'); // Cédula de identidad
+            $table->text('idepro'); // Relación con beneficiaries.idepro
+            $table->text('request_status');
+            $table->text('image_xml'); // XML asociado
+            $table->timestamps(6); // Precisión 6 según el PDF
 
             $table->foreign('idepro')->references('idepro')->on('beneficiaries');
-            $table->foreign('ci')->references('ci')->on('beneficiaries');
         });
     }
 

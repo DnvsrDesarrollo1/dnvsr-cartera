@@ -1,15 +1,13 @@
 <div>
-    <button wire:click="$set('showModal', true)">
-        <svg width="45px" height="45px" viewBox="-2.4 -2.4 28.80 28.80" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <button wire:click="$set('showModal', true)" class="p-2 rounded-full bg-gray-100">
+        <svg width="42px" height="42px" viewBox="-102.4 -102.4 1228.80 1228.80" xmlns="http://www.w3.org/2000/svg"
+            fill="#1db512" stroke="#1db512">
             <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
             <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
             <g id="SVGRepo_iconCarrier">
-                <path
-                    d="M21.2799 6.40005L11.7399 15.94C10.7899 16.89 7.96987 17.33 7.33987 16.7C6.70987 16.07 7.13987 13.25 8.08987 12.3L17.6399 2.75002C17.8754 2.49308 18.1605 2.28654 18.4781 2.14284C18.7956 1.99914 19.139 1.92124 19.4875 1.9139C19.8359 1.90657 20.1823 1.96991 20.5056 2.10012C20.8289 2.23033 21.1225 2.42473 21.3686 2.67153C21.6147 2.91833 21.8083 3.21243 21.9376 3.53609C22.0669 3.85976 22.1294 4.20626 22.1211 4.55471C22.1128 4.90316 22.0339 5.24635 21.8894 5.5635C21.7448 5.88065 21.5375 6.16524 21.2799 6.40005V6.40005Z"
-                    stroke="#318736" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                <path
-                    d="M11 4H6C4.93913 4 3.92178 4.42142 3.17163 5.17157C2.42149 5.92172 2 6.93913 2 8V18C2 19.0609 2.42149 20.0783 3.17163 20.8284C3.92178 21.5786 4.93913 22 6 22H17C19.21 22 20 20.2 20 18V13"
-                    stroke="#318736" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path fill="#1db512"
+                    d="M832 384H576V128H192v768h640V384zm-26.496-64L640 154.496V320h165.504zM160 64h480l256 256v608a32 32 0 0 1-32 32H160a32 32 0 0 1-32-32V96a32 32 0 0 1 32-32zm320 512V448h64v128h128v64H544v128h-64V640H352v-64h128z">
+                </path>
             </g>
         </svg>
     </button>
@@ -33,170 +31,155 @@
                             <div class="w-full text-center sm:text-left">
                                 <h3 class="text-xl leading-6 font-medium text-gray-900 border border-gray-400 rounded p-2"
                                     id="modal-title">
-                                    Editar Perfil del Beneficiario
+                                    Registrar/Crear Nuevo Pago:
                                 </h3>
                                 <div class="mt-2">
-                                    <form wire:submit.prevent="update">
+                                    <form wire:submit.prevent="save">
                                         <div class="mb-4">
-                                            <label for="nombre"
-                                                class="block text-gray-700 text-sm font-bold mb-2">Nombre:</label>
-                                            <input type="text" wire:model="nombre" id="nombre"
+                                            <label for="numpago"
+                                                class="block text-gray-700 text-sm font-bold mb-2">Numero de
+                                                Cuota:</label>
+                                            <input type="number" max="300" min="1" wire:model="numpago" id="numpago"
                                                 class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                                            @error('nombre')
+                                            @error('numpago')
                                                 <span class="text-red-500 text-xs">{{ $message }}</span>
                                             @enderror
                                         </div>
                                         <div class="mb-4">
-                                            <label for="ci"
-                                                class="block text-gray-700 text-sm font-bold mb-2">CI:</label>
-                                            <input type="text" wire:model="ci" id="ci"
+                                            <label for="numtramite"
+                                                class="block text-gray-700 text-sm font-bold mb-2">N° Comprobante /
+                                                Numero de Tramite:</label>
+                                            <input type="text" wire:model="numtramite" id="numtramite"
                                                 class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                                            @error('ci')
+                                            @error('numtramite')
                                                 <span class="text-red-500 text-xs">{{ $message }}</span>
                                             @enderror
                                         </div>
                                         <div class="mb-4">
-                                            <label for="complemento"
-                                                class="block text-gray-700 text-sm font-bold mb-2">Complemento:</label>
-                                            <input type="text" wire:model="complemento" id="complemento"
-                                                class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                                            @error('complemento')
-                                                <span class="text-red-500 text-xs">{{ $message }}</span>
-                                            @enderror
-                                        </div>
-                                        <div class="mb-4">
-                                            <label for="expedido"
-                                                class="block text-gray-700 text-sm font-bold mb-2">Expedido:</label>
-                                            <input type="text" wire:model="expedido" id="expedido"
-                                                class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                                            @error('expedido')
-                                                <span class="text-red-500 text-xs">{{ $message }}</span>
-                                            @enderror
-                                        </div>
-                                        <div class="mb-4">
-                                            <label for="estado"
-                                                class="block text-gray-700 text-sm font-bold mb-2">Estado del
-                                                Credito:</label>
-                                            <input type="text" wire:model="estado" id="estado"
-                                                class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                                            @error('estado')
-                                                <span class="text-red-500 text-xs">{{ $message }}</span>
-                                            @enderror
-                                        </div>
-                                        <div class="mb-4">
-                                            <label for="idepro"
+                                            <label for="numprestamo"
                                                 class="block text-gray-700 text-sm font-bold mb-2">Codigo
                                                 Prestamo:</label>
-                                            <input type="text" wire:model="idepro" id="idepro"
+                                            <input type="text" wire:model="numprestamo" id="numprestamo"
                                                 class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                                            @error('idepro')
+                                            @error('numprestamo')
                                                 <span class="text-red-500 text-xs">{{ $message }}</span>
                                             @enderror
                                         </div>
                                         <div class="mb-4">
-                                            <label for="fecha_nacimiento"
+                                            <label for="fecha_pago"
                                                 class="block text-gray-700 text-sm font-bold mb-2">Fecha de
-                                                Nacimiento:</label>
-                                            <input type="date" wire:model="fecha_nacimiento" id="fecha_nacimiento"
+                                                Pago:</label>
+                                            <input type="date" wire:model="fecha_pago" id="fecha_pago"
                                                 class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                                            @error('fecha_nacimiento')
+                                            @error('fecha_pago')
                                                 <span class="text-red-500 text-xs">{{ $message }}</span>
                                             @enderror
                                         </div>
                                         <div class="mb-4">
-                                            <label for="total_activado"
-                                                class="block text-gray-700 text-sm font-bold mb-2">Total
-                                                Activado:</label>
-                                            <input type="number" wire:model="total_activado" id="total_activado"
+                                            <label for="hora_pago"
+                                                class="block text-gray-700 text-sm font-bold mb-2">Hora de Pago:</label>
+                                            <input type="time" wire:model="hora_pago" id="hora_pago"
                                                 class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                                            @error('total_activado')
+                                            @error('hora_pago')
                                                 <span class="text-red-500 text-xs">{{ $message }}</span>
                                             @enderror
                                         </div>
                                         <div class="mb-4">
-                                            <label for="gastos_judiciales"
-                                                class="block text-gray-700 text-sm font-bold mb-2">Gastos
-                                                Judiciales:</label>
-                                            <input type="number" wire:model="gastos_judiciales"
-                                                id="gastos_judiciales"
+                                            <label for="descripcion"
+                                                class="block text-gray-700 text-sm font-bold mb-2">Descripcion:</label>
+                                            <input type="text" wire:model="descripcion" id="descripcion"
                                                 class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                                            @error('gastos_judiciales')
+                                            @error('descripcion')
+                                                <span class="text-red-500 text-xs">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                        <div class="border-l-4 border-green-600 pl-4">
+                                            <div class="mb-4">
+                                                <label for="capital"
+                                                    class="block text-gray-700 text-sm font-bold mb-2">CAPITAL:</label>
+                                                <input type="number" wire:model="capital" id="capital"
+                                                    class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                                @error('capital')
+                                                    <span class="text-red-500 text-xs">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+
+                                            <div class="mb-4">
+                                                <label for="interes"
+                                                    class="block text-gray-700 text-sm font-bold mb-2">INTERES:</label>
+                                                <input type="number" wire:model="interes" id="interes"
+                                                    class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                                @error('interes')
+                                                    <span class="text-red-500 text-xs">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+
+                                            <div class="mb-4">
+                                                <label for="interes_devg"
+                                                    class="block text-gray-700 text-sm font-bold mb-2">INTERES DEVENGADO:</label>
+                                                <input type="number" wire:model="interes_devg" id="interes_devg"
+                                                    class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                                @error('interes_devg')
+                                                    <span class="text-red-500 text-xs">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+
+                                            <div class="mb-4">
+                                                <label for="seguro"
+                                                    class="block text-gray-700 text-sm font-bold mb-2">SEGURO:</label>
+                                                <input type="number" wire:model="seguro" id="seguro"
+                                                    class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                                @error('seguro')
+                                                    <span class="text-red-500 text-xs">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+
+                                            <div class="mb-4">
+                                                <label for="seguro_devg"
+                                                    class="block text-gray-700 text-sm font-bold mb-2">SEGURO DEVENGADO:</label>
+                                                <input type="number" wire:model="seguro_devg" id="seguro_devg"
+                                                    class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                                @error('seguro_devg')
+                                                    <span class="text-red-500 text-xs">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+
+                                            <div class="mb-4">
+                                                <label for="otros"
+                                                    class="block text-gray-700 text-sm font-bold mb-2">OTROS:</label>
+                                                <input type="number" wire:model="otros" id="otros"
+                                                    class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                                @error('otros')
+                                                    <span class="text-red-500 text-xs">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+
+                                        </div>
+                                        <div class="mb-4">
+                                            <label for="agencia_pago"
+                                                class="block text-gray-700 text-sm font-bold mb-2">Agencia
+                                                Pago:</label>
+                                            <input type="text" wire:model="agencia_pago" id="agencia_pago"
+                                                class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                            @error('agencia_pago')
                                                 <span class="text-red-500 text-xs">{{ $message }}</span>
                                             @enderror
                                         </div>
                                         <div class="mb-4">
-                                            <label for="saldo_credito"
-                                                class="block text-gray-700 text-sm font-bold mb-2">Saldo
-                                                Crédito:</label>
-                                            @if (($beneficiary->total_activado - $beneficiary->payments()->where('prtdtdesc', 'LIKE', '%CAP%')->sum('montopago')) != $beneficiary->saldo_credito)
-                                            <span class="text-gray-500">
-                                                <i>
-                                                    El sistema detecta un saldo aprox. de
-                                                    {{ $beneficiary->total_activado - $beneficiary->payments()->where('prtdtdesc', 'LIKE', '%CAP%')->sum('montopago') }}
-                                                </i>
-                                            </span>
-                                            @endif
-                                            <input type="number" wire:model="saldo_credito" id="saldo_credito"
-                                                class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                                            @error('saldo_credito')
-                                                <span class="text-red-500 text-xs">{{ $message }}</span>
-                                            @enderror
-                                        </div>
-                                        <div class="mb-4">
-                                            <label for="monto_recuperado"
-                                                class="block text-gray-700 text-sm font-bold mb-2">Monto
-                                                Recuperado:</label>
-                                            <input type="number" wire:model="monto_recuperado" id="monto_recuperado"
-                                                class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                                            @error('monto_recuperado')
-                                                <span class="text-red-500 text-xs">{{ $message }}</span>
-                                            @enderror
-                                        </div>
-                                        <div class="mb-4">
-                                            <label for="fecha_activacion"
-                                                class="block text-gray-700 text-sm font-bold mb-2">Fecha de
-                                                Activación:</label>
-                                            <input type="date" wire:model="fecha_activacion" id="fecha_activacion"
-                                                class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                                            @error('fecha_activacion')
-                                                <span class="text-red-500 text-xs">{{ $message }}</span>
-                                            @enderror
-                                        </div>
-                                        <div class="mb-4">
-                                            <label for="plazo_credito"
-                                                class="block text-gray-700 text-sm font-bold mb-2">Plazo
-                                                Crédito:</label>
-                                            <input type="number" wire:model="plazo_credito" id="plazo_credito"
-                                                class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                                            @error('plazo_credito')
-                                                <span class="text-red-500 text-xs">{{ $message }}</span>
-                                            @enderror
-                                        </div>
-                                        <div class="mb-4">
-                                            <label for="tasa_interes"
-                                                class="block text-gray-700 text-sm font-bold mb-2">Tasa de
-                                                Interés:</label>
-                                            <input type="number" wire:model="tasa_interes" id="tasa_interes"
-                                                class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                                            @error('tasa_interes')
-                                                <span class="text-red-500 text-xs">{{ $message }}</span>
-                                            @enderror
-                                        </div>
-                                        <div class="mb-4">
-                                            <label for="departamento"
+                                            <label for="depto_pago"
                                                 class="block text-gray-700 text-sm font-bold mb-2">Departamento:</label>
-                                            <input type="text" wire:model="departamento" id="departamento"
+                                            <input type="text" wire:model="depto_pago" id="depto_pago"
                                                 class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                                            @error('departamento')
+                                            @error('depto_pago')
                                                 <span class="text-red-500 text-xs">{{ $message }}</span>
                                             @enderror
                                         </div>
                                         <div class="mb-4">
-                                            <label for="seguro"
-                                                class="block text-gray-700 text-sm font-bold mb-2">Seguro Desgravamen:</label>
-                                            <input type="text" wire:model="seguro" id="seguro"
+                                            <label for="obs_pago"
+                                                class="block text-gray-700 text-sm font-bold mb-2">Observaciones:</label>
+                                            <input type="text" wire:model="obs_pago" id="obs_pago"
                                                 class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                                            @error('seguro')
+                                            @error('obs_pago')
                                                 <span class="text-red-500 text-xs">{{ $message }}</span>
                                             @enderror
                                         </div>
@@ -257,24 +240,19 @@
                                         </svg>
                                     </span>
                                     <span>
-                                        Información sensible a punto de ser modificada.
+                                        Mensaje de Confirmación.
                                     </span>
                                 </h3>
                                 <div class="mt-2">
                                     <p class="text-red-700 font-bold text-justify mb-2">
-                                        Advertencia: Al guardar los cambios, se actualizará la información del
-                                        beneficiario en la base de datos, lo que puede involucrar a toda la
-                                        información relacionada al mismo.
-                                        Por favor, asegúrese de que todos los datos ingresados sean correctos,
-                                        verificados y aprobados por un superior.
-                                        Esta acción no se puede deshacer.
+                                        Advertencia: Usted está a punto de registrar un Voucher y sus glosas, la información registrada no puede ser modificada en un futuro.
                                     </p>
                                     <hr />
                                     <p class="text-gray-700 mt-2">
                                         ¿Desea proceder?
                                     </p>
                                     <div class="flex items-center justify-between mt-4">
-                                        <button type="button" wire:click="update"
+                                        <button type="button" wire:click="save"
                                             class="bg-green-500 hover:bg-green-800 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">
                                             Sí, Guardar
                                         </button>

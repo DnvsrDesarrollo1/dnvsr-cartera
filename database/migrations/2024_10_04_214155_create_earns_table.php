@@ -11,27 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('helpers', function (Blueprint $table) {
+        Schema::create('earns', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('idepro', 255)->nullable(); // Relación con beneficiaries.idepro
-            $table->smallInteger('indice');
+            $table->string('idepro', 255); // Relación con beneficiaries.idepro
             $table->double('capital', 8, 2);
             $table->double('interes', 8, 2);
-            $table->date('vencimiento');
-            $table->string('estado', 50);
-            $table->timestamps(6);
-            $table->unsignedBigInteger('user_id')->nullable();
+            $table->double('seguro', 8, 2);
+            $table->string('estado', 255);
+            $table->timestamps(0); // Precisión 0 según el PDF
 
             // Clave foránea hacia beneficiaries.idepro
             $table->foreign('idepro')
                 ->references('idepro')
                 ->on('beneficiaries')
                 ->onDelete('cascade');
-
-            // Clave foránea hacia users (opcional)
-            $table->foreign('user_id')
-                ->references('id')
-                ->on('users');
         });
     }
 
@@ -40,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('helpers');
+        Schema::dropIfExists('earns');
     }
 };

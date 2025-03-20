@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Earn extends Model
+class Spend extends Model
 {
 
     public function beneficiary()

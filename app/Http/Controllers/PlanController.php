@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Plan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PlanController extends Controller
 {
@@ -29,7 +30,7 @@ class PlanController extends Controller
 
         $data = $this->generarPlan(
             $validatedData['capital_inicial'],
-            $request->input('gastos_judiciales'),
+            \App\Models\Spend::where('idepro', $request->input('idepro'))->where('estado', 'ACTIVO')->first()->monto ?? 0,
             $validatedData['meses'],
             $validatedData['taza_interes'],
             $request->input('seguro'),
@@ -96,7 +97,7 @@ class PlanController extends Controller
 
         $data = $this->generarPlan(
             $validatedData['capital_inicial'],
-            $request->input('gastos_judiciales'),
+            \App\Models\Spend::where('idepro', $request->input('idepro'))->where('estado', 'ACTIVO')->first()->monto ?? 0,
             $validatedData['meses'],
             $validatedData['taza_interes'],
             $request->input('seguro'),
@@ -141,11 +142,11 @@ class PlanController extends Controller
 
         $beneficiaries = \App\Models\Beneficiary::whereIn('ci', $identificationNumbers)
             ->where('estado', '<>', 'CANCELADO')
-            ->where('estado', '<>', 'BLOQUEADO')
+            //->where('estado', '<>', 'BLOQUEADO')
             ->get();
 
         try {
-            \DB::transaction(function () use ($beneficiaries, $interestRate, $secureRate) {
+            \Illuminate\Support\Facades\DB::transaction(function () use ($beneficiaries, $interestRate, $secureRate) {
                 foreach ($beneficiaries as $beneficiary) {
                     $this->activateBeneficiary($beneficiary, $interestRate, $secureRate);
                 }
@@ -165,10 +166,11 @@ class PlanController extends Controller
         if ($initialCapital == 0) {
             $beneficiary->total_activado - ($beneficiary->payments()->where('prtdtdesc', 'like', '%CAPI%')->sum('montopago') ?? 0);
         }
+
         $finPlazo = date('Y-m-d', strtotime($beneficiary->fecha_activacion . ' + 20 years'));
 
-        //$date1 = now();
-        $date1 = '2024-12-16';
+        $date1 = date('Y-m-d', strtotime($beneficiary->fecha_activacion));
+        //$date1 = '2024-12-16';
         $date2 = $finPlazo;
         $d1 = new \DateTime($date2);
         $d2 = new \DateTime($date1);
@@ -177,8 +179,9 @@ class PlanController extends Controller
 
         $sequential = $beneficiary->plans()->exists() ? 'on' : null;
 
-        $startDate = '2024-12-16';
-        //$startDate = now();
+        //$startDate = '2024-10-20';
+        $startDate = now();
+        //$startDate = date('Y-m-15', strtotime($beneficiary->fecha_activacion));
 
         if ($interestRate < 0 || $interestRate == -1 || $interestRate == '-1') {
             $interestRate = ($beneficiary->tasa_interes > 0) ? $beneficiary->tasa_interes : 0;
@@ -190,7 +193,7 @@ class PlanController extends Controller
 
         $planData = $this->generarPlan(
             $initialCapital,
-            $beneficiary->gastos_judiciales,
+            \App\Models\Spend::where('idepro', $beneficiary->idepro)->where('estado', 'ACTIVO')->first()->monto ?? 0,
             //$beneficiary->plazo_credito,
             $months,
             $interestRate,
@@ -229,13 +232,13 @@ class PlanController extends Controller
                 'idepro' => $beneficiary->idepro,
                 'fecha_ppg' => $item->vencimiento,
                 'prppgnpag' => $item->nro_cuota,
-                'prppgcapi' => $item->abono_capital,
-                'prppginte' => $item->interes,
-                'prppggral' => $item->interes_devengado,
-                'prppgsegu' => $item->seguro,
-                'prppgotro' => $item->gastos_judiciales,
-                'prppgcarg' => $item->seguro_devengado,
-                'prppgtota' => $item->total_cuota,
+                'prppgcapi' => ($item->abono_capital),
+                'prppginte' => ($item->interes),
+                'prppggral' => ($item->interes_devengado),
+                'prppgsegu' => ($item->seguro),
+                'prppgotro' => ($item->gastos_judiciales),
+                'prppgcarg' => ($item->seguro_devengado),
+                'prppgtota' => ($item->total_cuota),
                 'estado' => 'ACTIVO',
                 'user_id' => auth()->id() ?? 1,
             ];
@@ -253,7 +256,7 @@ class PlanController extends Controller
             ->get();
 
         try {
-            \DB::transaction(function () use ($beneficiaries) {
+            DB::transaction(function () use ($beneficiaries) {
                 foreach ($beneficiaries as $beneficiary) {
                     $this->adjustBeneficiary($beneficiary);
                 }
@@ -298,11 +301,11 @@ class PlanController extends Controller
                 'idepro' => $beneficiary->idepro,
                 'fecha_ppg' => $item->vencimiento,
                 'prppgnpag' => $item->nro_cuota,
-                'prppgcapi' => $item->abono_capital,
-                'prppginte' => $item->interes,
-                'prppgsegu' => $item->seguro,
-                'prppgotro' => $item->gastos_judiciales,
-                'prppgtota' => $item->total_cuota,
+                'prppgcapi' => round($item->abono_capital, 2),
+                'prppginte' => round($item->interes, 2),
+                'prppgsegu' => round($item->seguro, 2),
+                'prppgotro' => round($item->gastos_judiciales, 2),
+                'prppgtota' => round($item->total_cuota, 2),
                 'estado' => 'ACTIVO',
                 'user_id' => auth()->id() ?? 1,
             ];

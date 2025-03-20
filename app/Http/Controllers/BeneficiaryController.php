@@ -102,7 +102,7 @@ class BeneficiaryController extends Controller
 
     private function getActivePlans($idepro)
     {
-        $plans = Plan::where('idepro', $idepro)->where('estado', 'ACTIVO')->orderBy('fecha_ppg', 'asc')->get();
+        $plans = Plan::where('idepro', $idepro)->where('estado', '<>', 'INACTIVO')->orderBy('fecha_ppg', 'asc')->get();
         return $plans->count() > 0 ? $plans : Readjustment::where('idepro', $idepro)->where('estado', 'ACTIVO')->orderBy('fecha_ppg', 'asc')->get();
     }
 

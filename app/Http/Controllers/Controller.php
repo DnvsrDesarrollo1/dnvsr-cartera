@@ -27,7 +27,7 @@ abstract class Controller
         $gj = 0;
 
         if ($gastos_judiciales > 0) {
-            $gj = $gastos_judiciales / 12;
+            $gj = ($gastos_judiciales / ($meses));
         }
 
         $a = $c / $meses;
@@ -59,13 +59,15 @@ abstract class Controller
 
         $fecha_inicio = \Carbon\Carbon::parse($fecha_inicio);
 
-        if ($fecha_inicio->day < 15) {
+        /* if ($fecha_inicio->day < 15) {
             $ms = 0;
-        }
+        } */
 
         if ($fecha_inicio->day >= 15) {
             $fecha_inicio = $fecha_inicio->format('Y-m-15');
         }
+
+        $totalGenerado = 0;
 
         for ($ix; $ix <= $n; $ix++) {
             $gjx += $gj;
@@ -74,10 +76,12 @@ abstract class Controller
             $saldo_final = $saldo_inicial - $abono_capital;
             $seguro = ($saldo_inicial + $interes) * $s;
 
+            $totalGenerado += $abono_capital;
+
             $fecha_vencimiento = $this->obtenerFechaVencimiento($fecha_inicio, $ms);
 
             if ($ix == 1) {
-                $fecha_vencimiento = date('Y-m-27', strtotime($fecha_inicio . '+ ' . $ms . ' month'));
+                $fecha_vencimiento = date('Y-m-d', strtotime($fecha_inicio . '+ ' . $ms . ' month'));
             }
             /* if ($ix == 1) {
                 $fecha = date('Y-m-24', strtotime($fecha_inicio));
@@ -95,6 +99,8 @@ abstract class Controller
 
             if ($ix >= $meses) {
 
+                $totalGenerado = round($capital_inicial, 2) - round($totalGenerado, 2);
+
                 if ($taza_interes > 0) {
                     //$interes = max(0, $interes - $saldo_final);
                     $abono_capital += $saldo_final;
@@ -109,7 +115,7 @@ abstract class Controller
                 $nuevo_plan[] = [
                     $ix,
                     $saldo_inicial,
-                    $a,
+                    $a - $totalGenerado,
                     $abono_capital,
                     $interes,
                     $seguro,
@@ -143,7 +149,7 @@ abstract class Controller
 
             $ms++;
 
-            if ($gjx >= ($gj * 12)) {
+            if ($gjx >= ($gastos_judiciales)) {
                 $gj = 0;
             }
 
@@ -211,7 +217,7 @@ abstract class Controller
     {
         return $this->generarPlan(
             $request->input('capital_inicial'),
-            $request->input('gastos_judiciales'),
+            \App\Models\Spend::where('idepro', $request->input('idepro'))->where('estado', 'ACTIVO')->first()->monto ?? 0,
             $request->input('meses'),
             $request->input('taza_interes'),
             $request->input('seguro'),
