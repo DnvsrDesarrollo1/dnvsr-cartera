@@ -3,32 +3,26 @@
         @php
             $criterio = DB::table('beneficiaries')->distinct()->get('estado');
         @endphp
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight text-center py-4">
-            @foreach ($criterio as $c)
-                {{ $c->estado }} : {{ DB::table('beneficiaries')->where('estado', $c->estado)->count() }} |
-            @endforeach
-        </h2>
+        <table class="table-auto border-collapse border border-gray-400 w-full text-center shadow-sm my-2">
+            <tbody>
+                <tr>
+                    @foreach ($criterio as $c)
+                        <td class="border border-gray-200 px-2 py-2">
+                            {{ $c->estado }} :
+                            <b>{{ DB::table('beneficiaries')->where('estado', $c->estado)->count() }}</b>
+                        </td>
+                    @endforeach
+                </tr>
+            </tbody>
+        </table>
     </x-slot>
-    <div class="mx-auto px-6 py-4 sm:px-4 lg:px-6">
-        <div class="bg-white overflow-x-auto shadow-lg rounded-lg overflow-y-auto mt-4 p-2">
+    <div class="mx-auto px-4">
+        <div class="bg-white overflow-x-auto shadow-lg overflow-y-auto p-2 rounded-lg border border-gray-300 mt-2 mb-2">
             @if (session('success'))
-                <div class="bg-green-200 border border-green-600 text-green-600 px-4 py-3 rounded relative mb-4"
-                    role="alert">
-                    <strong class="font-bold">Éxito!</strong>
-                    <span class="block sm:inline">{{ session('success') }}</span>
-                    @if (session('link'))
-                        <a href="{{ session('link') }}" target="_blank" class="ml-2 mr-2 cursor-pointer font-bold">
-                            Descargar ZIP
-                        </a>
-                    @endif
-                </div>
+                <x-personal.alert type="success" message="{{ session('success') }}" goto="{{ session('link') }}" />
             @endif
             @if (session('error'))
-                <div class="bg-red-200 border border-red-500 text-red-500 px-4 py-3 rounded relative mb-4"
-                    role="alert">
-                    <span class="block sm:inline">{{ session('error') }}</span>
-                    <span>{{ session('data') }}</span>
-                </div>
+                <x-personal.alert type="error" message="{{ session('error') }} : {{ session('data') }}" />
             @endif
             <div class="px-4">
                 <livewire:beneficiary-table />

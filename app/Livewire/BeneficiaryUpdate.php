@@ -13,6 +13,7 @@ class BeneficiaryUpdate extends Component
         $departamento, $seguro;
     public $showModal = false;
     public $confirmingSave = false;
+    public $cuota;
 
     protected $rules = [
         'nombre' => 'required|string|max:255',
@@ -39,14 +40,44 @@ class BeneficiaryUpdate extends Component
         $this->fill($beneficiary->toArray());
         $this->seguro = ($beneficiary->insurance()->exists()) ? $beneficiary->insurance->tasa_seguro : 0;
         if ($this->seguro == 0) {
-            $this->seguro = ($this->beneficiary->plans()->exists()) ? ($this->beneficiary->plans()->orderBy('fecha_ppg', 'desc')->first()->prppgsegu / $beneficiary->saldo_credito) * 100 : 0;
+            $this->seguro = ($this->beneficiary->hasPlan())
+                ?
+                ($this->beneficiary->getCurrentPlan('INACTIVO', '!=')->first()->prppgsegu / $beneficiary->saldo_credito) * 100 : 0;
         }
-        $this->seguro = number_format($this->seguro, 4);
+        $this->seguro = number_format($this->seguro, 3);
+
+        $this->cuota = ($this->beneficiary->hasPlan()) ? $this->beneficiary->getCurrentPlan()->first() : null;
     }
 
     public function update()
     {
         $this->validate();
+
+        if ($this->idepro != $this->beneficiary->idepro){
+            $this->beneficiary->getCurrentPlan('INACTIVO', '!=')->update([
+                'idepro' => $this->idepro,
+            ]);
+
+            $this->beneficiary->helpers()->update([
+                'idepro' => $this->idepro,
+            ]);
+
+            $this->beneficiary->insurance()->update([
+                'idepro' => $this->idepro,
+            ]);
+
+            $this->beneficiary->earns()->update([
+                'idepro' => $this->idepro,
+            ]);
+
+            $this->beneficiary->vouchers()->update([
+                'numprestamo' => $this->idepro,
+            ]);
+
+            $this->beneficiary->payments()->update([
+                'numprestamo' => $this->idepro,
+            ]);
+        }
 
         $this->beneficiary->update([
             'nombre' => $this->nombre,
@@ -64,13 +95,13 @@ class BeneficiaryUpdate extends Component
             'plazo_credito' => $this->plazo_credito,
             'tasa_interes' => $this->tasa_interes,
             'departamento' => $this->departamento,
-            'user_id' => auth()->id(),
+            'user_id' => \Illuminate\Support\Facades\Auth::user()->id,
         ]);
 
         $this->showModal = false;
         $this->confirmingSave = false;
 
-        return redirect(request()->header('Referer'));
+        return redirect()->route('beneficiario.show', ['cedula' => $this->beneficiary->ci]);
     }
 
 

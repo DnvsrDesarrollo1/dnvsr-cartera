@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Beneficiary;
 use App\Models\Plan;
+use App\Models\Readjustment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -15,6 +17,27 @@ class PlanController extends Controller
     }
 
     public function create() {}
+
+    public function pdfMora()
+    {
+        $lVencidos = Plan::where('estado', 'VENCIDO')->distinct('idepro')->pluck('idepro');
+        $lBeneficiarios = Beneficiary::whereIn('idepro', $lVencidos)->orderBy('proyecto')->get();
+        $lProyectos = Beneficiary::whereIn('idepro', $lVencidos)->orderBy('proyecto')->distinct('proyecto')->get('proyecto');
+        $todosProyectos = Beneficiary::whereIn('proyecto', $lProyectos)->orderBy('proyecto')->distinct('proyecto')->get('proyecto');
+        $lProyectos = $lBeneficiarios->groupBy('proyecto')->map(function ($group, $proyecto) use ($todosProyectos) {
+            $totalBeneficiarios = Beneficiary::where('proyecto', $proyecto)->count();
+            $morosos = $group->count();
+            $porcentajeMora = $totalBeneficiarios > 0 ? ($morosos / $totalBeneficiarios) * 100 : 0;
+
+            return [
+                'morosos' => $morosos,
+                'total' => $totalBeneficiarios,
+                'porcentajeMora' => $porcentajeMora,
+            ];
+        });
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('plans.mora-pdf', compact('lProyectos'));
+        return $pdf->stream('mora-pdf');
+    }
 
     public function store(Request $request)
     {
@@ -36,7 +59,9 @@ class PlanController extends Controller
             $request->input('seguro'),
             $request->input('correlativo'),
             $request->input('plazo_credito'),
-            $validatedData['fecha_inicio']
+            $validatedData['fecha_inicio'],
+            \App\Models\Earn::where('idepro', $request->input('idepro'))->first()->interes ?? 0,
+            \App\Models\Earn::where('idepro', $request->input('idepro'))->first()->seguro ?? 0,
         );
 
         if (
@@ -52,22 +77,23 @@ class PlanController extends Controller
                 $data->last()->vencimiento
             );
         }
-        $beneficiary = \App\Models\Beneficiary::where('idepro', $request->input('idepro'))->first();
+        $beneficiary = Beneficiary::where('idepro', $request->input('idepro'))->first();
 
-        $userId = auth()->user()->id ?? 1;
+        $userId = \Illuminate\Support\Facades\Auth::user()->id ?? 1;
 
         $data = $this->generatePlanData($request);
         $diferimento = $this->generateDiferimentoIfNeeded($request, $data);
 
-        $this->deactivateExistingRecords($request->input('idepro'), $userId);
+        $cuotasPagadas = $this->deactivateExistingRecords($request->input('idepro'));
+
+        $filePath = $cuotasPagadas->count() > 0 ? $this->downloadPlanCollection($cuotasPagadas, 'cuotas_canceladas') : null;
+
         $this->createNewRecords($data, $diferimento, $request, $userId);
 
-        return redirect()->route(
-            'beneficiario.show',
-            [
-                'cedula' => $beneficiary->ci
-            ]
-        )->with('success', 'El plan de pagos fue generado correctamente!');
+        // Redirect after storing the file
+        return redirect()->route('beneficiario.show', ['cedula' => $beneficiary->ci])
+            ->with('success', 'El plan de pagos fue generado correctamente!')
+            ->with('file', $filePath);
     }
 
     public function show(Plan $plan) {}
@@ -131,22 +157,150 @@ class PlanController extends Controller
         ));
     }
 
+    public function bulkExportXLSX($data)
+    {
+        $beneficiaries = Beneficiary::find(json_decode($data, true))->pluck('idepro');
+
+        $plans = Plan::join('beneficiaries', 'beneficiaries.idepro', '=', 'plans.idepro')
+            ->select(
+                'plans.id',
+                'plans.idepro',
+                'plans.fecha_ppg',
+                'plans.prppgnpag',
+                'plans.prppgcapi',
+                'plans.prppginte',
+                'plans.prppgsegu',
+                'plans.prppgotro',
+                'plans.prppgtota',
+                'plans.estado',
+                'beneficiaries.nombre',
+                'beneficiaries.ci',
+                'beneficiaries.complemento',
+                'beneficiaries.expedido'
+            )
+            ->whereIn('plans.idepro', $beneficiaries)
+            ->where('plans.estado', '<>', 'INACTIVO')
+            ->orderBy('plans.fecha_ppg', 'asc')
+            ->get();
+
+        $readj = Readjustment::join('beneficiaries', 'beneficiaries.idepro', '=', 'readjustments.idepro')
+            ->select(
+                'readjustments.id',
+                'readjustments.idepro',
+                'readjustments.fecha_ppg',
+                'readjustments.prppgnpag',
+                'readjustments.prppgcapi',
+                'readjustments.prppginte',
+                'readjustments.prppgsegu',
+                'readjustments.prppgotro',
+                'readjustments.prppgtota',
+                'readjustments.estado',
+                'beneficiaries.nombre',
+                'beneficiaries.ci',
+                'beneficiaries.complemento',
+                'beneficiaries.expedido'
+            )
+            ->whereIn('readjustments.idepro', $beneficiaries)
+            ->where('readjustments.estado', '<>', 'INACTIVO')
+            ->orderBy('readjustments.fecha_ppg', 'asc')
+            ->get();
+
+        try {
+            $fileName = 'exportacion_planes_' . uniqid() . '.csv';
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+            ];
+
+            $callback = function () use ($plans, $readj) {
+                $file = fopen('php://output', 'w');
+                fputcsv($file, [
+                    'NOMBRES',
+                    'CI',
+                    'COMPLEMENTO',
+                    'EXPEDIDO',
+                    'ID',
+                    'IDEPRO',
+                    'FECHA PPG',
+                    'NRO CUOTA',
+                    'CAPITAL',
+                    'INTERES',
+                    'INTERES DEVG',
+                    'SEGURO',
+                    'SEGURO DEVG',
+                    'GASTOS ADM/JUD',
+                    'TOTAL CUOTA',
+                    'ESTADO',
+                ]);
+
+                foreach ($plans as $plan) {
+                    fputcsv($file, [
+                        $plan->nombre,
+                        $plan->ci,
+                        $plan->complemento,
+                        $plan->expedido,
+                        $plan->id,
+                        $plan->idepro,
+                        $plan->fecha_ppg,
+                        $plan->prppgnpag,
+                        $plan->prppgcapi,
+                        $plan->prppginte,
+                        $plan->prppggral,
+                        $plan->prppgsegu,
+                        $plan->prppgcarg,
+                        $plan->prppgotro,
+                        $plan->prppgtota,
+                        $plan->estado,
+                    ]);
+                }
+
+                foreach ($readj as $r) {
+                    fputcsv($file, [
+                        $r->nombre,
+                        $r->ci,
+                        $r->complemento,
+                        $r->expedido,
+                        $r->id,
+                        $r->idepro,
+                        $r->fecha_ppg,
+                        $r->prppgnpag,
+                        $r->prppgcapi,
+                        $r->prppginte,
+                        $r->prppggral,
+                        $r->prppgsegu,
+                        $r->prppgcarg,
+                        $r->prppgotro,
+                        $r->prppgtota,
+                        $r->estado,
+                    ]);
+                }
+
+                fclose($file);
+            };
+
+            return response()->stream($callback, 200, $headers);
+        } catch (\Exception $e) {
+            return redirect()->route('beneficiario.index')
+                ->with('error', "La exportación masiva de {$beneficiaries->count()} beneficiarios no fue realizada.")
+                ->with('data', $e->getMessage());
+        }
+    }
+
     public function bulkActivation($data)
     {
         $decodedData = json_decode($data, true);
-        $interestRate = $decodedData['interes'] ?? -1;
-        $secureRate = $decodedData['seguro'] ?? -1;
+        $interestRate = (float)$decodedData['interes'] ?? -1;
+        $secureRate = (float)$decodedData['seguro'] ?? -1;
         $identificationNumbers = array_diff(array_values($decodedData), [$interestRate]);
 
         //return $interestRate . ' ' . $secureRate . ' ' . json_encode($identificationNumbers);
 
-        $beneficiaries = \App\Models\Beneficiary::whereIn('ci', $identificationNumbers)
+        $beneficiaries = Beneficiary::find($identificationNumbers)
             ->where('estado', '<>', 'CANCELADO')
-            //->where('estado', '<>', 'BLOQUEADO')
-            ->get();
+            ->where('estado', '<>', 'BLOQUEADO');
 
         try {
-            \Illuminate\Support\Facades\DB::transaction(function () use ($beneficiaries, $interestRate, $secureRate) {
+            DB::transaction(function () use ($beneficiaries, $interestRate, $secureRate) {
                 foreach ($beneficiaries as $beneficiary) {
                     $this->activateBeneficiary($beneficiary, $interestRate, $secureRate);
                 }
@@ -160,17 +314,22 @@ class PlanController extends Controller
         }
     }
 
-    public function activateBeneficiary(\App\Models\Beneficiary $beneficiary, $interestRate, $secureRate)
+    public function activateBeneficiary(Beneficiary $beneficiary, $interestRate, $secureRate)
     {
-        $initialCapital = $beneficiary->saldo_credito;
-        if ($initialCapital == 0) {
-            $beneficiary->total_activado - ($beneficiary->payments()->where('prtdtdesc', 'like', '%CAPI%')->sum('montopago') ?? 0);
+        $initialCapital = $beneficiary->saldo_credito ?? 0;
+        if ($initialCapital <= 0) {
+            $initialCapital = $beneficiary->total_activado - ($beneficiary->payments()->where('prtdtdesc', 'like', '%CAPI%')->sum('montopago') ?? 0);
         }
 
-        $finPlazo = date('Y-m-d', strtotime($beneficiary->fecha_activacion . ' + 20 years'));
+        $finPlazo = date(
+            'Y-m-d',
+            //strtotime($beneficiary->fecha_activacion . ' + 20 years'));
+            strtotime($beneficiary->fecha_activacion . ' + ' . $beneficiary->plazo_credito . ' months')
+        );
 
-        $date1 = date('Y-m-d', strtotime($beneficiary->fecha_activacion));
-        //$date1 = '2024-12-16';
+        //$date1 = date('Y-m-d', strtotime($beneficiary->fecha_activacion));
+        $date1 = date('Y-m-d', strtotime($beneficiary->fecha_extendida));
+        //$date1 = now();
         $date2 = $finPlazo;
         $d1 = new \DateTime($date2);
         $d2 = new \DateTime($date1);
@@ -179,9 +338,9 @@ class PlanController extends Controller
 
         $sequential = $beneficiary->plans()->exists() ? 'on' : null;
 
-        //$startDate = '2024-10-20';
-        $startDate = now();
-        //$startDate = date('Y-m-15', strtotime($beneficiary->fecha_activacion));
+        //$startDate = '2024-10-10'; //PARA CONSIDERAR EL MES DE LA FECHA INDICADA
+        //$startDate = now(); // PARA CONSIDERAR EL MES SIGUIENTE A AHORA
+        $startDate = date('Y-m-15', strtotime($beneficiary->fecha_extendida));
 
         if ($interestRate < 0 || $interestRate == -1 || $interestRate == '-1') {
             $interestRate = ($beneficiary->tasa_interes > 0) ? $beneficiary->tasa_interes : 0;
@@ -192,7 +351,7 @@ class PlanController extends Controller
         }
 
         $planData = $this->generarPlan(
-            $initialCapital,
+            (float) $initialCapital,
             \App\Models\Spend::where('idepro', $beneficiary->idepro)->where('estado', 'ACTIVO')->first()->monto ?? 0,
             //$beneficiary->plazo_credito,
             $months,
@@ -209,7 +368,7 @@ class PlanController extends Controller
         $this->createNewPlans($beneficiary, $planData);
     }
 
-    public function deactivateRelatedRecords(\App\Models\Beneficiary $beneficiary)
+    public function deactivateRelatedRecords(Beneficiary $beneficiary)
     {
         $relatedModels = [
             //'helpers',
@@ -225,7 +384,7 @@ class PlanController extends Controller
         }
     }
 
-    public function createNewPlans(\App\Models\Beneficiary $beneficiary, $planData)
+    public function createNewPlans(Beneficiary $beneficiary, $planData)
     {
         $newPlans = $planData->map(function ($item) use ($beneficiary) {
             return [
@@ -240,20 +399,19 @@ class PlanController extends Controller
                 'prppgcarg' => ($item->seguro_devengado),
                 'prppgtota' => ($item->total_cuota),
                 'estado' => 'ACTIVO',
-                'user_id' => auth()->id() ?? 1,
+                'user_id' => \Illuminate\Support\Facades\Auth::user()->id ?? 1,
             ];
         })->toArray();
 
-        \App\Models\Plan::insert($newPlans);
+        Plan::insert($newPlans);
     }
 
     public function bulkAdjust($data)
     {
         $identificationNumbers = json_decode($data, true);
 
-        $beneficiaries = \App\Models\Beneficiary::whereIn('ci', $identificationNumbers)
-            ->where('estado', '<>', 'CANCELADO')
-            ->get();
+        $beneficiaries = Beneficiary::find($identificationNumbers)
+            ->where('estado', '<>', 'CANCELADO');
 
         try {
             DB::transaction(function () use ($beneficiaries) {
@@ -270,7 +428,7 @@ class PlanController extends Controller
         }
     }
 
-    public function adjustBeneficiary(\App\Models\Beneficiary $beneficiary)
+    public function adjustBeneficiary(Beneficiary $beneficiary)
     {
         $initialCapital = $beneficiary->total_activado - ($beneficiary->payments()->sum('montopago') ?? 0);
         $months = $beneficiary->plazo_credito;
@@ -294,7 +452,7 @@ class PlanController extends Controller
         $this->createNewReadjustments($beneficiary, $planData);
     }
 
-    public function createNewReadjustments(\App\Models\Beneficiary $beneficiary, $planData)
+    public function createNewReadjustments(Beneficiary $beneficiary, $planData)
     {
         $newReadjustments = $planData->map(function ($item) use ($beneficiary) {
             return [
@@ -307,10 +465,10 @@ class PlanController extends Controller
                 'prppgotro' => round($item->gastos_judiciales, 2),
                 'prppgtota' => round($item->total_cuota, 2),
                 'estado' => 'ACTIVO',
-                'user_id' => auth()->id() ?? 1,
+                'user_id' => \Illuminate\Support\Facades\Auth::user()->id ?? 1,
             ];
         })->toArray();
 
-        \App\Models\Readjustment::insert($newReadjustments);
+        Readjustment::insert($newReadjustments);
     }
 }

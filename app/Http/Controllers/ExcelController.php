@@ -63,7 +63,11 @@ class ExcelController extends Controller
 
             foreach ($collection as $key => $value) {
 
-                $startIndex = \App\Models\Plan::where('idepro', $value['idepro'])->where('estado', 'ACTIVO')->orderBy('fecha_ppg', 'desc')->first();
+                $startIndex = \App\Models\Readjustment::where('idepro', $value['idepro'])->where('estado', 'ACTIVO')->orderBy('fecha_ppg', 'desc')->first();
+                if(!$startIndex)
+                {
+                    $startIndex = \App\Models\Plan::where('idepro', $value['idepro'])->where('estado', 'ACTIVO')->orderBy('fecha_ppg', 'desc')->first();
+                }
 
                 $helpersActivos = \App\Models\Helper::where('idepro', $value['idepro'])->where('estado', 'ACTIVO')->get();
 
@@ -89,25 +93,31 @@ class ExcelController extends Controller
                 }
             }
 
+            $count = 0;
+
             foreach ($data as $d) {
                 if ($d != null) {
-                    \App\Models\Helper::create([
+                    $new = \App\Models\Helper::create([
                         'idepro' => $d['idepro'],
                         'indice' => $d['nro_cuota'],
                         'capital' => $d['capital'],
                         'interes' => $d['interes'],
                         'vencimiento' => $d['vencimiento'],
                         'estado' => $d['estado'],
-                        'user_id' => auth()->user()->id,
+                        'user_id' => \Illuminate\Support\Facades\Auth::user()->id,
                     ]);
+
+                    if ($new) {
+                        $count++;
+                    }
                 }
             }
 
             //return $data;
 
-            return redirect()->route('importaciones')->with('successD', 'Se lograron importar ' . count($rows) . ' registros para diferimentos.');
+            return redirect()->route('importaciones')->with('successD', 'Se lograron importar ' . ($count) . ' registros para diferimentos.');
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Error during differimento generation: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Error during row(s) generation: ' . $e->getMessage());
 
             return $e;
 
@@ -149,7 +159,7 @@ class ExcelController extends Controller
 
         // Reemplazar la obtención de headers con:
         $tableName = (new $dynaModel)->getTable();
-        $headers = \Schema::getColumnListing($tableName);
+        $headers = \Illuminate\Support\Facades\Schema::getColumnListing($tableName);
 
         // Filtrar las columnas no deseadas
         $headers = collect($headers)->reject(function ($item) {
@@ -195,7 +205,7 @@ class ExcelController extends Controller
 
                 $row->{$header} = $value;
             }
-            $row->{'user_id'} = auth()->user()->id;
+            $row->{'user_id'} = \Illuminate\Support\Facades\Auth::user()->id;
             $data->push($row);
         }
 
@@ -241,12 +251,12 @@ class ExcelController extends Controller
         $fileName = 'exportacion_' . uniqid() . '.xlsx';
         $idepro = $request->input('idepro');
 
-        $userId = auth()->user()->id;
+        $userId = \Illuminate\Support\Facades\Auth::user()->id;
 
         $data = $this->generatePlanData($request);
         $diferimento = $this->generateDiferimentoIfNeeded($request, $data);
 
-        $this->deactivateExistingRecords($idepro, $userId);
+        $this->deactivateExistingRecords($idepro);
         $this->createNewRecords($data, $diferimento, $request, $userId);
 
         $headers = $this->prepareHeaders($data);

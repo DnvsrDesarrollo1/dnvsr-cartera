@@ -44,10 +44,11 @@ class MonthDashboard extends Component
     public function updatedSearch()
     {
         $this->projects = Beneficiary::query()
-            ->select('proyecto')
-            ->where('proyecto', 'like', "%{$this->search}%")
-            ->groupBy('proyecto')
-            ->orderBy('proyecto')
+            ->select('beneficiaries.proyecto')
+            ->join('payments', 'beneficiaries.idepro', '=', 'payments.numprestamo')
+            ->where('beneficiaries.proyecto', 'like', "%{$this->search}%")
+            ->groupBy('beneficiaries.proyecto')
+            ->orderBy('beneficiaries.proyecto')
             ->get();
     }
 

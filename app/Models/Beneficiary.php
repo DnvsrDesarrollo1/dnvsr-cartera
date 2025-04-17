@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+use Illuminate\Support\Facades\Http;
+
 class Beneficiary extends Model
 {
     use HasFactory;
@@ -37,6 +39,11 @@ class Beneficiary extends Model
     ];
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
+
+    private const API_BASE_URL = 'http://20.20.1.55:8080/api/';
+    private const TIMEOUT = 5; // seconds
+    private const RETRY_TIMES = 2;
+    private const RETRY_DELAY = 100; // milliseconds
 
     //public $incrementing = false;
 
@@ -88,5 +95,77 @@ class Beneficiary extends Model
     public function spends()
     {
         return $this->hasMany(Spend::class, 'idepro', 'idepro');
+    }
+
+    public function hasPlan(): bool
+    {
+        return ($this->plans()->where('estado', '<>', 'INACTIVO')->exists()
+            || $this->readjustments()->where('estado', '<>', 'INACTIVO')->exists());
+    }
+
+    public function getCurrentPlan(string $status = 'ACTIVO', string $wildcard = '=')
+    {
+        $plan = $this->plans()
+            ->where('estado', "$wildcard", (strtoupper($wildcard) === 'LIKE' ? "%$status%" : $status))
+            ->orderBy('fecha_ppg', 'asc')
+            ->get();
+
+        if ($plan->isEmpty()) {
+            $plan = $this->readjustments()
+                ->where('estado', "$wildcard", (strtoupper($wildcard) === 'LIKE' ? "%$status%" : $status))
+                ->orderBy('fecha_ppg', 'asc')
+                ->get();
+        }
+
+        return $plan;
+    }
+
+    public function hasVouchers(): bool
+    {
+        return ($this->vouchers()->exists());
+    }
+
+    /**
+     * Get credit status
+     */
+    public function statusCredito(): array
+    {
+        return $this->makeApiRequest('credito/' . $this->idepro);
+    }
+
+    /**
+     * Get social status
+     */
+    public function statusSocial(string $codigo): array
+    {
+        return $this->makeApiRequest('social/' . $codigo);
+    }
+
+    /**
+     * Get legal status
+     */
+    public function statusLegal(string $codigo): array
+    {
+        return $this->makeApiRequest('legal/' . $codigo);
+    }
+
+    /**
+     * Shared API request logic
+     */
+    private function makeApiRequest(string $endpoint): array
+    {
+        try {
+            $response = Http::asForm()
+                ->acceptJson()
+                ->timeout(self::TIMEOUT)
+                ->retry(self::RETRY_TIMES, self::RETRY_DELAY)
+                ->get(self::API_BASE_URL . $endpoint);
+
+            return $response->throw()->json()['data'] ?? [];
+        } catch (\Exception $e) {
+            // Log error if needed
+            \Log::error("API request failed for {$endpoint}: " . $e->getMessage());
+            return [];
+        }
     }
 }

@@ -1,5 +1,5 @@
 <div>
-    <button wire:click="$set('showModal', true)" class="p-2 rounded-full bg-gray-100">
+    <button wire:click="$set('showModal', true)" class="p-2 rounded-full border bg-white transition">
         <svg width="42px" height="42px" viewBox="-102.4 -102.4 1228.80 1228.80" xmlns="http://www.w3.org/2000/svg"
             fill="#1db512" stroke="#1db512">
             <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -32,6 +32,7 @@
                                 <h3 class="text-xl leading-6 font-medium text-gray-900 border border-gray-400 rounded p-2"
                                     id="modal-title">
                                     Registrar/Crear Nuevo Pago:
+
                                 </h3>
                                 <div class="mt-2">
                                     <form wire:submit.prevent="save">
@@ -39,7 +40,8 @@
                                             <label for="numpago"
                                                 class="block text-gray-700 text-sm font-bold mb-2">Numero de
                                                 Cuota:</label>
-                                            <input type="number" max="300" min="1" wire:model="numpago" id="numpago"
+                                            <input type="number" max="300" min="1" wire:model="numpago"
+                                                id="numpago"
                                                 class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                             @error('numpago')
                                                 <span class="text-red-500 text-xs">{{ $message }}</span>
@@ -94,10 +96,30 @@
                                             @enderror
                                         </div>
                                         <div class="border-l-4 border-green-600 pl-4">
+
+                                            <div class="mb-4">
+                                                <label for="totalpagado"
+                                                    class="block text-gray-700 text-sm font-bold mb-2">Total
+                                                    Pagado:</label>
+                                                <input type="number" wire:model.live="totalpagado" id="totalpagado"
+                                                    step="0.10"
+                                                    class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                                @error('totalpagado')
+                                                    <span class="text-red-500 text-xs">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                            <span class="block text-gray-400 text-sm mb-2 italic text-end">
+                                                Este valor determinará el monto real destinado a Capital (k).
+                                            </span>
+                                            <span id="minus" @class(['text-red-600', 'text-sm', 'italic', 'bold', 'text-end', 'hidden' => $montopago <= $totalpagado, 'block' => $montopago > $totalpagado])>
+                                                Monto menor al planificado! - Considere la posibilidad de inconsistencias en el plan de pagos recalculado.
+                                            </span>
+                                            <hr class="mt-4 mb-4" />
                                             <div class="mb-4">
                                                 <label for="capital"
                                                     class="block text-gray-700 text-sm font-bold mb-2">CAPITAL:</label>
-                                                <input type="number" wire:model="capital" id="capital"
+                                                <input type="number" wire:model.live="capital" id="capital"
+                                                    step="0.10"
                                                     class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                                 @error('capital')
                                                     <span class="text-red-500 text-xs">{{ $message }}</span>
@@ -107,7 +129,8 @@
                                             <div class="mb-4">
                                                 <label for="interes"
                                                     class="block text-gray-700 text-sm font-bold mb-2">INTERES:</label>
-                                                <input type="number" wire:model="interes" id="interes"
+                                                <input type="number" wire:model.live="interes" id="interes"
+                                                    step="0.10"
                                                     class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                                 @error('interes')
                                                     <span class="text-red-500 text-xs">{{ $message }}</span>
@@ -116,8 +139,10 @@
 
                                             <div class="mb-4">
                                                 <label for="interes_devg"
-                                                    class="block text-gray-700 text-sm font-bold mb-2">INTERES DEVENGADO:</label>
-                                                <input type="number" wire:model="interes_devg" id="interes_devg"
+                                                    class="block text-gray-700 text-sm font-bold mb-2">INTERES
+                                                    DEVENGADO:</label>
+                                                <input type="number" wire:model.live="interes_devg"
+                                                    id="interes_devg" step="0.10"
                                                     class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                                 @error('interes_devg')
                                                     <span class="text-red-500 text-xs">{{ $message }}</span>
@@ -127,7 +152,8 @@
                                             <div class="mb-4">
                                                 <label for="seguro"
                                                     class="block text-gray-700 text-sm font-bold mb-2">SEGURO:</label>
-                                                <input type="number" wire:model="seguro" id="seguro"
+                                                <input type="number" wire:model.live="seguro" id="seguro"
+                                                    step="0.10"
                                                     class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                                 @error('seguro')
                                                     <span class="text-red-500 text-xs">{{ $message }}</span>
@@ -136,8 +162,10 @@
 
                                             <div class="mb-4">
                                                 <label for="seguro_devg"
-                                                    class="block text-gray-700 text-sm font-bold mb-2">SEGURO DEVENGADO:</label>
-                                                <input type="number" wire:model="seguro_devg" id="seguro_devg"
+                                                    class="block text-gray-700 text-sm font-bold mb-2">SEGURO
+                                                    DEVENGADO:</label>
+                                                <input type="number" wire:model.live="seguro_devg" id="seguro_devg"
+                                                    step="0.10"
                                                     class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                                 @error('seguro_devg')
                                                     <span class="text-red-500 text-xs">{{ $message }}</span>
@@ -147,13 +175,16 @@
                                             <div class="mb-4">
                                                 <label for="otros"
                                                     class="block text-gray-700 text-sm font-bold mb-2">OTROS:</label>
-                                                <input type="number" wire:model="otros" id="otros"
+                                                <input type="number" wire:model.live="otros" id="otros"
+                                                    step="0.10"
                                                     class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                                 @error('otros')
                                                     <span class="text-red-500 text-xs">{{ $message }}</span>
                                                 @enderror
                                             </div>
-
+                                            <hr class="mt-4 mb-4" />
+                                            <span class="block text-gray-500 text-sm font-bold mb-2 text-end">Total a
+                                                Pagar: Bs. {{ number_format($montopago, 2) }}</span>
                                         </div>
                                         <div class="mb-4">
                                             <label for="agencia_pago"
@@ -245,7 +276,8 @@
                                 </h3>
                                 <div class="mt-2">
                                     <p class="text-red-700 font-bold text-justify mb-2">
-                                        Advertencia: Usted está a punto de registrar un Voucher y sus glosas, la información registrada no puede ser modificada en un futuro.
+                                        Advertencia: Usted está a punto de registrar un Voucher y sus glosas, la
+                                        información registrada no puede ser modificada en un futuro.
                                     </p>
                                     <hr />
                                     <p class="text-gray-700 mt-2">

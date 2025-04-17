@@ -9,8 +9,58 @@ class PaymentModal extends Component
 {
     public $isOpen = false;
 
+    public $confirmingSave = false;
+
     public Beneficiary $beneficiary;
     public $title = '';
+
+    public function delete(string $numtramite)
+    {
+        $voucher = \App\Models\Voucher::where('numtramite', $numtramite)->first();
+        if ($voucher) {
+            $payments = \App\Models\Payment::where('numtramite', $numtramite)->get();
+            if ($payments->count() > 0) {
+
+                $regCap = \App\Models\Payment::where('numtramite', $numtramite)
+                    ->where('prtdtdesc', 'LIKE', 'CAPI%')
+                    ->sum('montopago');
+                $regAmrt = \App\Models\Payment::where('numtramite', $numtramite)
+                    ->where('prtdtdesc', 'LIKE', '%AMT%')
+                    ->sum('montopago');
+
+                $regAmtz = \App\Models\Payment::where('numtramite', $numtramite)
+                    ->where('prtdtdesc', 'LIKE', '%AMR%')
+                    ->sum('montopago');
+
+                $monto = $regCap + $regAmrt + $regAmtz;
+
+                $cuotaParaReactivar = $this->beneficiary->plans()->where('prppgnpag', $voucher->numpago)->first()
+                    ?? $this->beneficiary->readjustments()->where('prppgnpag', $voucher->numpago)->first();
+
+                // ELIMINACION
+
+                $voucher->delete();
+
+                foreach ($payments as $payment) {
+                    $payment->delete();
+                }
+
+                // RESTAURACION
+
+                $this->beneficiary->update([
+                    'saldo_credito' => $this->beneficiary->saldo_credito + $monto,
+                ]);
+
+                if ($cuotaParaReactivar->estado == 'CANCELADO') {
+                    $cuotaParaReactivar->update([
+                        'estado' => ($cuotaParaReactivar->fecha_ppg < now() ? 'VENCIDO' : 'ACTIVO')
+                    ]);
+                }
+
+                session()->flash('success', "Voucher $numtramite eliminado con éxito.");
+            }
+        }
+    }
 
     public function mount(Beneficiary $beneficiary, string $title = '')
     {
@@ -44,5 +94,5 @@ class PaymentModal extends Component
                             <span class="ml-3 text-gray-700">Cargando Vouchers y Glosas...</span>
                         </div>
                     HTML;
-                }
+    }
 }

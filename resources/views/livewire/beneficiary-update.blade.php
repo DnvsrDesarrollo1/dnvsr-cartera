@@ -1,18 +1,7 @@
 <div>
-    <button wire:click="$set('showModal', true)">
-        <svg width="45px" height="45px" viewBox="-2.4 -2.4 28.80 28.80" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-            <g id="SVGRepo_iconCarrier">
-                <path
-                    d="M21.2799 6.40005L11.7399 15.94C10.7899 16.89 7.96987 17.33 7.33987 16.7C6.70987 16.07 7.13987 13.25 8.08987 12.3L17.6399 2.75002C17.8754 2.49308 18.1605 2.28654 18.4781 2.14284C18.7956 1.99914 19.139 1.92124 19.4875 1.9139C19.8359 1.90657 20.1823 1.96991 20.5056 2.10012C20.8289 2.23033 21.1225 2.42473 21.3686 2.67153C21.6147 2.91833 21.8083 3.21243 21.9376 3.53609C22.0669 3.85976 22.1294 4.20626 22.1211 4.55471C22.1128 4.90316 22.0339 5.24635 21.8894 5.5635C21.7448 5.88065 21.5375 6.16524 21.2799 6.40005V6.40005Z"
-                    stroke="#318736" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                <path
-                    d="M11 4H6C4.93913 4 3.92178 4.42142 3.17163 5.17157C2.42149 5.92172 2 6.93913 2 8V18C2 19.0609 2.42149 20.0783 3.17163 20.8284C3.92178 21.5786 4.93913 22 6 22H17C19.21 22 20 20.2 20 18V13"
-                    stroke="#318736" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-            </g>
-        </svg>
-    </button>
+    <x-personal.button wire:click="$set('showModal', true)" variant="success" iconCenter="fa-solid fa-user-pen">
+        Editar
+    </x-personal.button>
 
     @if ($showModal)
         <div x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
@@ -39,7 +28,7 @@
                                     <form wire:submit.prevent="update">
                                         <div class="mb-4">
                                             <label for="nombre"
-                                                class="block text-gray-700 text-sm font-bold mb-2">Nombre:</label>
+                                                class="block text-gray-700 text-sm font-bold">Nombre:</label>
                                             <input type="text" wire:model="nombre" id="nombre"
                                                 class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                             @error('nombre')
@@ -48,7 +37,7 @@
                                         </div>
                                         <div class="mb-4">
                                             <label for="ci"
-                                                class="block text-gray-700 text-sm font-bold mb-2">CI:</label>
+                                                class="block text-gray-700 text-sm font-bold">CI:</label>
                                             <input type="text" wire:model="ci" id="ci"
                                                 class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                             @error('ci')
@@ -57,7 +46,7 @@
                                         </div>
                                         <div class="mb-4">
                                             <label for="complemento"
-                                                class="block text-gray-700 text-sm font-bold mb-2">Complemento:</label>
+                                                class="block text-gray-700 text-sm font-bold">Complemento:</label>
                                             <input type="text" wire:model="complemento" id="complemento"
                                                 class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                             @error('complemento')
@@ -66,7 +55,7 @@
                                         </div>
                                         <div class="mb-4">
                                             <label for="expedido"
-                                                class="block text-gray-700 text-sm font-bold mb-2">Expedido:</label>
+                                                class="block text-gray-700 text-sm font-bold">Expedido:</label>
                                             <input type="text" wire:model="expedido" id="expedido"
                                                 class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                             @error('expedido')
@@ -75,7 +64,7 @@
                                         </div>
                                         <div class="mb-4">
                                             <label for="estado"
-                                                class="block text-gray-700 text-sm font-bold mb-2">Estado del
+                                                class="block text-gray-700 text-sm font-bold">Estado del
                                                 Credito:</label>
                                             <input type="text" wire:model="estado" id="estado"
                                                 class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
@@ -85,9 +74,16 @@
                                         </div>
                                         <div class="mb-4">
                                             <label for="idepro"
-                                                class="block text-gray-700 text-sm font-bold mb-2">Codigo
+                                                class="block text-gray-700 text-sm font-bold">Codigo
                                                 Prestamo:</label>
-                                            <input type="text" wire:model="idepro" id="idepro"
+                                            @if ($idepro != $beneficiary->idepro)
+                                                <span class="text-red-500 text-sm">
+                                                    <i>
+                                                        Se detectó una posible actualización para el codigo de préstamo, considere que esto implica tambien la sincronia con criterios paralelos.
+                                                    </i>
+                                                </span>
+                                            @endif
+                                            <input type="text" wire:model.live="idepro" id="idepro"
                                                 class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                             @error('idepro')
                                                 <span class="text-red-500 text-xs">{{ $message }}</span>
@@ -95,7 +91,7 @@
                                         </div>
                                         <div class="mb-4">
                                             <label for="fecha_nacimiento"
-                                                class="block text-gray-700 text-sm font-bold mb-2">Fecha de
+                                                class="block text-gray-700 text-sm font-bold">Fecha de
                                                 Nacimiento:</label>
                                             <input type="date" wire:model="fecha_nacimiento" id="fecha_nacimiento"
                                                 class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
@@ -105,7 +101,7 @@
                                         </div>
                                         <div class="mb-4">
                                             <label for="total_activado"
-                                                class="block text-gray-700 text-sm font-bold mb-2">Total
+                                                class="block text-gray-700 text-sm font-bold">Total
                                                 Activado:</label>
                                             <input type="number" wire:model="total_activado" id="total_activado"
                                                 class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
@@ -115,10 +111,9 @@
                                         </div>
                                         <div class="mb-4">
                                             <label for="gastos_judiciales"
-                                                class="block text-gray-700 text-sm font-bold mb-2">Gastos
+                                                class="block text-gray-700 text-sm font-bold">Gastos
                                                 Judiciales:</label>
-                                            <input type="number" wire:model="gastos_judiciales"
-                                                id="gastos_judiciales"
+                                            <input type="number" wire:model="gastos_judiciales" id="gastos_judiciales"
                                                 class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                             @error('gastos_judiciales')
                                                 <span class="text-red-500 text-xs">{{ $message }}</span>
@@ -126,15 +121,18 @@
                                         </div>
                                         <div class="mb-4">
                                             <label for="saldo_credito"
-                                                class="block text-gray-700 text-sm font-bold mb-2">Saldo
-                                                Crédito:</label>
-                                            @if (($beneficiary->total_activado - $beneficiary->payments()->where('prtdtdesc', 'LIKE', '%CAP%')->sum('montopago')) != $beneficiary->saldo_credito)
-                                            <span class="text-gray-500">
-                                                <i>
-                                                    El sistema detecta un saldo aprox. de
-                                                    {{ $beneficiary->total_activado - $beneficiary->payments()->where('prtdtdesc', 'LIKE', '%CAP%')->sum('montopago') }}
-                                                </i>
-                                            </span>
+                                                class="block text-gray-700 text-sm font-bold">
+                                                Saldo Crédito:
+                                            </label>
+                                            @if (
+                                                $beneficiary->total_activado - $beneficiary->payments()->where('prtdtdesc', 'LIKE', '%CAP%')->sum('montopago') !=
+                                                    $beneficiary->saldo_credito)
+                                                <span class="text-gray-500">
+                                                    <i>
+                                                        El sistema detecta un saldo aprox. de
+                                                        {{ $beneficiary->total_activado - $beneficiary->payments()->where('prtdtdesc', 'LIKE', '%CAP%')->sum('montopago') }}
+                                                    </i>
+                                                </span>
                                             @endif
                                             <input type="number" wire:model="saldo_credito" id="saldo_credito"
                                                 class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
@@ -144,7 +142,7 @@
                                         </div>
                                         <div class="mb-4">
                                             <label for="monto_recuperado"
-                                                class="block text-gray-700 text-sm font-bold mb-2">Monto
+                                                class="block text-gray-700 text-sm font-bold">Monto
                                                 Recuperado:</label>
                                             <input type="number" wire:model="monto_recuperado" id="monto_recuperado"
                                                 class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
@@ -154,7 +152,7 @@
                                         </div>
                                         <div class="mb-4">
                                             <label for="fecha_activacion"
-                                                class="block text-gray-700 text-sm font-bold mb-2">Fecha de
+                                                class="block text-gray-700 text-sm font-bold">Fecha de
                                                 Activación:</label>
                                             <input type="date" wire:model="fecha_activacion" id="fecha_activacion"
                                                 class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
@@ -164,7 +162,7 @@
                                         </div>
                                         <div class="mb-4">
                                             <label for="plazo_credito"
-                                                class="block text-gray-700 text-sm font-bold mb-2">Plazo
+                                                class="block text-gray-700 text-sm font-bold">Plazo
                                                 Crédito:</label>
                                             <input type="number" wire:model="plazo_credito" id="plazo_credito"
                                                 class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
@@ -174,7 +172,7 @@
                                         </div>
                                         <div class="mb-4">
                                             <label for="tasa_interes"
-                                                class="block text-gray-700 text-sm font-bold mb-2">Tasa de
+                                                class="block text-gray-700 text-sm font-bold">Tasa de
                                                 Interés:</label>
                                             <input type="number" wire:model="tasa_interes" id="tasa_interes"
                                                 class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
@@ -184,7 +182,7 @@
                                         </div>
                                         <div class="mb-4">
                                             <label for="departamento"
-                                                class="block text-gray-700 text-sm font-bold mb-2">Departamento:</label>
+                                                class="block text-gray-700 text-sm font-bold">Departamento:</label>
                                             <input type="text" wire:model="departamento" id="departamento"
                                                 class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                             @error('departamento')
@@ -193,7 +191,8 @@
                                         </div>
                                         <div class="mb-4">
                                             <label for="seguro"
-                                                class="block text-gray-700 text-sm font-bold mb-2">Seguro Desgravamen:</label>
+                                                class="block text-gray-700 text-sm font-bold">Seguro
+                                                Desgravamen:</label>
                                             <input type="text" wire:model="seguro" id="seguro"
                                                 class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                             @error('seguro')
@@ -201,14 +200,14 @@
                                             @enderror
                                         </div>
                                         <div class="flex items-center justify-between">
-                                            <button type="button" wire:click="$set('confirmingSave', true)"
-                                                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">
+                                            <x-personal.button wire:click="$set('confirmingSave', true)"
+                                                variant="success" iconLeft="fa-solid fa-save">
                                                 Guardar Cambios
-                                            </button>
-                                            <button type="button" wire:click="$set('showModal', false)"
-                                                class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">
+                                            </x-personal.button>
+                                            <x-personal.button wire:click="$set('showModal', false)" variant="danger"
+                                                iconLeft="fa-solid fa-xmark">
                                                 Cancelar
-                                            </button>
+                                            </x-personal.button>
                                         </div>
                                     </form>
                                 </div>
@@ -261,7 +260,7 @@
                                     </span>
                                 </h3>
                                 <div class="mt-2">
-                                    <p class="text-red-700 font-bold text-justify mb-2">
+                                    <p class="text-red-700 font-bold text-justify">
                                         Advertencia: Al guardar los cambios, se actualizará la información del
                                         beneficiario en la base de datos, lo que puede involucrar a toda la
                                         información relacionada al mismo.

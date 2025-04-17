@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="mt-4">
         <div class="w-full px-4 grid sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-2">
-            <div class="bg-white shadow-lg rounded-lg p-6 mb-4 h-fit" id="profile_preview">
+            <div class="bg-white shadow-lg rounded-lg p-6 mb-4 h-fit border border-gray-300" id=$"profile_preview">
                 <div class="flex items-center justify-center mb-2">
                     @if ($beneficiary->genero == 'MA')
                         <svg fill="#000000" width="64px" height="64px" viewBox="-3.2 -3.2 38.40 38.40" version="1.1"
@@ -39,26 +39,22 @@
                         </p>
                     </div>
                     <div class="ml-auto">
-                        @if (auth()->user()->hasRole('escritor'))
+                        @if (auth()->user()->can('write beneficiaries'))
                             @livewire('beneficiary-update', ['beneficiary' => $beneficiary])
                         @endif
                     </div>
                 </div>
                 <hr>
                 @if (session('success'))
-                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative"
-                        role="alert">
-                        <strong class="font-bold">¡Éxito!</strong>
-                        <span class="block sm:inline">{{ session('success') }}</span>
-                    </div>
+                    <x-personal.alert type="success" message="{{ session('success') }}" goto="{{ session('file') ?? null}}" />
                 @endif
 
-                <div class="mt-6 grid grid-cols-2 gap-2">
+                <div class="mt-2 grid grid-cols-2 gap-2">
                     <div class="bg-gray-100 rounded-lg p-4 shadow">
                         <h3 class="font-semibold text-gray-700 mb-2">Estado de Crédito</h3>
-                        <p
-                            class="font-bold {{ $beneficiary->estado == 'CANCELADO' || $beneficiary->estado == 'BLOQUEADO' ? 'text-red-500' : '' }}">
-                            {{ $beneficiary->estado }}</p>
+                        <p class="font-bold {{ $beneficiary->estado == 'CANCELADO' || $beneficiary->estado == 'BLOQUEADO' ? 'text-red-500' : '' }}">
+                            {{ $beneficiary->estado }}
+                        </p>
                     </div>
                     <div class="bg-gray-100 rounded-lg p-4 shadow">
                         <h3 class="font-semibold text-gray-700 mb-2">Proyecto</h3>
@@ -88,38 +84,202 @@
                             {{ number_format($beneficiary->payments()->where('prtdtdesc', 'like', '%CAPI%')->sum('montopago'), 2) }}
                         </p>
                     </div>
-                    <div class="bg-gray-100 border rounded-lg shadow-md p-6">
+                    <div class="p-4">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="bg-gray-50 rounded-lg p-4">
+                            <div
+                                class="bg-gray-100 rounded-lg p-4 shadow-md flex flex-col justify-between items-center">
                                 @php
-                                    $plans = $beneficiary->plans()->where('estado', 'ACTIVO')->get();
-                                    if ($plans->count() == 0) {
-                                        $plans = $beneficiary->readjustments()->where('estado', 'ACTIVO')->get();
-                                    }
+                                    $plans = $beneficiary->getCurrentPlan();
                                 @endphp
                                 @if ($plans->count() > 0)
-                                    <livewire:plan-modal lazy :beneficiary="$beneficiary" title="Plan de pagos vigente" />
+                                    <livewire:plan-modal lazy :beneficiary="$beneficiary" title="Plan de Pagos" />
                                 @else
                                     <p class="text-gray-500 italic">Sin plan de pagos registrado</p>
                                 @endif
+                                <hr class="my-2" />
+                                @if ($plans->count() > 0)
+                                    @php
+                                        $vencs = $beneficiary
+                                            ->plans()
+                                            ->where('estado', 'VENCIDO')
+                                            ->orderBy('fecha_ppg')
+                                            ->get();
+                                        $total = 0;
+                                        if ($vencs->count() > 0) {
+                                            $fechaInicio = \Carbon\Carbon::parse($vencs->first()->fecha_ppg);
+                                            $fechaFin = now();
+                                            $diff = $fechaInicio->diffInDays($fechaFin);
+                                            $total = $diff;
+                                            echo "
+                                                <span class=\"w-full bg-white rounded-md text-center text-red-500 p-1\">
+                                                    Dias de Mora: <b>" .
+                                                number_format($total, 0) .
+                                                "</b>
+                                                </span>
+                                            ";
+                                        }
+                                    @endphp
+                                @endif
                             </div>
-                            <div class="bg-gray-50 rounded-lg p-4">
+                            <div
+                                class="bg-gray-100 rounded-lg p-4 shadow-md flex flex-col justify-between items-center">
                                 @if ($beneficiary->payments()->count() > 0)
-                                    <livewire:payment-modal lazy :beneficiary="$beneficiary"
-                                        title="Historial de pagos y glosas" />
+                                    <livewire:payment-modal lazy :beneficiary="$beneficiary" title="Historial de Pagos" />
                                 @else
                                     <p class="text-gray-500 italic">Sin historial de pagos registrado</p>
                                 @endif
-                                <hr class="my-2"/>
-                                <livewire:voucher-register :beneficiary="$beneficiary"
-                                        title="Registrar Pago" />
+
+                                <hr class="my-2" />
+
+                                <livewire:voucher-register :idepro="$beneficiary->idepro" title="Registrar Pago" />
                             </div>
                         </div>
                     </div>
                 </div>
+                <hr class="mt-4 mb-4" />
+                <div class="bg-gray-100 rounded-lg p-2 shadow">
+                    <!-- Highcharts Timeline Chart -->
+                    <div class="mt-2 flex justify-center items-center">
+                        <div id="timelineChart" class="w-full rounded-md" style="height: 600px;"></div>
+                    </div>
+
+                    @push('scripts')
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                // Convertir los arrays de PHP a JavaScript
+                                let plans = {!! json_encode($plansArray) !!};
+                                let payments = {!! json_encode($paymentsArray) !!};
+
+                                // Obtener fechas límite
+                                let startDate = new Date(Math.min(
+                                    ...plans.map(plan => new Date(plan.fecha_ppg)),
+                                    ...payments.map(payment => new Date(payment.fecha_pago))
+                                ));
+                                let endDate = new Date(Math.max(
+                                    ...plans.map(plan => new Date(plan.fecha_ppg)),
+                                    ...payments.map(payment => new Date(payment.fecha_pago))
+                                ));
+                                let months = [];
+                                let currentDate = new Date(startDate);
+
+                                // Generar array de meses
+                                while (currentDate <= endDate) {
+                                    months.push(currentDate.toISOString().slice(0, 7));
+                                    currentDate.setMonth(currentDate.getMonth() + 1);
+                                }
+
+                                // Inicializar arrays de datos
+                                let plansData = new Array(months.length).fill(null);
+                                let paymentsData = new Array(months.length).fill(null);
+
+                                // Procesar datos de planes
+                                plans.forEach(plan => {
+                                    let planMonth = new Date(plan.fecha_ppg).toISOString().slice(0, 7);
+                                    let index = months.indexOf(planMonth);
+                                    if (index !== -1) {
+                                        plansData[index] = Math.abs(parseFloat(plan.prppgcapi));
+                                    }
+                                });
+
+                                // Procesar datos de pagos
+                                payments.forEach(payment => {
+                                    let paymentMonth = new Date(payment.fecha_pago).toISOString().slice(0, 7);
+                                    let index = months.indexOf(paymentMonth);
+                                    if (index !== -1) {
+                                        paymentsData[index] = (paymentsData[index] || 0) + Math.abs(parseFloat(payment
+                                            .montopago));
+                                    }
+                                });
+
+                                Highcharts.chart('timelineChart', {
+                                    chart: {
+                                        type: 'line'
+                                    },
+                                    title: {
+                                        text: 'Evolución mensual de cumplimiento'
+                                    },
+                                    xAxis: {
+                                        categories: months,
+                                        title: {
+                                            text: null
+                                        }
+                                    },
+                                    yAxis: {
+                                        title: {
+                                            text: null
+                                        },
+                                        labels: {
+                                            formatter: function() {
+                                                return Highcharts.numberFormat(this.value, 2);
+                                            }
+                                        }
+                                    },
+                                    tooltip: {
+                                        valueDecimals: 2,
+                                        valueSuffix: ' Bs',
+                                        shared: true,
+                                        crosshairs: true
+                                    },
+                                    plotOptions: {
+                                        area: {
+                                            fillOpacity: 0.5
+                                        }
+                                    },
+                                    series: [{
+                                        name: 'Capital Planificado',
+                                        data: plansData,
+                                        color: '#FF6384',
+                                        fillColor: {
+                                            linearGradient: {
+                                                x1: 0,
+                                                y1: 0,
+                                                x2: 0,
+                                                y2: 1
+                                            },
+                                            stops: [
+                                                [0, 'rgba(255,99,132,0.3)'],
+                                                [1, 'rgba(255,99,132,0)']
+                                            ]
+                                        }
+                                    }, {
+                                        name: 'Capital Pagado',
+                                        data: paymentsData,
+                                        color: '#4BC0C0',
+                                        fillColor: {
+                                            linearGradient: {
+                                                x1: 0,
+                                                y1: 0,
+                                                x2: 0,
+                                                y2: 1
+                                            },
+                                            stops: [
+                                                [0, 'rgba(75,192,192,0.3)'],
+                                                [1, 'rgba(75,192,192,0)']
+                                            ]
+                                        }
+                                    }],
+                                    responsive: {
+                                        rules: [{
+                                            condition: {
+                                                maxWidth: 500
+                                            },
+                                            chartOptions: {
+                                                legend: {
+                                                    layout: 'horizontal',
+                                                    align: 'center',
+                                                    verticalAlign: 'bottom'
+                                                }
+                                            }
+                                        }]
+                                    }
+                                });
+                            });
+                        </script>
+                    @endpush
+                </div>
             </div>
-            <div class="bg-gray-100 p-4 rounded-lg shadow" id="profile_management">
-                <div class="bg-white p-4 rounded-lg flex justify-between border-l-8 border-gray-800">
+            <div class="bg-white p-4 rounded-lg shadow h-fit border border-gray-300" id="profile_management">
+                <div class="bg-gray-100 p-4 rounded-lg flex justify-between border-l-8 border-gray-800">
                     <h3 class="font-bold">
                         Generador de Planes de Pago:
                     </h3>
@@ -134,7 +294,8 @@
                 </div>
                 <div x-data="{ show: false }">
                     @if ($beneficiary->estado != 'CANCELADO')
-                        <button @click="show = !show" class="rounded-full m-2 overflow-hidden block mx-auto">
+                        <button @click="show = !show"
+                            class="rounded-full m-2 overflow-hidden border border-gray-300 block mx-auto transition">
                             <svg x-show="!show" width="64px" height="64px" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -157,7 +318,7 @@
                             </svg>
                         </button>
                     @endif
-                    <div class="bg-white rounded-lg p-6" x-show="show" x-transition>
+                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-300" x-show="show" x-transition x-cloak>
                         <form action="{{ route('plan.reajuste') }}" method="post">
                             @csrf
                             <input type="hidden" name="idepro" value="{{ $beneficiary->idepro }}" />
@@ -171,8 +332,7 @@
                                 <input type="text" inputmode="decimal" id="capital_inicial"
                                     name="capital_inicial" placeholder="Ej: 25000.75" pattern="[0-9]*[.,]?[0-9]*"
                                     class="appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:bg-white"
-                                    required
-                                    value="{{ $beneficiary->total_activado - $beneficiary->payments()->where('prtdtdesc', 'like', '%CAPI%')->sum('montopago') }}"
+                                    required value="{{ $beneficiary->saldo_credito }}"
                                     title="Saldo restante de (Monto Activado menos Monto en Cuotas).">
                             </div>
                             <div class="mb-4">
@@ -203,7 +363,7 @@
                                         placeholder="Ej: 13 (no es necesario agregar simbolo %)"
                                         pattern="[0-9]*[.,]?[0-9]*"
                                         class="appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:bg-white"
-                                        required value="3" title="Seguro por defecto 0.04%.">
+                                        required value="0.04" title="Seguro por defecto 0.04%.">
                                 </div>
                             </div>
                             <div class="mb-4">
@@ -227,7 +387,7 @@
                             </div>
                             <hr class="mt-4 mb-4">
                             <div class="mb-4">
-                                <label for="taza_interes" class="block text-gray-700 font-bold mb-2">
+                                <label class="block text-gray-700 font-bold mb-2">
                                     (Opcional) Diferimiento de cobro (de no existir, dejar todos los campos vacios):
                                 </label>
                                 <input type="number" id="diff_cuotas" name="diff_cuotas" placeholder="Ej: 10"
@@ -243,80 +403,9 @@
                                     title="Interes del diferimiento." />
                             </div>
                             <div class="flex justify-end mt-4">
-                                <button type="submit"
-                                    class="border mt-2 px-2 py-1 rounded-md cursor-pointer shadow-md"
-                                    title="Calcular plan de pagos">
-                                    <span>
-                                        <svg fill="#0c272a" version="1.1" id="Layer_1"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            xmlns:xlink="http://www.w3.org/1999/xlink" width="64px" height="64px"
-                                            viewBox="-7 -7 84.00 84.00" enable-background="new 0 0 70 70"
-                                            xml:space="preserve" stroke="#000000" stroke-width="0.0007"
-                                            transform="rotate(0)matrix(1, 0, 0, 1, 0, 0)">
-                                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round"
-                                                stroke-linejoin="round" stroke="#CCCCCC" stroke-width="1.26"></g>
-                                            <g id="SVGRepo_iconCarrier">
-                                                <g>
-                                                    <path
-                                                        d="M59.427,2.583h-48c-2.209,0-4.844,2.305-4.844,4.514v56c0,2.209,2.635,3.486,4.844,3.486h48 c2.209,0,3.156-1.277,3.156-3.486v-56C62.583,4.888,61.636,2.583,59.427,2.583z M58.583,62.583h-48v-56h48V62.583z">
-                                                    </path>
-                                                    <path
-                                                        d="M54.583,11.583c0-0.552-0.447-1-1-1h-39c-0.552,0-1,0.448-1,1v12c0,0.552,0.448,1,1,1h39c0.553,0,1-0.448,1-1V11.583z M15.583,12.583h37v10h-37V12.583z">
-                                                    </path>
-                                                    <path
-                                                        d="M21.583,28.583c0-0.552-0.448-1-1-1h-6c-0.552,0-1,0.448-1,1v4c0,0.552,0.448,1,1,1h6c0.552,0,1-0.448,1-1V28.583z M15.583,29.583h4v2h-4V29.583z">
-                                                    </path>
-                                                    <path
-                                                        d="M32.583,28.583c0-0.552-0.448-1-1-1h-6c-0.552,0-1,0.448-1,1v4c0,0.552,0.448,1,1,1h6c0.552,0,1-0.448,1-1V28.583z M30.583,31.583h-4v-2h4V31.583z">
-                                                    </path>
-                                                    <path
-                                                        d="M43.583,28.583c0-0.552-0.447-1-1-1h-6c-0.552,0-1,0.448-1,1v4c0,0.552,0.448,1,1,1h6c0.553,0,1-0.448,1-1V28.583z M41.583,31.583h-4v-2h4V31.583z">
-                                                    </path>
-                                                    <path
-                                                        d="M54.583,28.583c0-0.552-0.447-1-1-1h-6c-0.553,0-1,0.448-1,1v4c0,0.552,0.447,1,1,1h6c0.553,0,1-0.448,1-1V28.583z M52.583,31.583h-4v-2h4V31.583z">
-                                                    </path>
-                                                    <path
-                                                        d="M21.583,36.583c0-0.552-0.448-1-1-1h-6c-0.552,0-1,0.448-1,1v4c0,0.553,0.448,1,1,1h6c0.552,0,1-0.447,1-1V36.583z M15.583,37.583h4v2h-4V37.583z">
-                                                    </path>
-                                                    <path
-                                                        d="M32.583,36.583c0-0.552-0.448-1-1-1h-6c-0.552,0-1,0.448-1,1v4c0,0.553,0.448,1,1,1h6c0.552,0,1-0.447,1-1V36.583z M30.583,39.583h-4v-2h4V39.583z">
-                                                    </path>
-                                                    <path
-                                                        d="M43.583,36.583c0-0.552-0.447-1-1-1h-6c-0.552,0-1,0.448-1,1v4c0,0.553,0.448,1,1,1h6c0.553,0,1-0.447,1-1V36.583z M41.583,39.583h-4v-2h4V39.583z">
-                                                    </path>
-                                                    <path
-                                                        d="M54.583,36.583c0-0.552-0.447-1-1-1h-6c-0.553,0-1,0.448-1,1v4c0,0.553,0.447,1,1,1h6c0.553,0,1-0.447,1-1V36.583z M52.583,39.583h-4v-2h4V39.583z">
-                                                    </path>
-                                                    <path
-                                                        d="M21.583,44.583c0-0.553-0.448-1-1-1h-6c-0.552,0-1,0.447-1,1v4c0,0.553,0.448,1,1,1h6c0.552,0,1-0.447,1-1V44.583z M15.583,45.583h4v2h-4V45.583z">
-                                                    </path>
-                                                    <path
-                                                        d="M32.583,44.583c0-0.553-0.448-1-1-1h-6c-0.552,0-1,0.447-1,1v4c0,0.553,0.448,1,1,1h6c0.552,0,1-0.447,1-1V44.583z M30.583,47.583h-4v-2h4V47.583z">
-                                                    </path>
-                                                    <path
-                                                        d="M43.583,44.583c0-0.553-0.447-1-1-1h-6c-0.552,0-1,0.447-1,1v4c0,0.553,0.448,1,1,1h6c0.553,0,1-0.447,1-1V44.583z M41.583,47.583h-4v-2h4V47.583z">
-                                                    </path>
-                                                    <path
-                                                        d="M54.583,44.583c0-0.553-0.447-1-1-1h-6c-0.553,0-1,0.447-1,1v12c0,0.553,0.447,1,1,1h6c0.553,0,1-0.447,1-1V44.583z M52.583,55.583h-4v-10h4V55.583z">
-                                                    </path>
-                                                    <path
-                                                        d="M21.583,52.583c0-0.553-0.448-1-1-1h-6c-0.552,0-1,0.447-1,1v4c0,0.553,0.448,1,1,1h6c0.552,0,1-0.447,1-1V52.583z M15.583,53.583h4v2h-4V53.583z">
-                                                    </path>
-                                                    <path
-                                                        d="M32.583,52.583c0-0.553-0.448-1-1-1h-6c-0.552,0-1,0.447-1,1v4c0,0.553,0.448,1,1,1h6c0.552,0,1-0.447,1-1V52.583z M30.583,55.583h-4v-2h4V55.583z">
-                                                    </path>
-                                                    <path
-                                                        d="M43.583,52.583c0-0.553-0.447-1-1-1h-6c-0.552,0-1,0.447-1,1v4c0,0.553,0.448,1,1,1h6c0.553,0,1-0.447,1-1V52.583z M41.583,55.583h-4v-2h4V55.583z">
-                                                    </path>
-                                                    <path
-                                                        d="M23,13.583h-5c-0.553,0-1.417,1.281-1.417,1.834v3c0,0.553,0.447,1,1,1s1-0.447,1-1v-2.834H23c0.553,0,1-0.447,1-1 S23.553,13.583,23,13.583z">
-                                                    </path>
-                                                </g>
-                                            </g>
-                                        </svg>
-                                    </span>
-                                </button>
+                                <x-personal.button submit="true" iconCenter="fa-solid fa-calculator text-xl">
+                                    Vista Previa del Plan
+                                </x-personal.button>
                             </div>
                         </form>
                     </div>

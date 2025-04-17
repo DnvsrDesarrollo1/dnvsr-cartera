@@ -24,10 +24,9 @@
 
         .header {
             text-align: center;
-            padding: 10px 0;
+            padding: 5px 0;
             display: flex;
             align-items: center;
-            margin-bottom: 10px;
         }
 
         .header img {
@@ -92,7 +91,7 @@
 
         .description {
             width: 100%;
-            margin-top: 20px;
+            margin-top: 10px;
             border-collapse: collapse;
         }
 
@@ -128,7 +127,7 @@
         }
 
         .plans tr:nth-child(even) {
-            background: #fafafa;
+            background: #bebebe;
         }
 
         .plans td:first-child,
@@ -153,7 +152,6 @@
         .description {
             border-collapse: collapse;
             width: 100%;
-            margin-bottom: 20px;
         }
 
         .description th {
@@ -199,11 +197,11 @@
             <table class="description">
                 <thead>
                     <th>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                     </th>
                 </thead>
                 <tbody>
@@ -213,7 +211,8 @@
                         <td></td>
                         <td>Total Activado</td>
                         <td style="font-weight: 800;">Bs.
-                            {{ number_format($beneficiary->saldo_credito + $beneficiary->monto_recuperado, 2) }}</td>
+                            {{-- {{ number_format($beneficiary->saldo_credito + $beneficiary->monto_recuperado, 2) }}</td> --}}
+                            {{ number_format($beneficiary->monto_credito, 2) }}
                     </tr>
                     <tr>
                         <td>Proyecto:</td>
@@ -234,7 +233,9 @@
                         <td>{{ $beneficiary->nombre }}</td>
                         <td></td>
                         <td>Saldo Credito</td>
-                        <td>Bs. {{ number_format($beneficiary->saldo_credito + ($beneficiary->helpers->count() > 0 ? $beneficiary->helpers()->sum('capital') : 0), 2) }}</td>
+                        <td>Bs.
+                            {{ number_format($beneficiary->saldo_credito /*  + $beneficiary->payments()->where('prtdtdesc', 'LIKE', '%CAPI%')->where('fecha_pago', '<', '2025-01-01')->sum('montopago') */ + ($beneficiary->helpers->count() > 0 ? $beneficiary->helpers()->sum('capital') : 0), 2) }}
+                        </td>
                     </tr>
                     <tr>
                         <td>Moneda:</td>
@@ -249,103 +250,133 @@
         </div>
 
         <div class="table-responsive">
-            <table class="description" style="width: 100%; margin-top: 20px;">
+            <table class="description" style="width: 100%;">
                 <thead>
                     <tr>
                         <th
-                            style="text-align: left; padding: 8px; background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
-                            #</th>
+                            style="text-align: center; padding: 8px; background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                            #
+                        </th>
                         <th
-                            style="text-align: left; padding: 8px; background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
-                            N° Cuota</th>
+                            style="text-align: center; padding: 8px; background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                            Fecha
+                        </th>
                         <th
-                            style="text-align: left; padding: 8px; background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
-                            Comprobante</th>
+                            style="text-align: center; padding: 8px; background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                            N° Cuota
+                        </th>
                         <th
-                            style="text-align: left; padding: 8px; background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
-                            Código Préstamo</th>
+                            style="text-align: center; padding: 8px; background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                            Comprobante
+                        </th>
                         <th
-                            style="text-align: left; padding: 8px; background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
-                            Fecha</th>
+                            style="text-align: center; padding: 8px; background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                            Capital
+                        </th>
                         <th
-                            style="text-align: left; padding: 8px; background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
-                            Hora</th>
+                            style="text-align: center; padding: 8px; background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                            Intereses
+                        </th>
+                        <th
+                            style="text-align: center; padding: 8px; background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                            Seguros
+                        </th>
+                        <th
+                            style="text-align: center; padding: 8px; background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                            Otros Cargos
+                        </th>
                         <th
                             style="text-align: right; padding: 8px; background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
-                            Monto</th>
+                            Monto Total
+                        </th>
                         <th
-                            style="text-align: center; padding: 8px; color: white; background-color: #4b4b4b; border-bottom: 2px solid #ddd;">
-                            Saldo</th>
+                            style="text-align: center; padding: 8px; background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                            Saldo
+                        </th>
+                        <th
+                            style="text-align: center; padding: 8px; background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                            Observaciones
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($beneficiary->vouchers()->orderBy('fecha_pago')->get() as $v)
+                    @forelse ($beneficiary->vouchers()->orderBy('fecha_pago')->orderBy('numpago')->get() as $v)
                         <tr>
-                            <td style="padding: 6px; border-bottom: 1px solid #eee;">{{ $loop->iteration }}</td>
-                            <td style="padding: 6px; border-bottom: 1px solid #eee;">{{ $v->numpago }}</td>
-                            <td style="padding: 6px; border-bottom: 1px solid #eee;">{{ $v->numtramite }}</td>
-                            <td style="padding: 6px; border-bottom: 1px solid #eee;">{{ $v->numprestamo }}</td>
-                            <td style="padding: 6px; border-bottom: 1px solid #eee;">
-                                {{ \Carbon\Carbon::parse($v->fecha_pago)->format('d/m/Y') }}</td>
-                            <td style="padding: 6px; border-bottom: 1px solid #eee;">
-                                {{ \Carbon\Carbon::parse($v->hora_pago)->format('H:i') }}</td>
-                            <td style="text-align: right; padding: 6px; border-bottom: 1px solid #eee;">
-                                {{ number_format($v->montopago, 2) }}</td>
-                            <td style="text-align: center; font-weight: 800;padding: 6px; border-bottom: 1px solid #eee;">
-                                {{ number_format($saldo - $v->payments()->where('prtdtdesc', 'LIKE', '%CAPI%')->sum('montopago'), 2) }}
+                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #eee;">
+                                {{ $loop->iteration }}</td>
+                            <td
+                                style="text-align: center; padding: 4px; border-bottom: 1px solid #eee; font-size: 9px;">
+                                {{ \Carbon\Carbon::parse($v->fecha_pago)->format('d/m/Y') }} <br />
+                                {{ \Carbon\Carbon::parse($v->hora_pago)->format('H:i') }}
+                            </td>
+                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #eee;">
+                                {{ $v->numpago }}</td>
+                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #eee;">
+                                {{ $v->numtramite }}</td>
+                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #eee;">
+                                {{
+                                    number_format($v->payments()->where('prtdtnpag', $v->numpago)->where('prtdtdesc', 'LIKE', 'CAPI%')->sum('montopago') +
+                                                        $v->payments()->where('prtdtnpag', $v->numpago)->where('prtdtdesc', 'LIKE', 'AMR%')->sum('montopago'), 2)
+                                }}
+                            </td>
+                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #eee;">
+                                {{ number_format($v->payments()->where('prtdtnpag', $v->numpago)->where('prtdtdesc', 'LIKE', 'INTE%')->sum('montopago'), 2) }}
+                            </td>
+                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #eee;">
+                                {{ number_format($v->payments()->where('prtdtnpag', $v->numpago)->where('prtdtdesc', 'LIKE', 'SEGU%')->sum('montopago'), 2) }}
+                            </td>
+                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #eee;">
+                                {{ number_format($v->payments()->where('prtdtnpag', $v->numpago)->where('prtdtdesc', 'LIKE', 'OTR%')->sum('montopago'), 2) }}
+                            </td>
+                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #eee;">
+                                {{ number_format($v->montopago, 2) }}
+                            </td>
+                            <td
+                                style="text-align: center; font-weight: 800;padding: 4px; border-bottom: 1px solid #eee;">
+                                {{ number_format($saldo - ($v->payments()->where('prtdtdesc', 'LIKE', '%CAP%')->sum('montopago') + $v->payments()->where('prtdtdesc', 'LIKE', '%AMR%')->sum('montopago')), 2) }}
+                            </td>
+                            <td
+                                style="text-align: center; padding: 4px; border-bottom: 1px solid #eee; font-size: 8px;">
+                                {{ $v->obs_pago }}
                             </td>
                             @php
-                                $saldo -= $v
-                                    ->payments()
-                                    ->where('prtdtdesc', 'LIKE', '%CAPI%')
-                                    ->sum('montopago');
+                                $saldo -= $v->payments()->where('prtdtdesc', 'LIKE', '%CAPI%')->sum('montopago');
                             @endphp
                         </tr>
-                        @if ($v->payments()->count() > 0)
-                            <tr>
-                                <td colspan="7" style="padding: 0;">
-                                    <table style="width: 100%; background-color: #f9f9f9; font-size: 10px;">
-                                        @foreach ($v->payments as $p)
-                                            <tr>
-                                                <td style="padding: 4px 20px; width: 70%;">{{ $p->prtdtdesc }}</td>
-                                                <td style="padding: 4px; text-align: right; width: 30%;">
-                                                    {{ number_format($p->montopago, 2) }}</td>
-                                            </tr>
-                                        @endforeach
-                                    </table>
-                                </td>
-                            </tr>
-                        @endif
                     @empty
                         <tr>
-                            <td colspan="7" style="text-align: center; padding: 10px;">No hay pagos registrados</td>
+                            <td colspan="10" style="text-align: center; padding: 10px;">No hay pagos registrados</td>
                         </tr>
                     @endforelse
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="6" style="text-align: right; padding: 8px; font-weight: bold;">Capital Pagado:
+                        <td colspan="4"
+                            style="text-align: right; padding: 8px; font-weight: bold; background-color: #cbcbcb;">
+                            Capital Pagado:
                         </td>
                         <td style="text-align: right; padding: 8px; font-weight: bold;">
                             {{ number_format($beneficiary->payments()->where('prtdtdesc', 'LIKE', 'CAPI%')->sum('montopago'), 2) }}
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="7" style="text-align: right; padding: 8px; font-weight: bold;">Saldo Credito:
+                        <td colspan="10" style="text-align: right; padding: 8px; font-weight: bold;">Saldo Credito:
                         </td>
                         <td style="text-align: right; padding: 8px; font-weight: bold;">
                             {{ number_format($saldo, 2) }}
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="7" style="text-align: right; padding: 8px; font-weight: bold;">Monto en Diferimientos:
+                        <td colspan="10" style="text-align: right; padding: 8px; font-weight: bold;">Monto en
+                            Diferimientos:
                         </td>
                         <td style="text-align: right; padding: 8px; font-weight: bold;">
                             {{ number_format($beneficiary->helpers()->sum('capital'), 2) }}
                         </td>
                     </tr>
                     <tr style="border-top: 3px black solid">
-                        <td colspan="7" style="text-align: right; padding: 8px; font-weight: bold;">Saldo SIN Diferimientos:
+                        <td colspan="10" style="text-align: right; padding: 8px; font-weight: bold;">Saldo SIN
+                            Diferimientos:
                         </td>
                         <td style="text-align: right; padding: 8px; font-weight: bold;">
                             {{ number_format($saldo - $beneficiary->helpers()->sum('capital'), 2) }}

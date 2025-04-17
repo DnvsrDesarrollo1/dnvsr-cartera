@@ -29,16 +29,16 @@ Route::middleware([
     Route::put('beneficiario/{beneficiary}', [\App\Http\Controllers\BeneficiaryController::class, 'update'])->name('beneficiario.update');
     Route::delete('beneficiario/{beneficiary}', [\App\Http\Controllers\BeneficiaryController::class, 'destroy'])->name('beneficiario.destroy');
 
-    // Planes
-    Route::get('plan', [\App\Http\Controllers\PlanController::class, 'index'])->name('plan.index');
-    Route::get('plan/{plan}', [\App\Http\Controllers\PlanController::class, 'show'])->name('plan.show');
-    Route::get('plan/{plan}/editar', [\App\Http\Controllers\PlanController::class, 'edit'])->name('plan.edit');
-    Route::post('plan', [\App\Http\Controllers\PlanController::class, 'store'])->name('plan.store');
-    Route::post('plan/reajuste', [\App\Http\Controllers\PlanController::class, 'reajuste'])->name('plan.reajuste');
-    Route::get('plan/{data}/ajuste-masivo', [\App\Http\Controllers\PlanController::class, 'bulkAdjust'])->name('plan.bulk-adjust');
-    Route::get('plan/{data}/activacion-masivo', [\App\Http\Controllers\PlanController::class, 'bulkActivation'])->name('plan.bulk-activation');
-    Route::put('plan/{plan}', [\App\Http\Controllers\PlanController::class, 'update'])->name('plan.update');
-    Route::delete('plan/{plan}', [\App\Http\Controllers\PlanController::class, 'destroy'])->name('plan.destroy');
+    // Planes - Rutas específicas primero
+    Route::get('plan/mora-pdf', [App\Http\Controllers\PlanController::class, 'pdfMora'])->name('plan.mora-pdf');
+    Route::get('plan/{data}/ajuste-masivo', [App\Http\Controllers\PlanController::class, 'bulkAdjust'])->name('plan.bulk-adjust');
+    Route::get('plan/{data}/activacion-masivo', [App\Http\Controllers\PlanController::class, 'bulkActivation'])->name('plan.bulk-activation');
+    Route::get('plan/{data}/xlsx-masivo', [App\Http\Controllers\PlanController::class, 'bulkExportXLSX'])->name('plan.bulk-xlsx');
+    Route::post('plan/reajuste', [App\Http\Controllers\PlanController::class, 'reajuste'])->name('plan.reajuste');
+
+    Route::resource('plan', App\Http\Controllers\PlanController::class);
+    // Planes - Rutas de recurso después
+
 
     // Vouchers
     Route::get('voucher', [\App\Http\Controllers\VoucherController::class, 'index'])->name('voucher.index');
@@ -64,4 +64,12 @@ Route::middleware([
 
     // Inteligencia de Negocios
     Route::get('/bi', [\App\Http\Controllers\BIController::class, 'index'])->name('bi.index');
+
+    // Usuarios y Roles
+    Route::get('usuarios', [App\Http\Controllers\UserController::class, 'index'])->name('users.index');
+    Route::put('usuarios/{user}/role', [App\Http\Controllers\UserController::class, 'updateRole'])->name('users.update.role');
+    Route::put('usuarios/{user}/permissions', [App\Http\Controllers\UserController::class, 'updatePermissions'])->name('users.update.permissions');
+    Route::get('usuarios/{user}/editar', [App\Http\Controllers\UserController::class, 'edit'])->name('users.edit');
+    Route::put('usuarios/{user}', [App\Http\Controllers\UserController::class, 'update'])->name('users.update');
+    Route::delete('usuarios/{user}', [App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy');
 });

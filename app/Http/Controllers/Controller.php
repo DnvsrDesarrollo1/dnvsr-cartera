@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 
 abstract class Controller
 {
-    function calcularPago($valorPresente, $tasaInteres, $numPeriodos)
+    private function calcularPago($valorPresente, $tasaInteres, $numPeriodos)
     {
         $numerador = pow(1 + $tasaInteres, $numPeriodos) * $tasaInteres;
         $denominador = pow(1 + $tasaInteres, $numPeriodos) - 1;
@@ -16,7 +16,7 @@ abstract class Controller
 
     public function generarPlan($capital_inicial, $gastos_judiciales = 0, $meses, $taza_interes, $seguro = 0.040, $correlativo, $plazo_credito, $fecha_inicio, $i_diff = 0, $s_diff = 0)
     {
-        $c = (float)$capital_inicial;
+        $c = $capital_inicial;
         $n = $meses;
         $i = ($taza_interes / 100) / 12;
         $s = $seguro / 100;
@@ -28,6 +28,9 @@ abstract class Controller
 
         if ($gastos_judiciales > 0) {
             $gj = ($gastos_judiciales / ($meses));
+            if ($gastos_judiciales > 0 and $gastos_judiciales <= 100) {
+                $gj = ($gastos_judiciales / (5));
+            }
         }
 
         $a = $c / $meses;
@@ -83,39 +86,24 @@ abstract class Controller
             if ($ix == 1) {
                 $fecha_vencimiento = date('Y-m-d', strtotime($fecha_inicio . '+ ' . $ms . ' month'));
             }
-            /* if ($ix == 1) {
-                $fecha = date('Y-m-24', strtotime($fecha_inicio));
-                $diaSemana = date('w', strtotime($fecha));
-
-                if ($diaSemana == 6) {
-                    $fecha = date('Y-m-d', strtotime($fecha . '+2 days'));
-                } elseif ($diaSemana == 0) {
-                    $fecha = date('Y-m-d', strtotime($fecha . '+1 day'));
-                }
-                $fecha_vencimiento = $fecha;
-            } else {
-                $fecha_vencimiento = $this->obtenerFechaVencimiento($fecha_inicio, $ms);
-            } */
 
             if ($ix >= $meses) {
 
-                $totalGenerado = round($capital_inicial, 2) - round($totalGenerado, 2);
-
                 if ($taza_interes > 0) {
-                    //$interes = max(0, $interes - $saldo_final);
                     $abono_capital += $saldo_final;
                 } else {
                     $interes = 0;
                     $a += $saldo_final;
                 }
 
-                //$seguro = 0;
-                //$saldo_final = 0;
+                if ($totalGenerado != $capital_inicial) {
+                    $a += ($totalGenerado - $capital_inicial);
+                }
 
                 $nuevo_plan[] = [
                     $ix,
                     $saldo_inicial,
-                    $a - $totalGenerado,
+                    $a,
                     $abono_capital,
                     $interes,
                     $seguro,
@@ -223,7 +211,9 @@ abstract class Controller
             $request->input('seguro'),
             $request->input('correlativo'),
             $request->input('plazo_credito'),
-            $request->input('fecha_inicio')
+            $request->input('fecha_inicio'),
+            \App\Models\Earn::where('idepro', $request->input('idepro'))->first()->interes ?? 0,
+            \App\Models\Earn::where('idepro', $request->input('idepro'))->first()->seguro ?? 0,
         );
     }
 
@@ -241,16 +231,27 @@ abstract class Controller
         return collect();
     }
 
-    public function deactivateExistingRecords($idepro, $userId)
+    public function deactivateExistingRecords($idepro)
     {
-        $models = [\App\Models\Helper::class, \App\Models\Plan::class, \App\Models\Readjustment::class];
+        $models = [
+            //\App\Models\Helper::class,
+            \App\Models\Plan::class,
+            \App\Models\Readjustment::class
+        ];
+
+        $cuotaPagada = collect();
 
         foreach ($models as $model) {
-            $model::where('idepro', $idepro)->update([
-                'estado' => 'INACTIVO',
-                'user_id' => $userId
-            ]);
+            $cuotaPagada = $cuotaPagada->merge(
+                $model::where('idepro', $idepro)->where('estado', 'CANCELADO')->get()
+            );
         }
+
+        foreach ($models as $model) {
+            $model::where('idepro', $idepro)->delete();
+        }
+
+        return $cuotaPagada;
     }
 
     public function createNewRecords($data, $diferimento, Request $request, $userId)
@@ -264,11 +265,13 @@ abstract class Controller
                     'idepro' => $idepro,
                     'fecha_ppg' => $d->vencimiento,
                     'prppgnpag' => $d->nro_cuota,
-                    'prppgcapi' => $d->abono_capital,
-                    'prppginte' => $d->interes,
-                    'prppgsegu' => $d->seguro,
-                    'prppgotro' => $d->gastos_judiciales,
-                    'prppgtota' => $d->total_cuota,
+                    'prppgcapi' => ($d->abono_capital),
+                    'prppginte' => ($d->interes),
+                    'prppggral' => ($d->interes_devengado),
+                    'prppgsegu' => ($d->seguro),
+                    'prppgotro' => ($d->gastos_judiciales),
+                    'prppgcarg' => ($d->seguro_devengado),
+                    'prppgtota' => ($d->total_cuota),
                     'estado' => 'ACTIVO',
                     'user_id' => $userId,
                 ]);
@@ -279,13 +282,61 @@ abstract class Controller
                 \App\Models\Helper::create([
                     'idepro' => $idepro,
                     'indice' => $d->nro_cuota,
-                    'capital' => $d->capital,
-                    'interes' => $d->interes,
+                    'capital' => round($d->capital, 2),
+                    'interes' => round($d->interes, 2),
                     'vencimiento' => $d->vencimiento,
                     'estado' => $d->estado,
                     'user_id' => $userId,
                 ]);
             }
         }
+    }
+
+    public function downloadPlanCollection($cuotas, $fileTitle)
+    {
+        // Generate CSV
+        $fileName = $fileTitle . '_' . uniqid() . '.csv';
+        $filePath = storage_path('app/public/exports/' . $fileName);
+
+        $file = fopen($filePath, 'w');
+        fputcsv($file, [
+            'idepro',
+            'fecha_ppg',
+            'prppgnpag',
+            'prppgcapi',
+            'prppginte',
+            'prppggral',
+            'prppgsegu',
+            'prppgotro',
+            'prppgcarg',
+            'prppgtota',
+            'prppgahor',
+            'prppgmpag',
+            'estado',
+            'user_id'
+        ]); // Adjust headers as needed
+
+        foreach ($cuotas as $cuota) {
+            fputcsv($file, [
+                $cuota->idepro,
+                $cuota->fecha_ppg,
+                $cuota->prppgnpag,
+                $cuota->prppgcapi,
+                $cuota->prppginte,
+                $cuota->prppggral,
+                $cuota->prppgsegu,
+                $cuota->prppgotro,
+                $cuota->prppgcarg,
+                $cuota->prppgtota,
+                $cuota->prppgahor,
+                $cuota->prppgmpag,
+                $cuota->estado,
+                $cuota->user_id
+            ]);
+        }
+
+        fclose($file);
+
+        return asset('storage/exports/' . basename($filePath));
     }
 }

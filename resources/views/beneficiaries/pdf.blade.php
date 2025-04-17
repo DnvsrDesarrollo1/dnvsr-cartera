@@ -6,10 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalles del Beneficiario</title>
     <style>
-        body {
+        * {
             font-family: Arial, sans-serif;
+        }
+
+        body {
             margin: 0;
-            padding: 5px;
+            padding: 3px;
             font-size: 11px;
             line-height: 1.2;
         }
@@ -24,7 +27,6 @@
             padding: 10px 0;
             display: flex;
             align-items: center;
-            margin-bottom: 10px;
         }
 
         .header img {
@@ -89,7 +91,6 @@
 
         .description {
             width: 100%;
-            margin-top: 20px;
             border-collapse: collapse;
         }
 
@@ -100,7 +101,7 @@
         }
 
         .plans {
-            margin-top: 15px;
+            margin-top: 5px;
         }
 
         .plans table {
@@ -161,7 +162,7 @@
 </head>
 
 @if ($beneficiary->estado == 'BLOQUEADO' || $beneficiary->estado == 'CANCELADO')
-    <h1>Estado de credito especial, informacion no disponible</h1>
+    <h1>Estado de credito inválido, informacion no disponible</h1>
 @else
 
     <body>
@@ -170,13 +171,14 @@
             $tasa = 1;
             if ($beneficiary->insurance()->exists()) {
                 $tasa = $beneficiary->insurance->tasa_seguro;
-            }
-            if ($beneficiary->saldo_credito > 0) {
-                $tasa = $plans->first() ? ($plans->first()->prppgsegu / $beneficiary->saldo_credito) * 100 : 1;
+            } else {
+                $tasa = $plans->first() ? ($plans->first()->prppgsegu / $plans->sum('prppgcapi')) * 100 : 1;
             }
         @endphp
         <div id="footer">
-            <strong><p class="page">Página: </p></strong>
+            <strong>
+                <p class="page">Página: </p>
+            </strong>
         </div>
         <div class="container">
             <header class="header">
@@ -226,7 +228,9 @@
                             <td>BOLIVIANOS</td>
                             <td></td>
                             <td>Fecha Re-estructuracion:</td>
-                            <td>{{ $beneficiary->fecha_extendida ? date('m/Y', strtotime($beneficiary->fecha_extendida)) : '-'}}</td>
+                            <td>
+                                {{ $beneficiary->fecha_extendida ? date('m/Y', strtotime($beneficiary->fecha_extendida)) : '-' }}
+                            </td>
                         </tr>
                         <tr>
                             <td>Seguro Desgravamen:</td>
@@ -235,7 +239,9 @@
                             </td>
                             <td></td>
                             <td>Fecha Vencimiento del Plan:</td>
-                            <td>{{ date('d/m/Y', strtotime($beneficiary->fecha_activacion . '+ 20 years')) }}
+                            <td>
+                                {{ date('d/m/Y', strtotime($beneficiary->fecha_activacion . ' + 20 years')) }}
+
                             </td>
                         </tr>
                         <tr>
@@ -252,7 +258,10 @@
                             </td>
                             <td>
                                 Bs.
-                                {{ number_format(\App\Models\Earn::where('idepro', $beneficiary->idepro)->where('estado', 'ACTIVO')->sum('interes') ?? 0, 2) }}
+                                {{ number_format(
+                                    \App\Models\Earn::where('idepro', $beneficiary->idepro)->where('estado', 'ACTIVO')->sum('interes') ?? 0,
+                                    2,
+                                ) }}
                                 /
                                 Bs.
                                 {{ number_format(\App\Models\Earn::where('idepro', $beneficiary->idepro)->where('estado', 'ACTIVO')->sum('seguro') ?? 0, 2) }}
@@ -262,11 +271,13 @@
                                 Bs. {{ number_format($differs->sum('interes') ?? 0, 2) }}
                             </td>
                             <td></td>
-                            <td>Saldo "{{ $beneficiary->entidad_financiera }}": <br/> Gastos Jud - Adm: </td>
-                            <td>Bs. {{ number_format($beneficiary->total_activado + ($differs->sum('capital') ?? 0), 2) }}
+                            <td>Saldo "{{ $beneficiary->entidad_financiera }}": <br /> Gastos Jud - Adm: </td>
+                            <td>Bs.
+                                {{ number_format($beneficiary->total_activado + ($differs->sum('capital') ?? 0), 2) }}
                                 {{-- {{ number_format($beneficiary->saldo_credito, 2) }} --}}
-                                <br/>
-                                Bs. {{ number_format(\App\Models\Spend::where('idepro', $beneficiary->idepro)->where('estado', 'ACTIVO')->sum('monto') ?? 0, 2) }}
+                                <br />
+                                Bs.
+                                {{ number_format(\App\Models\Spend::where('idepro', $beneficiary->idepro)->where('estado', 'ACTIVO')->sum('monto') ?? 0, 2) }}
                             </td>
                         </tr>
                         <tr>
@@ -277,7 +288,7 @@
                                 <b>Saldo:</b>
                             </td>
                             <td>Bs.
-                                {{ number_format(($beneficiary->saldo_credito + ($differs->sum('capital') ?? 0)), 2) ?? 0 }}
+                                {{ number_format($plans->sum('prppgcapi') + ($differs->sum('capital') ?? 0), 2) ?? 0 }}
                             </td>
                         </tr>
                     </tbody>
@@ -299,7 +310,7 @@
                             <th style="text-align: center;">
                                 Saldo
                                 <br>
-                                <i>({{ number_format($beneficiary->saldo_credito, 2) }})</i>
+                                <i>({{ number_format($plans->sum('prppgcapi'), 2) }})</i>
                             </th>
                         </tr>
                     </thead>
@@ -309,10 +320,7 @@
                                 $saldo -= $plan->prppgcapi;
                             @endphp
                             <tr>
-                                <td>
-                                    @if ($plan->estado == 'CANCELADO')
-                                    *
-                                    @endif
+                                <td style="@if ($plan->estado == 'CANCELADO') color: green; @endif">
                                     {{ $loop->index + 1 }}
                                 </td>
                                 <td>{{ date('d/m/Y', strtotime($plan->fecha_ppg)) }}</td>
@@ -387,13 +395,15 @@
             </div>
 
             @isset($differs)
-                <h4 style="margin-top: 2rem;">Cuotas Diferidas</h4>
+                <hr style="margin-top: 5px;" />
+                <h3 style="text-align: center;">CUOTAS DIFERIDAS</h3>
+                <hr />
                 <div class="plans">
                     <table class="table">
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>N°</th>
+                                {{-- <th>N°</th> --}}
                                 <th>Fecha</th>
                                 <th>Capital</th>
                                 <th>Interés</th>
@@ -417,7 +427,7 @@
                                 @endphp
                                 <tr>
                                     <td>{{ $loop->index + 1 }}</td>
-                                    <td>{{ $differ->indice }}</td>
+                                    {{-- <td>{{ $differ->indice }}</td> --}}
                                     <td>{{ $differ->vencimiento }}</td>
                                     <td>{{ number_format($differ->capital, 2) }}</td>
                                     <td>{{ number_format($differ->interes, 2) }}</td>

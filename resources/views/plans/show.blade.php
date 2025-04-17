@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="max-w-fit mx-auto py-10 sm:px-6 lg:px-8">
+    <div class="max-w-fit mx-auto my-2 sm:px-6 lg:px-8">
         @if ($errors->any())
             <div class="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700">
                 <ul>
@@ -10,17 +10,17 @@
             </div>
         @endif
 
-        <div class="bg-white shadow-md rounded-lg mb-6 p-6">
+        <div class="bg-white shadow-md mb-2 rounded-lg p-6 border border-gray-300">
             <h1 class="text-2xl font-bold text-gray-800">
                 @if ($request->correlativo == 'on')
                     Reajuste
                 @else
                     Activacion
-                @endif  de plan de cuotas: <span class="text-blue-600">{{ $request->idepro }}</span>
+                @endif de plan de cuotas: <span class="text-blue-600">{{ $request->idepro }}</span>
             </h1>
         </div>
 
-        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+        <div class="bg-white shadow-md rounded-lg overflow-hidden border border-gray-300">
             <div class="overflow-x-auto">
                 <table class="w-full">
                     <thead>
@@ -43,7 +43,8 @@
                     <tbody class="text-gray-600 text-sm font-light text-center">
                         @foreach ($data as $d)
                             <tr class="border-b border-gray-200 hover:bg-gray-100">
-                                <td class="py-3 px-6 text-left whitespace-nowrap italic text-gray-200">{{ $loop->index + 1 }}</td>
+                                <td class="py-3 px-6 text-left whitespace-nowrap italic text-gray-200">
+                                    {{ $loop->index + 1 }}</td>
                                 <td class="py-3 px-6 text-left">{{ $d->nro_cuota }}</td>
                                 <td class="py-3 px-6 text-right">{{ number_format($d->saldo_inicial, 2, '.', ',') }}
                                 </td>
@@ -138,30 +139,35 @@
             </div>
         </div>
 
-        <div class="mt-4 flex justify-between bg-white p-4 rounded-lg">
-            <form action="{{ route('plan.store') }}" method="post" class="flex space-x-4">
-                @csrf
-                <input type="hidden" name="diff_cuotas" value="{{ $request->input('diff_cuotas') }}" />
-                <input type="hidden" name="diff_capital" value="{{ $request->input('diff_capital') }}" />
-                <input type="hidden" name="diff_interes" value="{{ $request->input('diff_interes') }}" />
-                <input type="hidden" name="plazo_credito" value="{{ $request->input('plazo_credito') }}" />
-                <input type="hidden" name="idepro" value="{{ $request->input('idepro') }}" />
-                <input type="hidden" name="capital_inicial" value="{{ $request->input('capital_inicial') }}" />
-                <input type="hidden" name="meses" value="{{ $request->input('meses') }}" />
-                <input type="hidden" name="taza_interes" value="{{ $request->input('taza_interes') }}" />
-                <input type="hidden" name="seguro" id="seguro" value="{{$request->input('seguro')}}" />
-                <input type="hidden" name="correlativo" value="{{ $request->input('correlativo') }}" />
-                <input type="hidden" name="fecha_inicio"
-                    value="{{ date('Y/m/d', strtotime($request->input('fecha_inicio'))) }}">
-                <input type="hidden" name="gastos_judiciales" value="{{ $request->input('gastos_judiciales') }}" />
-                <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition ease-in-out">
-                    Confirmar y Guardar
-                </button>
-            </form>
-            <button onclick="history.back();"
-                class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition ease-in-out">
+        <div class="mt-2 flex items-center justify-end gap-1 bg-white p-4 rounded-lg shadow-md">
+            @can('write plans')
+                <form action="{{ route('plan.store') }}" method="post" class="flex space-x-4">
+                    @csrf
+                    <input type="hidden" name="diff_cuotas" value="{{ $request->input('diff_cuotas') }}" />
+                    <input type="hidden" name="diff_capital" value="{{ $request->input('diff_capital') }}" />
+                    <input type="hidden" name="diff_interes" value="{{ $request->input('diff_interes') }}" />
+                    <input type="hidden" name="plazo_credito" value="{{ $request->input('plazo_credito') }}" />
+                    <input type="hidden" name="idepro" value="{{ $request->input('idepro') }}" />
+                    <input type="hidden" name="capital_inicial" value="{{ $request->input('capital_inicial') }}" />
+                    <input type="hidden" name="meses" value="{{ $request->input('meses') }}" />
+                    <input type="hidden" name="taza_interes" value="{{ $request->input('taza_interes') }}" />
+                    <input type="hidden" name="seguro" id="seguro" value="{{ $request->input('seguro') }}" />
+                    <input type="hidden" name="correlativo" value="{{ $request->input('correlativo') }}" />
+                    <input type="hidden" name="fecha_inicio"
+                        value="{{ date('Y/m/d', strtotime($request->input('fecha_inicio'))) }}">
+                    <input type="hidden" name="gastos_judiciales" value="{{ $request->input('gastos_judiciales') }}" />
+                    <x-personal.button wire:click="confirmUserDeletion" submit="true" variant="success" iconLeft="fa-solid fa-floppy-disk">
+                        Confirmar y Guardar
+                    </x-personal.button>
+                </form>
+            @else
+                <span class="text-gray-500">
+                    Usted solo puede realizar simulaciónes, los datos presentados no serán guardados.
+                </span>
+            @endcan
+            <x-personal.button onclick="history.back();" variant="danger" iconLeft="fa-solid fa-xmark">
                 Cancelar
-            </button>
+            </x-personal.button>
         </div>
 
         @isset($diferimento)

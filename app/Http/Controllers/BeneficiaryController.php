@@ -11,6 +11,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use ZipArchive;
 
 class BeneficiaryController extends Controller
@@ -31,7 +32,16 @@ class BeneficiaryController extends Controller
         $paymentTotals = $this->calculatePaymentTotals($beneficiary->idepro);
         $mesesRestantes = $this->calculateRemainingMonths($beneficiary);
 
-        return view('beneficiaries.show', compact('beneficiary', 'mesesRestantes', 'paymentTotals'));
+        $plansArray = $this->getActivePlans($beneficiary->idepro);
+        $paymentsArray = $this->getPayments($beneficiary->idepro, 'CAP');
+
+        return view('beneficiaries.show', compact(
+            'beneficiary',
+            'mesesRestantes',
+            'paymentTotals',
+            'plansArray',
+            'paymentsArray'
+        ));
     }
 
     public function pdf($cedula)
@@ -56,16 +66,25 @@ class BeneficiaryController extends Controller
 
     public function bulkPdf($data)
     {
-        $beneficiaries = Beneficiary::whereIn('ci', json_decode($data, true))->get();
+        $decodedData = json_decode($data, true);
+        $identificationNumbers = array_diff(array_values($decodedData));
+
+        $beneficiaries = Beneficiary::find($identificationNumbers);
 
         try {
+            $zipUrl = null;
+
             $archivos = $this->generatePDFs($beneficiaries);
             $zipPath = $this->createZipFile($archivos);
             $this->cleanupPDFs($archivos);
 
+            Log::info("ZIP file created at: {$zipUrl}");
             $zipUrl = asset('storage/exports/' . basename($zipPath));
+            // Example usage: Log the URL or notify the user
+            \Log::info("ZIP file created at: {$zipUrl}");
+
             return redirect()->route('beneficiario.index')
-                ->with('success', "La exportación masiva de {$beneficiaries->count()} beneficiarios fue realizada.")
+                ->with('success', "La exportación masiva de {$beneficiaries->count()} beneficiarios fue realizada correctamente.")
                 ->with('link', $zipUrl);
         } catch (\Exception $e) {
             return redirect()->route('beneficiario.index')
@@ -76,7 +95,7 @@ class BeneficiaryController extends Controller
 
     private function calculatePaymentTotals($idepro)
     {
-        $types = ['CAPIT', 'SEG', 'INTE'];
+        $types = ['CAP', 'SEG', 'INT'];
         return collect($types)->mapWithKeys(function ($type) use ($idepro) {
             return [$type => $this->sumPaymentsByType($idepro, $type)];
         });
@@ -102,14 +121,25 @@ class BeneficiaryController extends Controller
 
     private function getActivePlans($idepro)
     {
-        $plans = Plan::where('idepro', $idepro)->where('estado', '<>', 'INACTIVO')->orderBy('fecha_ppg', 'asc')->get();
-        return $plans->count() > 0 ? $plans : Readjustment::where('idepro', $idepro)->where('estado', 'ACTIVO')->orderBy('fecha_ppg', 'asc')->get();
+        $plans = Plan::where('idepro', $idepro)
+            ->where('estado', '<>', 'INACTIVO')
+            ->orderBy('fecha_ppg', 'asc')
+            ->get();
+        return $plans->count() > 0 ? $plans : Readjustment::where('idepro', $idepro)
+            ->where('estado', '<>', 'INACTIVO')
+            ->orderBy('fecha_ppg', 'asc')
+            ->get();
     }
 
-    private function getPayments($idepro)
+    private function getPayments($idepro, $type = null)
     {
-        $payments = Payment::where('numprestamo', $idepro)->orderBy('fecha_pago', 'DESC')->get();
-        return $payments;
+        $query = Payment::where('numprestamo', $idepro)->orderBy('fecha_pago', 'DESC');
+
+        if ($type) {
+            $query->where('prtdtdesc', 'like', "%$type%");
+        }
+
+        return $query->get();
     }
 
     private function getActiveDiffers($idepro)

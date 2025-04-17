@@ -8,8 +8,6 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote')->hourly();
 
-Schedule::call(function () {
-    \App\Models\Plan::where('estado', 'INACTIVO')->delete();
-    \App\Models\Helper::where('estado', 'INACTIVO')->delete();
-    \App\Models\Readjustment::where('estado', 'INACTIVO')->delete();
-})->hourly();
+//Schedule::command('app:prune-inactive')->everyFiveMinutes();
+//Schedule::command('app:plan-status')->everyMinute();
+//Schedule::command('app:beneficiary-status')->everyMinute();

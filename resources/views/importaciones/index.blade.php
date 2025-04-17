@@ -1,14 +1,8 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Importación de Archivos
-        </h2>
-    </x-slot>
-
-    <div class="py-4">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
-                <div class="p-6">
+    <div class="py-4 w-full">
+        <div class="grid grid-cols-1 grid-rows-4 lg:grid-cols-4 gap-2 mx-auto px-2">
+            <div class="md:col-span-2 row-span-4 bg-white dark:bg-gray-800 overflow-hidden shadow-lg rounded-lg border border-gray-500">
+                <div class="p-2">
                     <x-validation-errors />
                     @if (session('error'))
                         <div class="bg-red-200 border border-red-500 text-red-500 px-4 py-3 rounded relative mb-4"
@@ -65,18 +59,18 @@
                             </div>
 
                             <div>
-                                <button type="submit"
-                                    class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <x-personal.button submit="true" variant="success"
+                                    iconLeft="fa-solid fa-file-circle-plus">
                                     Cargar archivo
-                                </button>
+                                </x-personal.button>
                             </div>
                         </div>
                     </form>
                 </div>
             </div>
             <!-- -------------------------------------------------------------------------- -->
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg mt-4">
-                <div class="p-6">
+            <div class="md:col-span-2 row-span-4 bg-white dark:bg-gray-800 overflow-hidden shadow-lg rounded-lg border border-gray-500">
+                <div class="p-2">
                     <x-validation-errors />
                     @if (session('errorD'))
                         <div class="bg-red-200 border border-red-500 text-red-500 px-4 py-3 rounded relative mb-4"
@@ -118,10 +112,10 @@
                                     class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
                             </div>
                             <div>
-                                <button type="submit"
-                                    class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <x-personal.button submit="true" variant="success"
+                                    iconLeft="fa-solid fa-file-circle-plus">
                                     Cargar archivo
-                                </button>
+                                </x-personal.button>
                             </div>
                         </div>
                     </form>
@@ -129,148 +123,4 @@
             </div>
         </div>
     </div>
-    <script>
-        /*let dropArea = document.getElementById('drop-area');
-            let fileInput = document.getElementById('file');
-            let fileIcon = document.getElementById('file-icon');
-            let fileName = document.getElementById('file-name');
-            *
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, preventDefaults, false);
-        });
-
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropArea.addEventListener(eventName, highlight, false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, unhighlight, false);
-        });
-
-        function highlight() {
-            dropArea.classList.add('bg-indigo-100');
-        }
-
-        function unhighlight() {
-            dropArea.classList.remove('bg-indigo-100');
-        }
-
-        dropArea.addEventListener('drop', handleDrop, false);
-
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            fileInput.files = files;
-            updateIcon();
-        }
-
-        fileInput.addEventListener('change', updateIcon);
-
-        function updateIcon() {
-            if (fileInput.files && fileInput.files[0]) {
-                // Change to CSV icon
-                fileIcon.innerHTML = `
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                    <line x1="16" y1="13" x2="8" y2="13"></line>
-                    <line x1="16" y1="17" x2="8" y2="17"></line>
-                    <polyline points="10 9 9 9 8 9"></polyline>
-                `;
-                fileIcon.setAttribute('viewBox', '0 0 24 24');
-                fileIcon.classList.remove('text-gray-400');
-                fileIcon.classList.add('text-green-500');
-
-                // Display file name
-                fileName.textContent = fileInput.files[0].name + " - ha sido seleccionado.";
-            } else {
-                // Revert to original icon
-                fileIcon.innerHTML = `
-                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                `;
-                fileIcon.setAttribute('viewBox', '0 0 48 48');
-                fileIcon.classList.remove('text-green-500');
-                fileIcon.classList.add('text-gray-400');
-
-                // Reset file name display
-                fileName.textContent = 'CSV hasta 10MB';
-            }
-        }
-
-        let dropAreaD = document.getElementById('drop-area-differiments');
-        let fileInputD = document.getElementById('file-differiments');
-        let fileIconD = document.getElementById('file-icon-differiments');
-        let fileNameD = document.getElementById('file-name-differiments');
-
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropAreaD.addEventListener(eventName, preventDefaults, false);
-        });
-
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropAreaD.addEventListener(eventName, highlight, false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropAreaD.addEventListener(eventName, unhighlight, false);
-        });
-
-        function highlight() {
-            dropAreaD.classList.add('bg-indigo-100');
-        }
-
-        function unhighlight() {
-            dropAreaD.classList.remove('bg-indigo-100');
-        }
-
-        dropAreaD.addEventListener('drop', handleDrop, false);
-
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            fileInputD.files = files;
-            updateIcon();
-        }
-
-        fileInputD.addEventListener('change', updateIcon);
-
-        function updateIcon() {
-            if (fileInputD.files && fileInputD.files[0]) {
-                // Change to CSV icon
-                fileIconD.innerHTML = `
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                    <line x1="16" y1="13" x2="8" y2="13"></line>
-                    <line x1="16" y1="17" x2="8" y2="17"></line>
-                    <polyline points="10 9 9 9 8 9"></polyline>
-                `;
-                fileIconD.setAttribute('viewBox', '0 0 24 24');
-                fileIconD.classList.remove('text-gray-400');
-                fileIconD.classList.add('text-green-500');
-
-                // Display file name
-                fileNameD.textContent = fileInputD.files[0].name + " - ha sido seleccionado.";
-            } else {
-                // Revert to original icon
-                fileIconD.innerHTML = `
-                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                `;
-                fileIconD.setAttribute('viewBox', '0 0 48 48');
-                fileIconD.classList.remove('text-green-500');
-                fileIconD.classList.add('text-gray-400');
-
-                // Reset file name display
-                fileNameD.textContent = 'CSV hasta 10MB';
-            }
-        }
-        */
-    </script>
 </x-app-layout>
