@@ -2,6 +2,7 @@
     'type' => 'info',
     'message' => '',
     'goto' => null,
+    'clossable' => 'true',
 ])
 
 @php
@@ -24,7 +25,7 @@
     ];
 @endphp
 
-<div class="space-y-2 my-2">
+<div class="space-y-2 my-2 w-full">
     <div role="alert"
         class="{{ $alertClasses[$type] ?? $alertClasses['info'] }} p-2 rounded-md flex items-center justify-between transition duration-300 ease-in-out transform scale-y-105"
         x-data="{ show: true }" x-show="show" x-transition:enter="transition ease-out duration-300"
@@ -61,11 +62,14 @@
                 </a>
             @endisset
         </div>
-        <button @click="show = false" class="text-gray-500 dark:text-gray-200 hover:text-gray-700 dark:hover:text-gray-100 focus:outline-none">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-        </button>
+        @if ($clossable == 'true')
+            <button @click="show = false"
+                class="text-gray-500 dark:text-gray-200 hover:text-gray-700 dark:hover:text-gray-100 focus:outline-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        @endif
     </div>
 </div>

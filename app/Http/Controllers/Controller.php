@@ -31,12 +31,15 @@ abstract class Controller
             if ($gastos_judiciales > 0 and $gastos_judiciales <= 100) {
                 $gj = ($gastos_judiciales / (5));
             }
+
+            if ($gastos_judiciales > 100 and $gastos_judiciales <= 300) {
+                $gj = ($gastos_judiciales / (12));
+            }
         }
 
         $a = $c / $meses;
 
         if ($taza_interes > 0) {
-            //$a = $c * (bcdiv(($i), (1 - pow((1 + $i), ($n) * -1)), 6));
             $a = $this->calcularPago($c, $i, $n);
         }
 
@@ -62,13 +65,11 @@ abstract class Controller
 
         $fecha_inicio = \Carbon\Carbon::parse($fecha_inicio);
 
-        /* if ($fecha_inicio->day < 15) {
-            $ms = 0;
-        } */
+        $fecha_inicio = $fecha_inicio->format('Y-m-15');
 
-        if ($fecha_inicio->day >= 15) {
+        /* if ($fecha_inicio->day >= 15) {
             $fecha_inicio = $fecha_inicio->format('Y-m-15');
-        }
+        } */
 
         $totalGenerado = 0;
 
@@ -205,15 +206,15 @@ abstract class Controller
     {
         return $this->generarPlan(
             $request->input('capital_inicial'),
-            \App\Models\Spend::where('idepro', $request->input('idepro'))->where('estado', 'ACTIVO')->first()->monto ?? 0,
+            \App\Models\Spend::where('idepro', $request->input('idepro'))->where('estado', 'ACTIVO')->sum('monto') ?? 0,
             $request->input('meses'),
             $request->input('taza_interes'),
             $request->input('seguro'),
             $request->input('correlativo'),
             $request->input('plazo_credito'),
             $request->input('fecha_inicio'),
-            \App\Models\Earn::where('idepro', $request->input('idepro'))->first()->interes ?? 0,
-            \App\Models\Earn::where('idepro', $request->input('idepro'))->first()->seguro ?? 0,
+            \App\Models\Earn::where('idepro', $request->input('idepro'))->sum('interes') ?? 0,
+            \App\Models\Earn::where('idepro', $request->input('idepro'))->sum('seguro') ?? 0,
         );
     }
 

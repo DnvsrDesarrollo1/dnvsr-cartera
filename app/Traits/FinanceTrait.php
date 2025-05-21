@@ -92,7 +92,7 @@ trait FinanceTrait
                 'prppgtota' => round($abonoCapital + $abonoInteres + $abonoSeguro + $value->prppgcarg + $value->prppggral + $value->prppgotro, 2),
                 'prppgahor' => $saldoInicial,
                 'estado' => 'ACTIVO',
-                'user_id' => \Illuminate\Support\Facades\Auth::user()->id,
+                'user_id' => \Illuminate\Support\Facades\Auth::user()->id ?? 1,
             ]);
 
             $abonoInteres = $this->calcularPagoInteres($saldoInicial, $tasaInteres);
@@ -101,9 +101,60 @@ trait FinanceTrait
 
             $abonoSeguro = $this->calcularPagoSeguro($saldoInicial + $abonoInteres, $tasaSeguro);
 
+            if ($saldoCapital <= 0) {
+                $value->update([
+                    'prppgcapi' => 0,
+                    'prppginte' => 0,
+                    'prppgsegu' => 0,
+                    'prppgtota' => 0,
+                    'prppgahor' => 0,
+                    'estado' => 'CANCELADO',
+                    'user_id' => \Illuminate\Support\Facades\Auth::user()->id ?? 1,
+                ]);
+            }
+
+            $value->refresh();
+
             $planActualizado->push($value);
         }
 
         return ($planActualizado);
+    }
+
+    public function createPayment($comprobante, $index, $codigoPrestamo, $codRef, $codCon, $fechaPago, $horaPago, $glosa, $montoPagado, $usuario, $numeroCuota, $departamento, $observaciones)
+    {
+        #PAYMENT
+        \App\Models\Payment::create([
+            'numtramite' => $comprobante,
+            'prtdtitem' => $index,
+            'numprestamo' => $codigoPrestamo,
+            'prtdtpref' => $codRef,
+            'prtdtccon' => $codCon,
+            'fecha_pago' => $fechaPago,
+            'prtdtdesc' => $glosa,
+            'montopago' => $montoPagado,
+            'prtdtuser' => $usuario,
+            'hora_pago' => $horaPago,
+            'prtdtfpro' => null,
+            'prtdtnpag' => $numeroCuota,
+            'depto_pago' => $departamento,
+            'obs_pago' => $observaciones
+        ]);
+    }
+
+    public function createVoucher($agenciaPago, $descripcion, $fechaPago, $horaPago, $montoPagado, $numeroCuota, $numPrestamo, $numTramite, $departamento, $observaciones)
+    {
+        \App\Models\Voucher::create([
+            'agencia_pago' => $agenciaPago,
+            'descripcion' => $descripcion,
+            'fecha_pago' => $fechaPago,
+            'hora_pago' => $horaPago,
+            'montopago' => $montoPagado,
+            'numpago' => $numeroCuota,
+            'numprestamo' => $numPrestamo,
+            'numtramite' => $numTramite,
+            'depto_pago' => $departamento,
+            'obs_pago' => $observaciones
+        ]);
     }
 }

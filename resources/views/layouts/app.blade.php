@@ -11,7 +11,9 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+        rel="stylesheet">
 
     <link rel="shortcut icon" href="{{ asset('assets/main_ico.png') }}" type="image/x-icon">
 
@@ -44,8 +46,7 @@
 
         <!-- Page Heading -->
         @if (isset($header))
-            <header class="bg-white shadow-md mt-2 py-2 ml-4 mr-4 rounded-md h-fit"
-                x-show="down"
+            <header class="bg-white shadow-md mt-2 py-2 ml-4 mr-4 rounded-md h-fit" x-show="down"
                 x-on:dblclick="down = !down" x-transition:enter-start="opacity-0 scale-90"
                 x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-300"
                 x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90">

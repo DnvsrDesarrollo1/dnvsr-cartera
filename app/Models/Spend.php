@@ -6,6 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Spend extends Model
 {
+    protected $fillable = [
+        'idepro',
+        'criterio',
+        'monto',
+        'estado'
+    ];
 
     public function beneficiary()
     {

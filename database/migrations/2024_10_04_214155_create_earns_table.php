@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('earns', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('idepro', 255); // Relación con beneficiaries.idepro
-            $table->double('capital', 8, 2);
-            $table->double('interes', 8, 2);
-            $table->double('seguro', 8, 2);
+            $table->double('capital');
+            $table->double('interes');
+            $table->double('seguro');
             $table->string('estado', 255);
             $table->timestamps(0); // Precisión 0 según el PDF
 

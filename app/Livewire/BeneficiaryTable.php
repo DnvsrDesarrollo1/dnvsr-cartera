@@ -47,7 +47,7 @@ final class BeneficiaryTable extends PowerGridComponent
 
             PowerGrid::detail()
                 ->view('components.detail')
-                ->showCollapseIcon()
+                ->showCollapseIcon(),
         ];
     }
 
@@ -103,9 +103,23 @@ final class BeneficiaryTable extends PowerGridComponent
             ->add('fecha_nacimiento')
             ->add('total_activado', fn($ben) => \Illuminate\Support\Number::currency($ben->total_activado ?? 0, in: 'Bs.'))
             ->add('gastos_judiciales', fn($ben) => \Illuminate\Support\Number::currency($ben->gastos_judiciales ?? 0, in: 'Bs.'))
-            ->add('saldo_credito', fn($ben) => \Illuminate\Support\Number::currency($ben->saldo_credito ?? 0, in: 'Bs.'))
+            ->add('saldo_credito', fn($ben) => \Illuminate\Support\Number::currency(
+                ($ben->monto_activado - ($ben->payments()->where(function ($query) {
+                    $query->whereNull('observacion')
+                        ->orWhere('observacion', '')
+                        ->orWhere('observacion', '!=', 'LEGACY 22/24');
+                })->where('prtdtdesc', 'LIKE', '%CAPI%')->sum('montopago')
+                    +
+                    $ben->payments()->where(function ($query) {
+                        $query->whereNull('observacion')
+                            ->orWhere('observacion', '')
+                            ->orWhere('observacion', '!=', 'LEGACY 22/24');
+                    })->where('prtdtdesc', 'LIKE', '%AMR%')->sum('montopago'))),
+                in: 'Bs.'
+            ))
             ->add('fecha_activacion')
-            ->add('departamento');
+            ->add('departamento')
+            ->add('cuotas_pendientes', fn($beneficiary) => e($beneficiary->getCurrentPlan('CANCELADO', '!=')->where('fecha_ppg', '<', now())->count()));
     }
 
     public function columns(): array
@@ -126,10 +140,11 @@ final class BeneficiaryTable extends PowerGridComponent
             Column::make('Departamento', 'departamento')
                 ->hidden(),
 
-            Column::make('Complemento', 'complemento'),
-
             Column::make('Estado', 'estado')
                 ->editOnClick(hasPermission: \Illuminate\Support\Facades\Auth::user()->can('write beneficiaries'))
+                ->contentClasses([
+                    'BLOQUEADO' => 'text-red-500',
+                ])
                 ->sortable(),
 
             Column::make('EIF', 'entidad_financiera')
@@ -138,16 +153,18 @@ final class BeneficiaryTable extends PowerGridComponent
             Column::make('Total Activado', 'total_activado')
                 ->sortable(),
 
-            Column::make('Gastos Judiciales', 'gastos_judiciales')
+            Column::make('Gastos Extra', 'gastos_judiciales')
                 ->sortable(),
 
             Column::make('Saldo Crédito', 'saldo_credito')
                 ->sortable(),
 
-            Column::make('Fecha Activación', 'fecha_activacion')
+            Column::make('F. Activación', 'fecha_activacion')
                 ->sortable(),
 
-            Column::action('Opciones')
+            Column::make('C. Pendientes', 'cuotas_pendientes'),
+
+            Column::action('')
         ];
     }
 

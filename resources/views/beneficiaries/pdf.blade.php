@@ -161,7 +161,7 @@
     </style>
 </head>
 
-@if ($beneficiary->estado == 'BLOQUEADO' || $beneficiary->estado == 'CANCELADO')
+@if ($beneficiary->estado == 'BLOQUEADOx' || $beneficiary->estado == 'CANCELADOx')
     <h1>Estado de credito inválido, informacion no disponible</h1>
 @else
 
@@ -428,7 +428,7 @@
                                 <tr>
                                     <td>{{ $loop->index + 1 }}</td>
                                     {{-- <td>{{ $differ->indice }}</td> --}}
-                                    <td>{{ $differ->vencimiento }}</td>
+                                    <td>{{ date('d/m/Y', strtotime($differ->vencimiento)) }}</td>
                                     <td>{{ number_format($differ->capital, 2) }}</td>
                                     <td>{{ number_format($differ->interes, 2) }}</td>
                                     <td>{{ number_format($differ->seguro, 2) }}</td>

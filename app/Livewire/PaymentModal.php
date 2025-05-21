@@ -7,9 +7,7 @@ use Livewire\Component;
 
 class PaymentModal extends Component
 {
-    public $isOpen = false;
-
-    public $confirmingSave = false;
+    public $paymentModal = false;
 
     public Beneficiary $beneficiary;
     public $title = '';
@@ -48,6 +46,7 @@ class PaymentModal extends Component
                 // RESTAURACION
 
                 $this->beneficiary->update([
+                    'estado' => 'VIGENTE',
                     'saldo_credito' => $this->beneficiary->saldo_credito + $monto,
                 ]);
 
@@ -66,16 +65,6 @@ class PaymentModal extends Component
     {
         $this->beneficiary = $beneficiary;
         $this->title = $title;
-    }
-
-    public function openModal()
-    {
-        $this->isOpen = true;
-    }
-
-    public function closeModal()
-    {
-        $this->isOpen = false;
     }
 
     public function render()

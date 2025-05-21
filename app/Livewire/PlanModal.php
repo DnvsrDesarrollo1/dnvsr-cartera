@@ -7,7 +7,7 @@ use Livewire\Component;
 
 class PlanModal extends Component
 {
-    public $isOpen = false;
+    public $planModal = false;
 
     public Beneficiary $beneficiary;
     public $title = '';

@@ -29,12 +29,12 @@ return new class extends Migration
             $table->string('proyecto', 255);
             $table->string('genero', 255);
             $table->date('fecha_nacimiento');
-            $table->double('monto_credito', 8, 2);
-            $table->double('monto_activado', 8, 2);
-            $table->double('total_activado', 8, 2);
-            $table->double('gastos_judiciales', 8, 2)->default(0);
-            $table->double('saldo_credito', 8, 2);
-            $table->double('monto_recuperado', 8, 2)->default(0);
+            $table->double('monto_credito');
+            $table->double('monto_activado');
+            $table->double('total_activado');
+            $table->double('gastos_judiciales')->default(0);
+            $table->double('saldo_credito');
+            $table->double('monto_recuperado')->default(0);
             $table->date('fecha_activacion');
             $table->integer('plazo_credito');
             $table->text('tasa_interes');

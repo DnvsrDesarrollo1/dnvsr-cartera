@@ -14,10 +14,25 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::with('roles')->orderBy('name', 'asc')->get();
-        $roles = Role::all();
-        $permissions = Permission::all();
-        return view('users.index', compact('users', 'roles', 'permissions'));
+        $users = User::with('roles')
+            ->orderBy('name', 'asc')
+            ->get();
+
+        $roles = Role::orderBy('name', 'ASC')
+            ->get();
+
+        $permissions = Permission::orderBy('name', 'ASC')
+            ->get();
+
+        $activeUsers = \Illuminate\Support\Facades\DB::table(config('session.table'))
+            ->distinct()
+            ->select(['users.id', 'users.name', 'users.email'])
+            ->whereNotNull('user_id')
+            ->leftJoin('users', config('session.table') . '.user_id', '=', 'users.id')
+            ->get()
+            ->count();
+
+        return view('users.index', compact('users', 'roles', 'permissions', 'activeUsers'));
     }
 
     public function updateRole(Request $request, User $user)

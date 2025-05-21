@@ -15,8 +15,8 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->string('idepro', 255)->nullable(); // Relación con beneficiaries.idepro
             $table->smallInteger('indice');
-            $table->double('capital', 8, 2);
-            $table->double('interes', 8, 2);
+            $table->double('capital');
+            $table->double('interes');
             $table->date('vencimiento');
             $table->string('estado', 50);
             $table->timestamps(6);

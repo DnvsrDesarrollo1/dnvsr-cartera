@@ -15,7 +15,7 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->string('idepro', 255); // Relación con beneficiaries.idepro
             $table->string('criterio', 255);
-            $table->double('monto', 8, 2);
+            $table->double('monto');
             $table->string('estado', 255);
             $table->timestamps(0); // Precisión 0 según el PDF
 

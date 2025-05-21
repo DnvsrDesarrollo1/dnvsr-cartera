@@ -56,6 +56,9 @@ Route::middleware([
     Route::put('proyecto/{codigo}', [\App\Http\Controllers\ProjectController::class, 'update'])->name('proyecto.update');
     Route::delete('proyecto/{codigo}', [\App\Http\Controllers\ProjectController::class, 'destroy'])->name('proyecto.destroy');
 
+    // Liquidaciones
+    Route::get('liquidacion/{settlement}', [\App\Http\Controllers\SettlementController::class, 'pdf'])->name('liquidacion.pdf');
+
     // Exportaciones e Importaciones
     Route::post('excel/import-model', [\App\Http\Controllers\ExcelController::class, 'importModelCSV'])->name('excel.import-model');
     Route::get('excel/{model}/export-model', [\App\Http\Controllers\ExcelController::class, 'exportModel'])->name('excel.export-model');
@@ -66,10 +69,12 @@ Route::middleware([
     Route::get('/bi', [\App\Http\Controllers\BIController::class, 'index'])->name('bi.index');
 
     // Usuarios y Roles
-    Route::get('usuarios', [App\Http\Controllers\UserController::class, 'index'])->name('users.index');
-    Route::put('usuarios/{user}/role', [App\Http\Controllers\UserController::class, 'updateRole'])->name('users.update.role');
-    Route::put('usuarios/{user}/permissions', [App\Http\Controllers\UserController::class, 'updatePermissions'])->name('users.update.permissions');
-    Route::get('usuarios/{user}/editar', [App\Http\Controllers\UserController::class, 'edit'])->name('users.edit');
-    Route::put('usuarios/{user}', [App\Http\Controllers\UserController::class, 'update'])->name('users.update');
-    Route::delete('usuarios/{user}', [App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy');
+    Route::middleware('can:write users')->group(function () {
+        Route::get('usuarios', [App\Http\Controllers\UserController::class, 'index'])->name('users.index');
+        Route::put('usuarios/{user}/role', [App\Http\Controllers\UserController::class, 'updateRole'])->name('users.update.role');
+        Route::put('usuarios/{user}/permissions', [App\Http\Controllers\UserController::class, 'updatePermissions'])->name('users.update.permissions');
+        Route::get('usuarios/{user}/editar', [App\Http\Controllers\UserController::class, 'edit'])->name('users.edit');
+        Route::put('usuarios/{user}', [App\Http\Controllers\UserController::class, 'update'])->name('users.update');
+        Route::delete('usuarios/{user}', [App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy');
+    });
 });

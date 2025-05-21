@@ -54,34 +54,10 @@
                 <div id="profile_plans">
                     <div class="overflow-x-auto">
                         <article class="w-full shadow p-4 space-y-2 rounded-md duration-300">
-                            <div class="w-full space-y-2">
-                                <div class="bg-gray-200 rounded-md flex items-center justify-center">
-                                    <svg width="72px" height="72px" viewBox="-4.8 -4.8 57.60 57.60"
-                                        xmlns="http://www.w3.org/2000/svg" fill="#DC2626">
-                                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round">
-                                        </g>
-                                        <g id="SVGRepo_iconCarrier">
-                                            <title>expire-solid</title>
-                                            <g id="Layer_2" data-name="Layer 2">
-                                                <g id="icons_Q2" data-name="icons Q2">
-                                                    <g>
-                                                        <rect width="48" height="48" fill="none"></rect>
-                                                        <g>
-                                                            <path
-                                                                d="M14.2,31.9h0a2,2,0,0,0-.9-2.9A11.8,11.8,0,0,1,6.1,16.8,12,12,0,0,1,16.9,6a12.1,12.1,0,0,1,11.2,5.6,2.3,2.3,0,0,0,2.3.9h0a2,2,0,0,0,1.1-3,15.8,15.8,0,0,0-15-7.4,16,16,0,0,0-4.8,30.6A2,2,0,0,0,14.2,31.9Z">
-                                                            </path>
-                                                            <path d="M16.5,11.5v5h-5a2,2,0,0,0,0,4h9v-9a2,2,0,0,0-4,0Z">
-                                                            </path>
-                                                            <path
-                                                                d="M45.7,43l-15-26a2,2,0,0,0-3.4,0l-15,26A2,2,0,0,0,14,46H44A2,2,0,0,0,45.7,43ZM29,42a2,2,0,1,1,2-2A2,2,0,0,1,29,42Zm2-8a2,2,0,0,1-4,0V26a2,2,0,0,1,4,0Z">
-                                                            </path>
-                                                        </g>
-                                                    </g>
-                                                </g>
-                                            </g>
-                                        </g>
-                                    </svg>
+                            <div class="w-full space-y-2" x-data="{ mora: false }">
+                                <div class="bg-gray-200 rounded-md flex items-center justify-center"
+                                    x-on:click="mora = !mora">
+                                    <i class="fa-regular fa-calendar-xmark text-xl"></i>
                                     <h1 class="text-gray-700 font-bold text-center p-2 rounded-lg">
                                         Tabla de Mora por Proyecto:
                                     </h1>
@@ -132,7 +108,11 @@
                                         </svg>
                                     </a>
                                 </div>
-                                <table class="w-full overflow-hidden rounded-lg">
+                                <table class="w-full overflow-hidden rounded-lg" x-show="mora"
+                                    x-transition:enter="transition ease-out duration-300"
+                                    x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                                    x-transition:leave="transition ease-in duration-200"
+                                    x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" x-cloak>
                                     <thead>
                                         <tr class="bg-gray-200 text-gray-700">
                                             <th class="px-4 py-3 font-semibold text-left">#</th>
@@ -159,16 +139,17 @@
                                                 <td class="px-4 py-2 text-gray-700">{{ $data['morosos'] }}</td>
                                                 <td class="px-4 py-2 text-gray-700">
                                                     {{ number_format($data['porcentajeMora'], 2) }}%
-                                                    <button
-                                                        @click="open === {{ $loop->index }} ? open = null : open = {{ $loop->index }}"
-                                                        class="ml-2 text-gray-800 hover:text-gray-600 text-sm">
-                                                    </button>
                                                 </td>
                                             </tr>
 
                                             <!-- Fila de detalles del acordeón (se muestra/oculta) -->
-                                            <tr x-show="open === {{ $loop->index }}" x-transition x-collapse
-                                                class="bg-gray-50">
+                                            <tr x-show="open === {{ $loop->index }}"
+                                                x-transition:enter="transition ease-out duration-200"
+                                                x-transition:enter-start="opacity-0 scale-90"
+                                                x-transition:enter-end="opacity-100 scale-100"
+                                                x-transition:leave="transition ease-in duration-200"
+                                                x-transition:leave-start="opacity-100 scale-100"
+                                                x-transition:leave-end="opacity-0 scale-90" class="bg-gray-50">
                                                 <td colspan="5" class="pl-4">
                                                     <div class="px-8 border-l-8 border-gray-800 bg-gray-200">
                                                         <!-- Aquí puedes poner la información detallada del proyecto -->
@@ -182,10 +163,12 @@
                                                                         class="min-w-full divide-y divide-gray-200 text-sm">
                                                                         <thead class="bg-gray-50 rounded-md">
                                                                             <tr>
-                                                                                <th class="px-3 py-2 text-left text-gray-800">
+                                                                                <th
+                                                                                    class="px-3 py-2 text-left text-gray-800">
                                                                                     Nombre
                                                                                 </th>
-                                                                                <th class="px-3 py-2 text-left text-gray-800">
+                                                                                <th
+                                                                                    class="px-3 py-2 text-left text-gray-800">
                                                                                     CI
                                                                                 </th>
                                                                             </tr>
@@ -194,7 +177,9 @@
                                                                             @foreach ($data['listaBeneficiarios'] as $moroso)
                                                                                 <tr class="border-b-2 border-white">
                                                                                     <td class="px-3 py-2">
-                                                                                        <a href="{{ route('beneficiario.show', [$moroso['ci']]) }}" class="text-gray-800 hover:text-gray-600 font-bold" target="_blank">
+                                                                                        <a href="{{ route('beneficiario.show', [$moroso['ci']]) }}"
+                                                                                            class="text-gray-800 hover:text-gray-600 font-bold"
+                                                                                            target="_blank">
                                                                                             {{ $moroso['nombre'] }}
                                                                                         </a>
                                                                                     </td>
@@ -235,6 +220,46 @@
                                     </tbody>
                                 </table>
                             </div>
+                            <div class="w-full space-y-2" x-data="{ settles: false }">
+                                <div class="bg-gray-200 rounded-md flex items-center justify-center"
+                                    x-on:click="settles = !settles">
+                                    <i class="fa-regular fa-calendar-xmark text-xl"></i>
+                                    <h1 class="text-gray-700 font-bold text-center p-2 rounded-lg">
+                                        Tabla de Liquidaciones por Revisar:
+                                    </h1>
+                                </div>
+                                <table class="w-full overflow-hidden rounded-lg" x-show="settles"
+                                    x-transition:enter="transition ease-out duration-300"
+                                    x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                                    x-transition:leave="transition ease-in duration-200"
+                                    x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" x-cloak>
+                                    <thead>
+                                        <tr class="bg-gray-200 text-gray-700">
+                                            <th class="px-4 py-3 font-semibold text-left">#</th>
+                                            <th class="px-4 py-3 font-semibold text-left">Nombre</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse ($lSettlements as $s)
+                                            <tr class="border-b hover:bg-gray-50 transition">
+                                                <td class="px-4 py-2 text-gray-700">{{ $loop->iteration }}</td>
+                                                <td class="px-4 py-2 text-gray-700">
+                                                    <a href="{{ route('beneficiario.show', [$s->beneficiary->ci]) }}"
+                                                        class="text-gray-800 hover:text-gray-600 font-bold"
+                                                        target="_blank">
+                                                        {{ $s->beneficiary->nombre }}
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="2" class="px-4 py-2 text-gray-400 text-center">No hay
+                                                    liquidaciones pendientes.</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
                         </article>
                     </div>
                 </div>
@@ -246,93 +271,3 @@
         </div>
     </div>
 </div>
-{{-- <div class="bg-gray-200 rounded-md flex items-center justify-center">
-                                    <svg width="72px" height="72px" viewBox="-4.8 -4.8 57.60 57.60"
-                                        xmlns="http://www.w3.org/2000/svg" fill="#DC2626">
-                                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round">
-                                        </g>
-                                        <g id="SVGRepo_iconCarrier">
-                                            <title>expire-solid</title>
-                                            <g id="Layer_2" data-name="Layer 2">
-                                                <g id="icons_Q2" data-name="icons Q2">
-                                                    <g>
-                                                        <rect width="48" height="48" fill="none"></rect>
-                                                        <g>
-                                                            <path
-                                                                d="M14.2,31.9h0a2,2,0,0,0-.9-2.9A11.8,11.8,0,0,1,6.1,16.8,12,12,0,0,1,16.9,6a12.1,12.1,0,0,1,11.2,5.6,2.3,2.3,0,0,0,2.3.9h0a2,2,0,0,0,1.1-3,15.8,15.8,0,0,0-15-7.4,16,16,0,0,0-4.8,30.6A2,2,0,0,0,14.2,31.9Z">
-                                                            </path>
-                                                            <path d="M16.5,11.5v5h-5a2,2,0,0,0,0,4h9v-9a2,2,0,0,0-4,0Z">
-                                                            </path>
-                                                            <path
-                                                                d="M45.7,43l-15-26a2,2,0,0,0-3.4,0l-15,26A2,2,0,0,0,14,46H44A2,2,0,0,0,45.7,43ZM29,42a2,2,0,1,1,2-2A2,2,0,0,1,29,42Zm2-8a2,2,0,0,1-4,0V26a2,2,0,0,1,4,0Z">
-                                                            </path>
-                                                        </g>
-                                                    </g>
-                                                </g>
-                                            </g>
-                                        </g>
-                                    </svg>
-                                    <h1 class="text-gray-700 font-bold text-center p-2 rounded-lg">
-                                        Tabla de Mora por Beneficiario:
-                                    </h1>
-                                </div>
-                                <table class="w-full overflow-hidden rounded-lg">
-                                    <thead>
-                                        <tr class="bg-gray-200 text-gray-700">
-                                            <th class="px-4 py-3 font-semibold text-left">
-                                                #
-                                            </th>
-                                            <th class="px-4 py-3 font-semibold text-left">
-                                                Nombres
-                                            </th>
-                                            <th class="px-4 py-3 font-semibold text-left">
-                                                CI
-                                            </th>
-                                            <th class="px-4 py-3 font-semibold text-left">
-                                                Proyecto
-                                            </th>
-                                            <th class="px-4 py-3 font-semibold text-left">
-
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @forelse ($lBeneficiarios as $b)
-                                            <tr class="border-b hover:bg-gray-50 transition">
-                                                <td class="px-4 py-2 text-gray-700">
-                                                    {{ $loop->iteration }}
-                                                </td>
-                                                <td class="px-4 py-2 text-gray-700">
-                                                    {{ $b->nombre }}
-                                                </td>
-                                                <td class="px-4 py-2 text-gray-700">
-                                                    {{ $b->ci }}
-                                                </td>
-                                                <td class="px-4 py-2 text-gray-700">
-                                                    {{ $b->proyecto }}
-                                                </td>
-                                                <td class="px-4 py-2 text-gray-700">
-                                                    <x-personal.button variant="link"
-                                                        href="{{ route('beneficiario.show', ['cedula' => $b->ci ?? 0]) }}"
-                                                        to="_blank">
-                                                        <svg fill="#000000" width="32px" height="32px"
-                                                            version="1.1" viewBox="144 144 512 512"
-                                                            xmlns="http://www.w3.org/2000/svg">
-                                                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                                                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round"
-                                                                stroke-linejoin="round"></g>
-                                                            <g id="SVGRepo_iconCarrier">
-                                                                <path
-                                                                    d="m300.14 250.55h-60.668v-13.84h60.617v13.84zm57.754 7.7461h-119v13.84h119zm0 21.531h-119v13.84h119zm233.08 340.62c0 3.5547-1.3789 6.8398-3.8711 9.332l-10.766 10.766c-2.4922 2.4922-5.7812 3.8711-9.332 3.8711-3.5547 0-6.8398-1.3789-9.332-3.8711l-33.145-33.145c-5.1445-5.1445-5.1445-13.523 0-18.668l0.47266-0.47266-16.227-16.227c-16.758 14.32-37.492 21.586-58.281 21.586-19.941 0-39.828-6.5742-56.16-19.727l-164.35-0.007813v-20.949h-20.949v-351.61l193.09 0.003906 20.949 20.949h82.57v210.96c2.8633 2.2266 5.6758 4.6133 8.2734 7.2656 33.359 33.359 34.844 86.551 4.668 121.76l16.227 16.227 0.47656-0.47656c5.1445-5.1445 13.523-5.1445 18.668 0l33.145 33.199c2.4922 2.3828 3.8711 5.6719 3.8711 9.2227zm-133.8-364.07 27.523 27.523v137.04c1.6445 0.6875 3.2344 1.4844 4.8789 2.2812 0.74219 0.37109 1.5391 0.63672 2.2266 1.0625v-188.16h-54.887zm-51.02 23.441h54.891l-54.891-54.891zm-176.17 259.27h137.94c-0.16016-0.42578-0.31641-0.84766-0.47656-1.2188-0.054688-0.10547-0.10547-0.26562-0.16016-0.37109-1.0078-2.5469-1.9102-5.1445-2.7031-7.7422-0.054688-0.10547-0.054688-0.21094-0.10547-0.37109-4.9336-16.652-4.8242-34.207-0.054688-50.594 0.10547-0.31641 0.21094-0.58203 0.26563-0.90234 0.6875-2.2812 1.4844-4.5625 2.3867-6.7891 0.16016-0.47656 0.31641-0.90234 0.53125-1.3789 2.0664-4.9844 4.5625-9.7578 7.5312-14.32 0.42578-0.6875 0.90234-1.3242 1.3242-1.9609 1.1133-1.6445 2.2812-3.2344 3.5-4.7734 0.53125-0.63672 1.0078-1.3242 1.5391-1.9609 1.6953-2.0664 3.5-4.082 5.4102-5.9922l0.10547-0.10547c0.054688-0.054688 0.054688-0.054688 0.10547-0.054688 1.8047-1.8047 3.6602-3.4453 5.5703-5.0391 0.63672-0.58203 1.3242-1.1133 2.0156-1.6445 1.3789-1.1133 2.8125-2.1758 4.2422-3.1836 1.5898-1.1133 3.2344-2.1758 4.8789-3.1836 0.63672-0.37109 1.2188-0.74219 1.8555-1.1133 9.5469-5.5156 19.992-9.1758 30.973-10.871 0.21094-0.054688 0.42578-0.054688 0.63672-0.10547 2.8125-0.42578 5.6758-0.6875 8.5391-0.84766 0.95312-0.054687 1.8555-0.10547 2.8125-0.16016 0.58203 0 1.2188-0.10547 1.8047-0.10547 0.6875 0 1.3789 0.10547 2.0664 0.10547 1.5391 0.054687 3.0234 0.10547 4.5625 0.21094 1.3789 0.10547 2.7578 0.21094 4.1367 0.37109 1.75 0.21094 3.5 0.47656 5.25 0.79688 1.0625 0.21094 2.0664 0.37109 3.0742 0.58203 0.42578 0.10547 0.79688 0.16016 1.2188 0.26562l-0.007812-122.98h-78.434v-78.488h-169.44v323.92zm150.51 20.949c-1.2188-1.4844-2.2812-3.0742-3.3945-4.668-0.53125-0.74219-1.1133-1.4336-1.5898-2.1758-0.054688-0.10547-0.16016-0.16016-0.21094-0.26562l-131.47 0.003906v7.1055zm123.67-2.4375c29.594-29.594 29.594-77.746 0-107.34-3.2891-3.2891-6.8945-6.2031-10.605-8.8047-0.6875-0.47656-1.3789-0.95312-2.0664-1.3789-1.2188-0.79688-2.4922-1.5391-3.7109-2.2266-0.6875-0.37109-1.3789-0.79688-2.0664-1.168-1.75-0.95312-3.6055-1.8047-5.4102-2.5469-0.79688-0.37109-1.6445-0.63672-2.4922-0.95313-1.2188-0.47656-2.4414-0.90234-3.7109-1.3242-0.90234-0.26562-1.8047-0.58203-2.7031-0.84766-1.3789-0.37109-2.7578-0.74219-4.1367-1.0078-1.0078-0.21094-2.0664-0.47656-3.0742-0.63672-1.6445-0.31641-3.2891-0.53125-4.9336-0.74219-1.0625-0.10547-2.1211-0.21094-3.1836-0.26562-1.0625-0.054688-2.0664-0.10547-3.1289-0.16016-4.7188-0.16016-9.4922 0.16016-14.16 0.84766-11.508 1.8047-22.594 6.3125-32.191 13.098-0.95312 0.6875-1.9102 1.3789-2.8633 2.1211-0.6875 0.53125-1.3789 1.0625-2.0156 1.6445-1.6445 1.3789-3.2891 2.8125-4.8242 4.4023-1.6953 1.6953-3.2891 3.5-4.8242 5.3047-0.47656 0.58203-0.95313 1.2188-1.4336 1.8555-1.0078 1.2734-1.9609 2.5469-2.8125 3.8711-0.47656 0.6875-0.95312 1.4336-1.3789 2.1211-0.84766 1.3242-1.6445 2.6523-2.3867 3.9766-0.37109 0.6875-0.74219 1.3789-1.1133 2.0664-0.79688 1.5898-1.5898 3.2344-2.2812 4.9336-0.16016 0.42578-0.37109 0.84766-0.58203 1.2734-2.7031 6.7344-4.4023 13.789-5.0898 20.949v0.10547c-1.1133 11.984 0.58203 24.184 5.0898 35.531 0.10547 0.31641 0.26562 0.63672 0.42578 0.95312 0.74219 1.8047 1.5391 3.5547 2.4414 5.25 0.31641 0.58203 0.63672 1.2188 0.95312 1.8047 0.6875 1.2188 1.3789 2.3867 2.1211 3.6055 1.0625 1.6445 2.1758 3.2891 3.2891 4.8789 0.53125 0.74219 1.0625 1.5391 1.6445 2.2812 1.8047 2.2812 3.7109 4.5078 5.832 6.5742 29.637 29.543 77.789 29.543 107.38-0.046875zm63.32 73.184m9.3867-10.344-32.242-32.242-9.8633 9.8633 32.242 32.242zm-129.61-303.45h-208.36v13.84h208.31v-13.84zm0 25.082h-208.36v13.84h208.31v-13.84zm0 25.137h-208.36v13.84h208.31v-13.84zm0 25.086h-208.36v13.84h208.31v-13.84zm-208.36 64.117h98.535v-13.84l-98.535-0.003907zm0 26.727h98.535v-13.84h-98.535zm0 26.676h98.535v-13.84h-98.535z">
-                                                                </path>
-                                                            </g>
-                                                        </svg>
-                                                    </x-personal.button>
-                                                </td>
-                                            </tr>
-                                        @empty
-                                            <p class="text-gray-400">No hay beneficiarios con mora.</p>
-                                        @endforelse
-                                    </tbody>
-                                </table> --}}

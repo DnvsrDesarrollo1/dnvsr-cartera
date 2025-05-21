@@ -6,8 +6,6 @@ const colors = require("tailwindcss/colors");
 /** @type {import('tailwindcss').Config} */
 
 export default {
-    mode: "jit",
-
     content: [
         "./vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php",
         "./vendor/laravel/jetstream/**/*.blade.php",
@@ -16,12 +14,13 @@ export default {
         "./vendor/power-components/livewire-powergrid/src/Themes/Tailwind.php",
         "./storage/framework/views/*.php",
         "./resources/views/**/*.blade.php",
+        "./resources/**/*.blade.php",
     ],
 
     theme: {
         extend: {
             fontFamily: {
-                sans: ["Assistant", ...defaultTheme.fontFamily.sans],
+                sans: ["Inter", ...defaultTheme.fontFamily.sans],
             },
             colors: {
                 rose: {

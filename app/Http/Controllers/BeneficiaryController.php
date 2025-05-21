@@ -81,7 +81,7 @@ class BeneficiaryController extends Controller
             Log::info("ZIP file created at: {$zipUrl}");
             $zipUrl = asset('storage/exports/' . basename($zipPath));
             // Example usage: Log the URL or notify the user
-            \Log::info("ZIP file created at: {$zipUrl}");
+            Log::info("ZIP file created at: {$zipUrl}");
 
             return redirect()->route('beneficiario.index')
                 ->with('success', "La exportación masiva de {$beneficiaries->count()} beneficiarios fue realizada correctamente.")

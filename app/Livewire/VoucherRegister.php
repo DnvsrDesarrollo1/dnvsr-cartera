@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Traits\FinanceTrait;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class VoucherRegister extends Component
@@ -31,11 +32,12 @@ class VoucherRegister extends Component
         $depto_pago,
         $obs_pago;
 
+    public $capital_diff, $interes_diff, $cuota_diff;
+    public $enableDiffFields = false;
     public $totalpagado = 0;
     public $totalinicial = 0;
 
-    public $showModal = false;
-    public $confirmingSave = false;
+    public $voucherModal = false;
 
     protected $rules = [
         'numpago' => 'required',
@@ -56,152 +58,307 @@ class VoucherRegister extends Component
 
     public function save()
     {
-        $this->validate();
+        if ($this->enableDiffFields) {
 
-        #CAPITAL PAYMENT
-        \App\Models\Payment::create([
-            'numtramite' => $this->numtramite,
-            'prtdtitem' => 1,
-            'numprestamo' => $this->numprestamo,
-            'prtdtpref' => 20,
-            'prtdtccon' => 1,
-            'fecha_pago' => now(),
-            'prtdtdesc' => 'CAPITAL',
-            'montopago' => $this->capital,
-            'prtdtuser' => 'AEV-PVS VENTANILLA',
-            'hora_pago' => $this->hora_pago,
-            'prtdtfpro' => null,
-            'prtdtnpag' => $this->numpago,
-            'depto_pago' => $this->depto_pago,
-            'obs_pago' => $this->obs_pago
-        ]);
+            $helpers = $this->beneficiario->helpers()->where('estado', 'ACTIVO')->get();
 
-        \App\Models\Payment::create([
-            'numtramite' => $this->numtramite,
-            'prtdtitem' => 2,
-            'numprestamo' => $this->numprestamo,
-            'prtdtpref' => 20,
-            'prtdtccon' => 2,
-            'fecha_pago' => now(),
-            'prtdtdesc' => 'INTERES',
-            'montopago' => $this->interes,
-            'prtdtuser' => 'AEV-PVS VENTANILLA',
-            'hora_pago' => $this->hora_pago,
-            'prtdtfpro' => null,
-            'prtdtnpag' => $this->numpago,
-            'depto_pago' => $this->depto_pago,
-            'obs_pago' => $this->obs_pago
-        ]);
+            if ($this->capital_diff >= $helpers->sum('capital') && $this->interes_diff >= $helpers->sum('interes')) {
 
-        \App\Models\Payment::create([
-            'numtramite' => $this->numtramite,
-            'prtdtitem' => 3,
-            'numprestamo' => $this->numprestamo,
-            'prtdtpref' => 20,
-            'prtdtccon' => 2,
-            'fecha_pago' => now(),
-            'prtdtdesc' => 'INTERES DEVG',
-            'montopago' => $this->interes_devg,
-            'prtdtuser' => 'AEV-PVS VENTANILLA',
-            'hora_pago' => $this->hora_pago,
-            'prtdtfpro' => null,
-            'prtdtnpag' => $this->numpago,
-            'depto_pago' => $this->depto_pago,
-            'obs_pago' => $this->obs_pago
-        ]);
+                #CAPITAL PAYMENT
+                \App\Models\Payment::create([
+                    'numtramite' => $this->numtramite,
+                    'prtdtitem' => 1,
+                    'numprestamo' => $this->numprestamo,
+                    'prtdtpref' => 20,
+                    'prtdtccon' => 1,
+                    'fecha_pago' => $this->fecha_pago,
+                    'prtdtdesc' => 'CAPITAL DIFERIDO',
+                    'montopago' => $this->capital_diff,
+                    'prtdtuser' => 'AEV-PVS VENTANILLA',
+                    'hora_pago' => $this->hora_pago,
+                    'prtdtfpro' => null,
+                    'prtdtnpag' => $this->cuota_diff,
+                    'depto_pago' => $this->depto_pago,
+                    'obs_pago' => $this->obs_pago
+                ]);
 
-        \App\Models\Payment::create([
-            'numtramite' => $this->numtramite,
-            'prtdtitem' => 4,
-            'numprestamo' => $this->numprestamo,
-            'prtdtpref' => 20,
-            'prtdtccon' => 2,
-            'fecha_pago' => now(),
-            'prtdtdesc' => 'SEGURO DESGRV',
-            'montopago' => $this->seguro,
-            'prtdtuser' => 'AEV-PVS VENTANILLA',
-            'hora_pago' => $this->hora_pago,
-            'prtdtfpro' => null,
-            'prtdtnpag' => $this->numpago,
-            'depto_pago' => $this->depto_pago,
-            'obs_pago' => $this->obs_pago
-        ]);
+                \App\Models\Payment::create([
+                    'numtramite' => $this->numtramite,
+                    'prtdtitem' => 2,
+                    'numprestamo' => $this->numprestamo,
+                    'prtdtpref' => 20,
+                    'prtdtccon' => 2,
+                    'fecha_pago' => $this->fecha_pago,
+                    'prtdtdesc' => 'INTERES DIFERIDO',
+                    'montopago' => $this->interes_diff,
+                    'prtdtuser' => 'AEV-PVS VENTANILLA',
+                    'hora_pago' => $this->hora_pago,
+                    'prtdtfpro' => null,
+                    'prtdtnpag' => $this->cuota_diff,
+                    'depto_pago' => $this->depto_pago,
+                    'obs_pago' => $this->obs_pago
+                ]);
 
-        \App\Models\Payment::create([
-            'numtramite' => $this->numtramite,
-            'prtdtitem' => 5,
-            'numprestamo' => $this->numprestamo,
-            'prtdtpref' => 21,
-            'prtdtccon' => 37,
-            'fecha_pago' => now(),
-            'prtdtdesc' => 'SEGURO DESGRV DEVG',
-            'montopago' => $this->seguro_devg,
-            'prtdtuser' => 'AEV-PVS VENTANILLA',
-            'hora_pago' => $this->hora_pago,
-            'prtdtfpro' => null,
-            'prtdtnpag' => $this->numpago,
-            'depto_pago' => $this->depto_pago,
-            'obs_pago' => $this->obs_pago
-        ]);
+                #VOUCHER
+                \App\Models\Voucher::create([
+                    'agencia_pago' => $this->agencia_pago . ' : (VENTANILLA) ' . \Illuminate\Support\Facades\Auth::user()->name,
+                    'descripcion' => $this->descripcion,
+                    'fecha_pago' => $this->fecha_pago,
+                    'hora_pago' => $this->hora_pago,
+                    'montopago' => $this->capital_diff + $this->interes_diff,
+                    'numpago' => $this->cuota_diff,
+                    'numprestamo' => $this->numprestamo,
+                    'numtramite' => $this->numtramite,
+                    'depto_pago' => $this->depto_pago,
+                    'obs_pago' => $this->obs_pago
+                ]);
 
-        \App\Models\Payment::create([
-            'numtramite' => $this->numtramite,
-            'prtdtitem' => 6,
-            'numprestamo' => $this->numprestamo,
-            'prtdtpref' => 21,
-            'prtdtccon' => 37,
-            'fecha_pago' => now(),
-            'prtdtdesc' => 'OTROS',
-            'montopago' => $this->otros,
-            'prtdtuser' => 'AEV-PVS VENTANILLA',
-            'hora_pago' => $this->hora_pago,
-            'prtdtfpro' => null,
-            'prtdtnpag' => $this->numpago,
-            'depto_pago' => $this->depto_pago,
-            'obs_pago' => $this->obs_pago
-        ]);
+                $this->beneficiario->helpers()->where('estado', 'ACTIVO')->where('indice', $this->cuota_diff)->first()->update([
+                    'capital' => $this->capital_diff,
+                    'interes' => $this->interes_diff,
+                    'estado' => 'CANCELADO',
+                    'user_id' => \Illuminate\Support\Facades\Auth::user()->id ?? 1,
+                ]);
 
-        $this->montopago = $this->capital + $this->interes + $this->interes_devg + $this->seguro + $this->seguro_devg + $this->otros;
+                $desabilitar = $this->beneficiario->helpers()->where('estado', 'ACTIVO')->where('indice', '>', $this->cuota_diff)->get();
 
-        #VOUCHER
-        \App\Models\Voucher::create([
-            'agencia_pago' => $this->agencia_pago . ' : (VENTANILLA) ' . \Illuminate\Support\Facades\Auth::user()->name,
-            'descripcion' => $this->descripcion,
-            'fecha_pago' => $this->fecha_pago,
-            'hora_pago' => $this->hora_pago,
-            'montopago' => $this->montopago,
-            'numpago' => $this->numpago,
-            'numprestamo' => $this->numprestamo,
-            'numtramite' => $this->numtramite,
-            'depto_pago' => $this->depto_pago,
-            'obs_pago' => $this->obs_pago
-        ]);
+                foreach ($desabilitar as $d) {
+                    $d->update([
+                        'capital' => 0,
+                        'interes' => 0,
+                        'estado' => 'CANCELADO',
+                        'user_id' => \Illuminate\Support\Facades\Auth::user()->id ?? 1,
+                    ]);
+                }
 
-        $this->cuota->update([
-            'prppgcapi' => $this->capital,
-            'prppgtota' => $this->montopago,
-            'estado' => 'CANCELADO',
-            'user_id' => \Illuminate\Support\Facades\Auth::user()->id,
-        ]);
+                return redirect(request()->header('Referer'));
+            } else {
+                #CAPITAL PAYMENT
+                \App\Models\Payment::create([
+                    'numtramite' => $this->numtramite,
+                    'prtdtitem' => 1,
+                    'numprestamo' => $this->numprestamo,
+                    'prtdtpref' => 20,
+                    'prtdtccon' => 1,
+                    'fecha_pago' => $this->fecha_pago,
+                    'prtdtdesc' => 'CAPITAL DIFERIDO',
+                    'montopago' => $this->capital_diff,
+                    'prtdtuser' => 'AEV-PVS VENTANILLA',
+                    'hora_pago' => $this->hora_pago,
+                    'prtdtfpro' => null,
+                    'prtdtnpag' => $this->cuota_diff,
+                    'depto_pago' => $this->depto_pago,
+                    'obs_pago' => $this->obs_pago
+                ]);
 
-        $this->beneficiario->update([
-            'saldo_credito' => $this->beneficiario->saldo_credito - $this->capital,
-        ]);
+                \App\Models\Payment::create([
+                    'numtramite' => $this->numtramite,
+                    'prtdtitem' => 2,
+                    'numprestamo' => $this->numprestamo,
+                    'prtdtpref' => 20,
+                    'prtdtccon' => 2,
+                    'fecha_pago' => $this->fecha_pago,
+                    'prtdtdesc' => 'INTERES DIFERIDO',
+                    'montopago' => $this->interes,
+                    'prtdtuser' => 'AEV-PVS VENTANILLA',
+                    'hora_pago' => $this->hora_pago,
+                    'prtdtfpro' => null,
+                    'prtdtnpag' => $this->cuota_diff,
+                    'depto_pago' => $this->depto_pago,
+                    'obs_pago' => $this->obs_pago
+                ]);
 
-        if ($this->totalpagado != '' and $this->totalpagado > 0) {
+                #VOUCHER
+                \App\Models\Voucher::create([
+                    'agencia_pago' => $this->agencia_pago . ' : (VENTANILLA) ' . \Illuminate\Support\Facades\Auth::user()->name,
+                    'descripcion' => $this->descripcion,
+                    'fecha_pago' => $this->fecha_pago,
+                    'hora_pago' => $this->hora_pago,
+                    'montopago' => $this->capital_diff + $this->interes_diff,
+                    'numpago' => $this->cuota_diff,
+                    'numprestamo' => $this->numprestamo,
+                    'numtramite' => $this->numtramite,
+                    'depto_pago' => $this->depto_pago,
+                    'obs_pago' => $this->obs_pago
+                ]);
 
-            $planVigente = $this->beneficiario->getCurrentPlan('ACTIVO');
+                $this->beneficiario->helpers()->where('indice', $this->cuota_diff)->update([
+                    'estado' => 'CANCELADO',
+                    'user_id' => \Illuminate\Support\Facades\Auth::user()->id ?? 1,
+                ]);
 
-            $this->beneficiario = $this->beneficiario->refresh();
+                $this->beneficiario->update([
+                    'saldo_credito' => $this->beneficiario->saldo_credito - $this->capital_diff,
+                    'user_id' => \Illuminate\Support\Facades\Auth::user()->id,
+                    'updated_at' => now()
+                ]);
 
-            $this->actualizarPlanActual($this->numprestamo, $this->beneficiario->saldo_credito, $planVigente);
-
+                return redirect(request()->header('Referer'));
+            }
         }
 
-        $this->showModal = false;
-        $this->confirmingSave = false;
+        if (!$this->enableDiffFields) {
 
-        return redirect(request()->header('Referer'));
+            $this->validate();
+
+            #CAPITAL PAYMENT
+            \App\Models\Payment::create([
+                'numtramite' => $this->numtramite,
+                'prtdtitem' => 1,
+                'numprestamo' => $this->numprestamo,
+                'prtdtpref' => 20,
+                'prtdtccon' => 1,
+                'fecha_pago' => $this->fecha_pago,
+                'prtdtdesc' => 'CAPITAL',
+                'montopago' => $this->capital,
+                'prtdtuser' => 'AEV-PVS VENTANILLA',
+                'hora_pago' => $this->hora_pago,
+                'prtdtfpro' => null,
+                'prtdtnpag' => $this->numpago,
+                'depto_pago' => $this->depto_pago,
+                'obs_pago' => $this->obs_pago
+            ]);
+
+            \App\Models\Payment::create([
+                'numtramite' => $this->numtramite,
+                'prtdtitem' => 2,
+                'numprestamo' => $this->numprestamo,
+                'prtdtpref' => 20,
+                'prtdtccon' => 2,
+                'fecha_pago' => $this->fecha_pago,
+                'prtdtdesc' => 'INTERES',
+                'montopago' => $this->interes,
+                'prtdtuser' => 'AEV-PVS VENTANILLA',
+                'hora_pago' => $this->hora_pago,
+                'prtdtfpro' => null,
+                'prtdtnpag' => $this->numpago,
+                'depto_pago' => $this->depto_pago,
+                'obs_pago' => $this->obs_pago
+            ]);
+
+            \App\Models\Payment::create([
+                'numtramite' => $this->numtramite,
+                'prtdtitem' => 3,
+                'numprestamo' => $this->numprestamo,
+                'prtdtpref' => 20,
+                'prtdtccon' => 2,
+                'fecha_pago' => $this->fecha_pago,
+                'prtdtdesc' => 'INTERES DEVG',
+                'montopago' => $this->interes_devg,
+                'prtdtuser' => 'AEV-PVS VENTANILLA',
+                'hora_pago' => $this->hora_pago,
+                'prtdtfpro' => null,
+                'prtdtnpag' => $this->numpago,
+                'depto_pago' => $this->depto_pago,
+                'obs_pago' => $this->obs_pago
+            ]);
+
+            \App\Models\Payment::create([
+                'numtramite' => $this->numtramite,
+                'prtdtitem' => 4,
+                'numprestamo' => $this->numprestamo,
+                'prtdtpref' => 20,
+                'prtdtccon' => 2,
+                'fecha_pago' => $this->fecha_pago,
+                'prtdtdesc' => 'SEGURO DESGRV',
+                'montopago' => $this->seguro,
+                'prtdtuser' => 'AEV-PVS VENTANILLA',
+                'hora_pago' => $this->hora_pago,
+                'prtdtfpro' => null,
+                'prtdtnpag' => $this->numpago,
+                'depto_pago' => $this->depto_pago,
+                'obs_pago' => $this->obs_pago
+            ]);
+
+            \App\Models\Payment::create([
+                'numtramite' => $this->numtramite,
+                'prtdtitem' => 5,
+                'numprestamo' => $this->numprestamo,
+                'prtdtpref' => 21,
+                'prtdtccon' => 37,
+                'fecha_pago' => $this->fecha_pago,
+                'prtdtdesc' => 'SEGURO DESGRV DEVG',
+                'montopago' => $this->seguro_devg,
+                'prtdtuser' => 'AEV-PVS VENTANILLA',
+                'hora_pago' => $this->hora_pago,
+                'prtdtfpro' => null,
+                'prtdtnpag' => $this->numpago,
+                'depto_pago' => $this->depto_pago,
+                'obs_pago' => $this->obs_pago
+            ]);
+
+            \App\Models\Payment::create([
+                'numtramite' => $this->numtramite,
+                'prtdtitem' => 6,
+                'numprestamo' => $this->numprestamo,
+                'prtdtpref' => 21,
+                'prtdtccon' => 37,
+                'fecha_pago' => $this->fecha_pago,
+                'prtdtdesc' => 'OTROS',
+                'montopago' => $this->otros,
+                'prtdtuser' => 'AEV-PVS VENTANILLA',
+                'hora_pago' => $this->hora_pago,
+                'prtdtfpro' => null,
+                'prtdtnpag' => $this->numpago,
+                'depto_pago' => $this->depto_pago,
+                'obs_pago' => $this->obs_pago
+            ]);
+
+            $this->montopago = $this->capital + $this->interes + $this->interes_devg + $this->seguro + $this->seguro_devg + $this->otros;
+
+            #VOUCHER
+            \App\Models\Voucher::create([
+                'agencia_pago' => $this->agencia_pago . ' : (VENTANILLA) ' . \Illuminate\Support\Facades\Auth::user()->name,
+                'descripcion' => $this->descripcion,
+                'fecha_pago' => $this->fecha_pago,
+                'hora_pago' => $this->hora_pago,
+                'montopago' => $this->montopago,
+                'numpago' => $this->numpago,
+                'numprestamo' => $this->numprestamo,
+                'numtramite' => $this->numtramite,
+                'depto_pago' => $this->depto_pago,
+                'obs_pago' => $this->obs_pago
+            ]);
+
+
+            $this->cuota->update([
+                'prppgcapi' => $this->capital,
+                'prppgtota' => $this->montopago,
+                'estado' => 'CANCELADO',
+                'user_id' => \Illuminate\Support\Facades\Auth::user()->id,
+            ]);
+
+            $this->beneficiario->update([
+                'saldo_credito' => $this->beneficiario->saldo_credito - $this->capital,
+            ]);
+
+            if (($this->totalpagado != '' || $this->totalpagado > 0) || $this->beneficiario->saldo_credito <= 0) {
+
+                $planVigente = $this->beneficiario->getCurrentPlan('CANCELADO', '!=');
+
+                $this->beneficiario = $this->beneficiario->refresh();
+
+                $this->actualizarPlanActual($this->numprestamo, $this->beneficiario->saldo_credito, $planVigente);
+            }
+
+            if ($this->beneficiario->saldo_credito <= 0) {
+
+                $planVigente = $this->beneficiario->getCurrentPlan('ACTIVO');
+
+                $this->beneficiario = $this->beneficiario->refresh();
+
+                $this->actualizarPlanActual($this->numprestamo, $this->beneficiario->saldo_credito, $planVigente);
+
+                $this->beneficiario->update([
+                    'saldo_credito' => 0,
+                    'estado' => 'CANCELADO',
+                    'user_id' => \Illuminate\Support\Facades\Auth::user()->id,
+                    'updated_at' => now()
+                ]);
+            }
+
+            return redirect(request()->header('Referer'));
+        }
     }
 
     public function mount($idepro)

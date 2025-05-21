@@ -25,7 +25,7 @@
                     <span
                         data-cy="enabled-filters-clear-{{ $filter['field'] }}"
                         wire:click.prevent="clearFilter('{{ $filter['field'] }}')"
-                        class="select-none rounded-md outline-none inline-flex items-center border px-2 py-0.5 font-bold text-xs border-pg-primary-300 bg-white dark:border-pg-primary-600 dark:bg-pg-primary-800 dark:text-pg-primary-300 dark:hover:text-pg-primary-400 text-pg-primary-600 hover:text-pg-primary-500"
+                        class="select-none rounded-md outline-none inline-flex items-center border px-2 py-0.5 font-bold text-xs border-pg-primary-300 bg-gray-200 dark:border-pg-primary-600 dark:bg-pg-primary-800 dark:text-pg-primary-300 dark:hover:text-pg-primary-400 text-pg-primary-600 hover:text-pg-primary-500 hover:bg-gray-300 transition duration-200 ease-in-out"
                     >
                         {{ $filter['label'] }}
                         <x-livewire-powergrid::icons.x class="w-4 h-4 ml-1" />

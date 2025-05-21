@@ -21,20 +21,25 @@ class PlanController extends Controller
     public function pdfMora()
     {
         $lVencidos = Plan::where('estado', 'VENCIDO')->distinct('idepro')->pluck('idepro');
-        $lBeneficiarios = Beneficiary::whereIn('idepro', $lVencidos)->orderBy('proyecto')->get();
-        $lProyectos = Beneficiary::whereIn('idepro', $lVencidos)->orderBy('proyecto')->distinct('proyecto')->get('proyecto');
-        $todosProyectos = Beneficiary::whereIn('proyecto', $lProyectos)->orderBy('proyecto')->distinct('proyecto')->get('proyecto');
+        $lBeneficiarios = Beneficiary::whereIn('idepro', $lVencidos)->where('estado', '!=', 'BLOQUEADO')->orderBy('proyecto')->get();
+        $lProyectos = Beneficiary::whereIn('idepro', $lVencidos)->orderBy('proyecto')->distinct('proyecto')->get(['proyecto', 'departamento']);
+        $todosProyectos = Beneficiary::whereIn('proyecto', $lProyectos->pluck('proyecto'))->orderBy('proyecto')->distinct('proyecto')->get(['proyecto', 'departamento']);
         $lProyectos = $lBeneficiarios->groupBy('proyecto')->map(function ($group, $proyecto) use ($todosProyectos) {
             $totalBeneficiarios = Beneficiary::where('proyecto', $proyecto)->count();
             $morosos = $group->count();
             $porcentajeMora = $totalBeneficiarios > 0 ? ($morosos / $totalBeneficiarios) * 100 : 0;
+            $departamento = $group->first()->departamento ?? 'N/A';
 
             return [
-                'morosos' => $morosos,
-                'total' => $totalBeneficiarios,
-                'porcentajeMora' => $porcentajeMora,
+            'morosos' => $morosos,
+            'total' => $totalBeneficiarios,
+            'porcentajeMora' => $porcentajeMora,
+            'departamento' => $departamento,
             ];
         });
+
+        $lProyectos = $lProyectos->sortBy('departamento');
+
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('plans.mora-pdf', compact('lProyectos'));
         return $pdf->stream('mora-pdf');
     }
@@ -60,8 +65,8 @@ class PlanController extends Controller
             $request->input('correlativo'),
             $request->input('plazo_credito'),
             $validatedData['fecha_inicio'],
-            \App\Models\Earn::where('idepro', $request->input('idepro'))->first()->interes ?? 0,
-            \App\Models\Earn::where('idepro', $request->input('idepro'))->first()->seguro ?? 0,
+            \App\Models\Earn::where('idepro', $request->input('idepro'))->sum('interes') ?? 0,
+            \App\Models\Earn::where('idepro', $request->input('idepro'))->sum('seguro') ?? 0,
         );
 
         if (
@@ -130,8 +135,8 @@ class PlanController extends Controller
             $request->input('correlativo'),
             $request->input('plazo_credito'),
             $validatedData['fecha_inicio'],
-            \App\Models\Earn::where('idepro', $beneficiary)->first()->interes ?? 0,
-            \App\Models\Earn::where('idepro', $beneficiary)->first()->seguro ?? 0,
+            \App\Models\Earn::where('idepro', $request->input('idepro'))->sum('interes') ?? 0,
+            \App\Models\Earn::where('idepro', $request->input('idepro'))->sum('seguro') ?? 0,
         );
 
         if (
@@ -296,8 +301,8 @@ class PlanController extends Controller
         //return $interestRate . ' ' . $secureRate . ' ' . json_encode($identificationNumbers);
 
         $beneficiaries = Beneficiary::find($identificationNumbers)
-            ->where('estado', '<>', 'CANCELADO')
-            ->where('estado', '<>', 'BLOQUEADO');
+            ->where('estado', '<>', 'CANCELADO');
+            //->where('estado', '<>', 'BLOQUEADO');
 
         try {
             DB::transaction(function () use ($beneficiaries, $interestRate, $secureRate) {
@@ -327,9 +332,10 @@ class PlanController extends Controller
             strtotime($beneficiary->fecha_activacion . ' + ' . $beneficiary->plazo_credito . ' months')
         );
 
-        //$date1 = date('Y-m-d', strtotime($beneficiary->fecha_activacion));
-        $date1 = date('Y-m-d', strtotime($beneficiary->fecha_extendida));
-        //$date1 = now();
+        //// DETERMINAR LA CANTIDAD DE MESES/CUOTAS QUE SE VAN A GENERAR
+
+        //$date1 = date('Y-m-d', strtotime($beneficiary->fecha_extendida));
+        $date1 = now();
         $date2 = $finPlazo;
         $d1 = new \DateTime($date2);
         $d2 = new \DateTime($date1);
@@ -338,9 +344,11 @@ class PlanController extends Controller
 
         $sequential = $beneficiary->plans()->exists() ? 'on' : null;
 
-        //$startDate = '2024-10-10'; //PARA CONSIDERAR EL MES DE LA FECHA INDICADA
-        //$startDate = now(); // PARA CONSIDERAR EL MES SIGUIENTE A AHORA
-        $startDate = date('Y-m-15', strtotime($beneficiary->fecha_extendida));
+        //// DETERMINAR LA FECHA DE LA PRIMERA CUOTA
+
+        //$startDate = '2024-10-10'; //PARA CONSIDERAR EL MES DESPUES DEL ESPECIFICADO
+        $startDate = now(); // PARA CONSIDERAR EL MES SIGUIENTE A AHORA
+        //$startDate = date('Y-m-d', strtotime($beneficiary->fecha_extendida));
 
         if ($interestRate < 0 || $interestRate == -1 || $interestRate == '-1') {
             $interestRate = ($beneficiary->tasa_interes > 0) ? $beneficiary->tasa_interes : 0;
@@ -352,7 +360,7 @@ class PlanController extends Controller
 
         $planData = $this->generarPlan(
             (float) $initialCapital,
-            \App\Models\Spend::where('idepro', $beneficiary->idepro)->where('estado', 'ACTIVO')->first()->monto ?? 0,
+            \App\Models\Spend::where('idepro', $beneficiary->idepro)->where('estado', 'ACTIVO')->sum('monto') ?? 0,
             //$beneficiary->plazo_credito,
             $months,
             $interestRate,
@@ -360,8 +368,8 @@ class PlanController extends Controller
             $sequential,
             $beneficiary->plazo_credito,
             $startDate,
-            \App\Models\Earn::where('idepro', $beneficiary->idepro)->where('estado', 'ACTIVO')->first()->interes ?? 0,
-            \App\Models\Earn::where('idepro', $beneficiary->idepro)->where('estado', 'ACTIVO')->first()->seguro ?? 0,
+            \App\Models\Earn::where('idepro', $beneficiary->idepro)->sum('interes') ?? 0,
+            \App\Models\Earn::where('idepro', $beneficiary->idepro)->sum('seguro') ?? 0,
         );
 
         $this->deactivateRelatedRecords($beneficiary);
@@ -377,10 +385,7 @@ class PlanController extends Controller
         ];
 
         foreach ($relatedModels as $relation) {
-            $beneficiary->$relation()->update([
-                'estado' => 'INACTIVO',
-                'user_id' => 1
-            ]);
+            $beneficiary->$relation()->delete();
         }
     }
 
@@ -445,7 +450,9 @@ class PlanController extends Controller
             null,
             $sequential,
             $beneficiary->plazo_credito,
-            $startDate
+            $startDate,
+            \App\Models\Earn::where('idepro', $beneficiary->idepro)->sum('interes') ?? 0,
+            \App\Models\Earn::where('idepro', $beneficiary->idepro)->sum('seguro') ?? 0,
         );
 
         $this->deactivateRelatedRecords($beneficiary);

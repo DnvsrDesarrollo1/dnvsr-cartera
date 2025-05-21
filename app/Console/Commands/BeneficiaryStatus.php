@@ -26,20 +26,44 @@ class BeneficiaryStatus extends Command
      */
     public function handle()
     {
-        $beneficiaries = \App\Models\Beneficiary::all();
+        $beneficiaries = \App\Models\Beneficiary::where('estado', '!=', 'BLOQUEADO')->get();
+        $count = 0;
 
         foreach ($beneficiaries as $b) {
-            if ($b->plans()->where('estado', 'VENCIDO')->count() > 0) {
-                $b->estado = 'VENCIDO';
+            $venc = $b
+                ->plans()
+                ->where('estado', 'VENCIDO')
+                ->orderBy('fecha_ppg', 'ASC')
+                ->first() ?? null;
+
+            $total = 0;
+
+            if ($venc && $venc != null) {
+                $fechaInicio = \Carbon\Carbon::parse($venc->fecha_ppg);
+                $fechaFin = now();
+                $diff = $fechaInicio->diffInDays($fechaFin);
+                $total = $diff;
             }
-            if ($b->plans()->where('estado', 'EJECUCION')->count() > 0) {
-                $b->estado = 'EJECUCION';
+
+            if ($total > 60) {
+                $b->update([
+                    'estado' => 'EJECUCION'
+                ]);
             }
-            if ($b->plans()->where('estado', 'VENCIDO')->count() == 0 AND $b->plans()->where('estado', 'EJECUCION')->count() == 0) {
-                $b->estado = 'VIGENTE';
+            if ($total > 0 && $total <= 60) {
+                $b->update([
+                    'estado' => 'VENCIDO'
+                ]);
             }
+            if ($total <= 0) {
+                $b->update([
+                    'estado' => 'VIGENTE'
+                ]);
+            }
+
+            $count++;
         }
 
-        Log/*  */::info('Beneficiary status updated');
+        Log::info('Beneficiaries status updated ['. $count .']');
     }
 }

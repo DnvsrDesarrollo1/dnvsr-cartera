@@ -20,19 +20,19 @@ class VoucherController extends Controller
         $vouchers = Voucher::where('numprestamo', $codigo)->get();
 
         $capPagado = Payment::where('numprestamo', $codigo)
-                            ->where('montopago', '<', 0)
-                            ->where('prtdtdesc', 'LIKE', '%CAPITAL%')
-                            ->sum('montopago');
+            ->where('montopago', '<', 0)
+            ->where('prtdtdesc', 'LIKE', '%CAPITAL%')
+            ->sum('montopago');
 
         $intPagado = Payment::where('numprestamo', $codigo)
-                            ->where('montopago', '<', 0)
-                            ->where('prtdtdesc', 'LIKE', '%INTE%')
-                            ->sum('montopago');
+            ->where('montopago', '<', 0)
+            ->where('prtdtdesc', 'LIKE', '%INTE%')
+            ->sum('montopago');
 
         $segPagado = Payment::where('numprestamo', $codigo)
-                            ->where('montopago', '<', 0)
-                            ->where('prtdtdesc', 'LIKE', '%SEG%')
-                            ->sum('montopago');
+            ->where('montopago', '<', 0)
+            ->where('prtdtdesc', 'LIKE', '%SEG%')
+            ->sum('montopago');
 
         $detalle = new Collection();
         $detalle->push((object) [

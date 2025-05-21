@@ -11,9 +11,9 @@ class BeneficiaryUpdate extends Component
     public $nombre, $ci, $complemento, $expedido, $estado, $idepro, $fecha_nacimiento, $total_activado,
         $gastos_judiciales, $saldo_credito, $monto_recuperado, $fecha_activacion, $plazo_credito, $tasa_interes,
         $departamento, $seguro;
-    public $showModal = false;
-    public $confirmingSave = false;
     public $cuota;
+
+    public $benModal = false;
 
     protected $rules = [
         'nombre' => 'required|string|max:255',
@@ -42,7 +42,7 @@ class BeneficiaryUpdate extends Component
         if ($this->seguro == 0) {
             $this->seguro = ($this->beneficiary->hasPlan())
                 ?
-                ($this->beneficiary->getCurrentPlan('INACTIVO', '!=')->first()->prppgsegu / $beneficiary->saldo_credito) * 100 : 0;
+                ($this->beneficiary->getCurrentPlan('INACTIVO', '!=')->first()->prppgsegu  > 0 ?: 0.0001 / $beneficiary->saldo_credito) * 100 : 0;
         }
         $this->seguro = number_format($this->seguro, 3);
 
@@ -98,8 +98,12 @@ class BeneficiaryUpdate extends Component
             'user_id' => \Illuminate\Support\Facades\Auth::user()->id,
         ]);
 
-        $this->showModal = false;
-        $this->confirmingSave = false;
+        \App\Models\Insurance::updateOrCreate(
+            ['idepro' => $this->idepro],
+            [
+                'tasa_seguro' => $this->seguro,
+            ]
+        );
 
         return redirect()->route('beneficiario.show', ['cedula' => $this->beneficiary->ci]);
     }

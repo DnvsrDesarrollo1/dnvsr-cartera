@@ -1,12 +1,14 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ ('Administración de Usuarios') }}
+            {{ 'Administración de Usuarios' }}
         </h2>
     </x-slot>
 
     <div class="py-6" id="user_administration">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-6">
+            <x-personal.alert clossable="false" type="info"
+                message="{{ $activeUsers }} usuarios activos en este momento." />
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
                 @if (session('success'))
                     <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4"
@@ -55,13 +57,16 @@
                                         <div class="flex flex-col gap-2">
                                             @foreach ($permissions as $permission)
                                                 <label class="inline-flex items-center">
-                                                    <input type="checkbox" name="permissions[]" value="{{ $permission->name }}"
+                                                    <input type="checkbox" name="permissions[]"
+                                                        value="{{ $permission->name }}"
                                                         class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                                                         {{ $user->hasPermissionTo($permission->name) ? 'checked' : '' }}>
-                                                    <span class="ml-2 text-sm text-gray-600">{{ $permission->name }}</span>
+                                                    <span
+                                                        class="ml-2 text-sm text-gray-600">{{ $permission->name }}</span>
                                                 </label>
                                             @endforeach
-                                            <x-personal.button variant="success" :submit="true" iconLeft="fa-solid fa-arrows-rotate">
+                                            <x-personal.button variant="success" :submit="true"
+                                                iconLeft="fa-solid fa-arrows-rotate">
                                                 Sync Permisos
                                             </x-personal.button>
                                         </div>
@@ -81,7 +86,8 @@
                                                     </option>
                                                 @endforeach
                                             </select>
-                                            <x-personal.button variant="success" :submit="true" iconLeft="fa-solid fa-floppy-disk">
+                                            <x-personal.button variant="success" :submit="true"
+                                                iconLeft="fa-solid fa-floppy-disk">
                                                 Aplicar Rol
                                             </x-personal.button>
                                         </div>
@@ -89,20 +95,22 @@
                                 </td>
                                 <td>
                                     <div class="flex gap-2">
-                                        <x-personal.button variant="primary" href="{{ route('users.edit', $user) }}" iconLeft="fa-solid fa-pencil">
+                                        <x-personal.button variant="primary" href="{{ route('users.edit', $user) }}"
+                                            iconLeft="fa-solid fa-pencil">
                                             Editar
                                         </x-personal.button>
 
                                         <form action="{{ route('users.destroy', $user) }}" method="POST">
                                             @csrf
                                             @method('DELETE')
-                                            <x-personal.button variant="danger" :submit="true" iconLeft="fa-solid fa-trash-can">
+                                            <x-personal.button variant="danger" :submit="true"
+                                                iconLeft="fa-solid fa-trash-can">
                                                 Eliminar
                                             </x-personal.button>
                                         </form>
                                     </div>
                                 </td>
-                            </tr>
+                                </tr>
                         @endforeach
                     </tbody>
                 </table>

@@ -26,11 +26,14 @@ class PlanStatus extends Command
      */
     public function handle()
     {
-        $plans = \App\Models\Plan::all();
+        $plans = \App\Models\Plan::where('estado', 'ACTIVO')->get();
+
         foreach ($plans as $p)
         {
-            if ($p->estado == 'ACTIVO' AND $p->fecha_ppg < now()){
-                $p->estado = 'VENCIDO';
+            if ($p->estado == 'ACTIVO' && $p->fecha_ppg < now()->format('Y-m-d')){
+                $p->update([
+                    'estado' => 'VENCIDO'
+                ]);
             }
         }
 

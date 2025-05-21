@@ -10,6 +10,10 @@ class Plan extends Model
 {
     use HasFactory;
 
+    protected $casts = [
+        'fecha_ppg' => 'date',
+    ];
+
     protected $fillable = [
         'idepro',
         'fecha_ppg',

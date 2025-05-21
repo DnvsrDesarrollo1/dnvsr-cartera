@@ -31,6 +31,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'birth_date',
     ];
 
     /**
@@ -65,5 +66,10 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function settlements()
+    {
+        return $this->hasMany(Settlement::class, 'user_id', 'id');
     }
 }

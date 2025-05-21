@@ -15,6 +15,8 @@ class PlansNotification extends Component
     public $lBeneficiarios;
     public $lProyectos;
 
+    public $lSettlements;
+
     public function openModal()
     {
         $this->isOpen = true;
@@ -33,6 +35,7 @@ class PlansNotification extends Component
 
         // Obtenemos todos los beneficiarios vencidos en una sola consulta con los datos necesarios
         $this->lBeneficiarios = \App\Models\Beneficiary::whereIn('idepro', $this->lVencidos)
+            ->where('estado', '!=', 'BLOQUEADO')
             ->orderBy('proyecto')
             ->get(['nombre', 'ci', 'proyecto']);
 
@@ -67,6 +70,9 @@ class PlansNotification extends Component
             });
 
         $this->nVencidos = $this->lBeneficiarios->count();
+
+        $this->lSettlements = \App\Models\Settlement::where('estado', 'pendiente')->orderBy('created_at', 'asc')->get();
+
         return view('livewire.plans-notification');
     }
 

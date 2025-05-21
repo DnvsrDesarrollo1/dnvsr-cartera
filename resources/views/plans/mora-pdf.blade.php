@@ -35,6 +35,10 @@
         background-color: #e5e7eb;
     }
 
+    .bg-gray-300 {
+        background-color: #bfc0c2;
+    }
+
     .bg-gray-100 {
         background-color: #f3f4f6;
     }
@@ -89,47 +93,53 @@
     .font-bold {
         font-weight: 700;
     }
+
+    .text-sm {
+        font-size: 0.875rem;
+    }
+
 </style>
 
 <body>
     <h1>Reporte de Mora a Hoy ({{ now()->format('d/m/Y') }})</h1>
-    <table class="w-full overflow-hidden rounded-lg">
+    <table class="w-full overflow-hidden rounded-lg text-sm">
         <thead>
             <tr class="bg-gray-200 text-gray-700">
-                <th class="px-4 py-3 font-semibold text-left">#</th>
-                <th class="px-4 py-3 font-semibold text-left">Proyecto</th>
-                <th class="px-4 py-3 font-semibold text-left">Cantidad de Beneficiarios
-                </th>
-                <th class="px-4 py-3 font-semibold text-left">Morosos</th>
-                <th class="px-4 py-3 font-semibold text-left">Porcentaje de Mora</th>
+                <th class="px-2 py-2 font-semibold text-left">#</th>
+                <th class="px-2 py-2 font-semibold text-left">Departamento</th>
+                <th class="px-2 py-2 font-semibold text-left">Proyecto</th>
+                <th class="px-2 py-2 font-semibold text-center">Beneficiarios</th>
+                <th class="px-2 py-2 font-semibold text-center">Morosos</th>
+                <th class="px-2 py-2 font-semibold text-center">Mora (%)</th>
             </tr>
         </thead>
         <tbody>
             @forelse ($lProyectos as $proyecto => $data)
                 <tr class="border-b hover:bg-gray-50 transition">
-                    <td class="px-4 py-2 text-gray-700">{{ $loop->iteration }}</td>
-                    <td class="px-4 py-2 text-gray-700">{{ $proyecto }}</td>
-                    <td class="px-4 py-2 text-gray-700">{{ $data['total'] }}</td>
-                    <td class="px-4 py-2 text-gray-700">{{ $data['morosos'] }}</td>
-                    <td class="px-4 py-2 text-gray-700">
-                        {{ number_format($data['porcentajeMora'], 2) }}%</td>
+                    <td class="px-2 py-1 text-gray-700 text-sm">{{ $loop->iteration }}</td>
+                    <td class="px-2 py-1 text-gray-700 text-sm">{{ $data['departamento'] }}</td>
+                    <td class="px-2 py-1 text-gray-700 text-sm">{{ $proyecto }}</td>
+                    <td class="px-2 py-1 text-left text-gray-700 text-sm">{{ $data['total'] }}</td>
+                    <td class="px-2 py-1 text-left text-gray-700 text-sm">{{ $data['morosos'] }}</td>
+                    <td class="px-2 py-1 text-right text-gray-700 text-sm">
+                        {{ number_format($data['porcentajeMora'], 2) }}%
+                    </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="5" class="px-4 py-2 text-gray-400 text-center">No hay
-                        proyectos disponibles.</td>
+                    <td colspan="6" class="px-2 py-2 text-gray-400 text-center">No hay proyectos disponibles.</td>
                 </tr>
             @endforelse
             @if (count($lProyectos) > 0)
-                <tr class="font-bold bg-gray-100">
-                    <td class="px-4 py-2 text-gray-700" colspan="2">Total de Mora:</td>
-                    <td class="px-4 py-2 text-gray-700">
+                <tr class="font-bold bg-gray-300">
+                    <td class="px-2 py-1 text-gray-700" colspan="3">Total de Mora:</td>
+                    <td class="px-2 py-1 text-center text-gray-700">
                         {{ array_sum(array_column($lProyectos->toArray(), 'total')) }}
                     </td>
-                    <td class="px-4 py-2 text-gray-700">
+                    <td class="px-2 py-1 text-center text-gray-700">
                         {{ array_sum(array_column($lProyectos->toArray(), 'morosos')) }}
                     </td>
-                    <td class="px-4 py-2 text-gray-700">
+                    <td class="px-2 py-1 text-center text-gray-700">
                         {{ number_format((array_sum(array_column($lProyectos->toArray(), 'morosos')) / max(array_sum(array_column($lProyectos->toArray(), 'total')), 1)) * 100, 2) }}%
                     </td>
                 </tr>

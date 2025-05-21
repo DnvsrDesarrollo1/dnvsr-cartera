@@ -1,14 +1,14 @@
-<div x-data="{ isOpen: @entangle('isOpen') }">
-    <x-personal.button @click="isOpen = true" @keydown.escape.window="isOpen = false" variant="primary" size="md"
-        iconLeft="fa-solid fa-book">
+<div x-data="{ planModal: @entangle('planModal') }">
+    <x-personal.button @click="planModal = true" @keydown.escape.window="planModal = false" variant="outline-primary"
+        size="md" iconLeft="fa-solid fa-book">
         Ver {{ $title }}
     </x-personal.button>
 
-    <div x-show="isOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
+    <div x-show="planModal" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
         x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
         x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" x-cloak
         class="fixed inset-0 overflow-y-auto z-50 flex items-center justify-center">
-        <div class="fixed inset-0 transition-opacity" @click="isOpen = false">
+        <div class="fixed inset-0 transition-opacity" @click="planModal = false">
             <div class="absolute inset-0 bg-gray-500 opacity-50"></div>
         </div>
 
@@ -18,7 +18,7 @@
                     <h3 class="text-xl font-semibold text-gray-900">
                         {{ $title }}
                     </h3>
-                    <button @click="isOpen = false" class="text-gray-400 hover:text-gray-500">
+                    <button @click="planModal = false" class="text-gray-400 hover:text-gray-500">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12" />
@@ -65,7 +65,7 @@
                             </thead>
                             <tbody class="bg-white">
                                 @php
-                                    $plans = $beneficiary->getCurrentPlan();
+                                    $plans = $beneficiary->getCurrentPlan('INACTIVO', '!=');
                                 @endphp
                                 @forelse ($plans as $p)
                                     @php
@@ -156,6 +156,11 @@
                                             @else
                                                 {{ $days < 0 ? 'Vencido ' . abs($days) . ' días' : ($days == 1 ? 'Cuota vence hoy.' : $days . ' días restantes') }}
                                             @endif
+                                            <br />
+                                            <span class="text-xs">
+                                                {{  $p->estado }}
+                                            </span>
+
                                         </td>
                                     </tr>
                                     @empty
@@ -173,7 +178,7 @@
 
                 <div
                     class="bg-gray-100 px-4 py-3 items-center justify-between lg:flex sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-200">
-                    <button @click="isOpen = false" type="button"
+                    <button @click="planModal = false" type="button"
                         class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-gray-800 text-base font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:ml-3 sm:w-auto sm:text-sm">
                         Cerrar
                     </button>

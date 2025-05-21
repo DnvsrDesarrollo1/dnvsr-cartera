@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('prtdtpref', 255);
             $table->string('prtdtccon', 255);
             $table->string('prtdtdesc', 255);
-            $table->double('montopago', 8, 2);
+            $table->double('montopago');
             $table->string('prtdtcmon', 255);
             $table->string('prtdtmrcb', 255);
             $table->string('prtdtuser', 255);

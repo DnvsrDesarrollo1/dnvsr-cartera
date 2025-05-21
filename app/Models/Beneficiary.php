@@ -97,6 +97,11 @@ class Beneficiary extends Model
         return $this->hasMany(Spend::class, 'idepro', 'idepro');
     }
 
+    public function settlement()
+    {
+        return $this->hasOne(Settlement::class, 'beneficiary_id', 'id');
+    }
+
     public function hasPlan(): bool
     {
         return ($this->plans()->where('estado', '<>', 'INACTIVO')->exists()
@@ -118,6 +123,23 @@ class Beneficiary extends Model
         }
 
         return $plan;
+    }
+
+    public function getFirstQuote()
+    {
+        $quota = $this->plans()
+            ->where('estado', "!=", 'CANCELADO')
+            ->orderBy('fecha_ppg', 'asc')
+            ->get();
+
+        if ($quota->isEmpty()) {
+            $quota = $this->readjustments()
+                ->where('estado', "!=", 'CANCELADO')
+                ->orderBy('fecha_ppg', 'asc')
+                ->get();
+        }
+
+        return $quota->first();
     }
 
     public function hasVouchers(): bool

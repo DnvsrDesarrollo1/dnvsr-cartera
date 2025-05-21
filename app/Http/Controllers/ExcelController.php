@@ -63,13 +63,22 @@ class ExcelController extends Controller
 
             foreach ($collection as $key => $value) {
 
-                $startIndex = \App\Models\Readjustment::where('idepro', $value['idepro'])->where('estado', 'ACTIVO')->orderBy('fecha_ppg', 'desc')->first();
+                $startIndex = \App\Models\Readjustment::where('idepro', $value['idepro'])
+                    ->where('estado', 'ACTIVO')
+                    ->orderBy('fecha_ppg', 'desc')
+                    ->first();
+
                 if(!$startIndex)
                 {
-                    $startIndex = \App\Models\Plan::where('idepro', $value['idepro'])->where('estado', 'ACTIVO')->orderBy('fecha_ppg', 'desc')->first();
+                    $startIndex = \App\Models\Plan::where('idepro', $value['idepro'])
+                        ->where('estado', 'ACTIVO')
+                        ->orderBy('fecha_ppg', 'desc')
+                        ->first();
                 }
 
-                $helpersActivos = \App\Models\Helper::where('idepro', $value['idepro'])->where('estado', 'ACTIVO')->get();
+                $helpersActivos = \App\Models\Helper::where('idepro', $value['idepro'])
+                    ->where('estado', 'ACTIVO')
+                    ->get();
 
                 foreach ($helpersActivos as $helper) {
                     $helper->estado = 'INACTIVO';
@@ -118,8 +127,6 @@ class ExcelController extends Controller
             return redirect()->route('importaciones')->with('successD', 'Se lograron importar ' . ($count) . ' registros para diferimentos.');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Error during row(s) generation: ' . $e->getMessage());
-
-            return $e;
 
             return redirect()->route('importaciones')->with('errorD', 'Motivo de la falla: ' . $e->getMessage());
         }

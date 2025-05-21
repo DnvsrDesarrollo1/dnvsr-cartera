@@ -16,13 +16,13 @@ return new class extends Migration
             $table->string('idepro', 255); // Relación con beneficiaries.idepro
             $table->date('fecha_ppg');
             $table->string('prppgnpag', 255);
-            $table->double('prppgcapi', 8, 2);
-            $table->double('prppginte', 8, 2);
-            $table->double('prppggral', 8, 2);
-            $table->double('prppgsegu', 8, 2);
-            $table->double('prppgotro', 8, 2);
-            $table->double('prppgcarg', 8, 2);
-            $table->double('prppgtota', 8, 2);
+            $table->double('prppgcapi');
+            $table->double('prppginte');
+            $table->double('prppggral');
+            $table->double('prppgsegu');
+            $table->double('prppgotro');
+            $table->double('prppgcarg');
+            $table->double('prppgtota');
             $table->string('prppgahor', 255);
             $table->string('prppgmpag', 255);
             $table->string('estado', 100);
