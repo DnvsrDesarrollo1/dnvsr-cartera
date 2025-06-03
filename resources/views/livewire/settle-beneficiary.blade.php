@@ -27,9 +27,15 @@
                         </h3>
                         @if ($settlement->id != null && $settlement->estado != 'pendiente')
                             <div>
-                                <h3 class="bg-gray-500 text-white rounded-md p-2 space-x-2">
+                                <h3
+                                    class="bg-gray-500 text-white rounded-md p-2 space-x-2 flex items-center justify-between">
                                     <i class="fa-solid fa-qrcode"></i>
                                     <span>{{ base64_encode($settlement->id . '_' . $settlement->beneficiary_id . '_' . $settlement->user_id) }}</span>
+                                    <x-personal.button variant="secondary"
+                                        href="{{ route('liquidacion.pdf', $settlement) }}"
+                                        iconLeft="fa-solid fa-file-pdf" to="_blank">
+                                        PDF
+                                    </x-personal.button>
                                 </h3>
                                 <span class="text-xs">
                                     Liquidación solicitada y aprobada para <b>{{ $settlement->user->name }}</b>.
@@ -63,7 +69,7 @@
                             <!-- Capital a Liquidar -->
                             <div class="space-y-1">
                                 <label for="capSettle" class="block text-sm font-medium text-gray-700">
-                                    Capital a Liquidar
+                                    Capital:
                                 </label>
                                 <div class="relative rounded-md shadow-sm">
                                     <input min="0" type="number" wire:model.live="capSettle" id="capSettle"
@@ -81,7 +87,7 @@
                             <!-- Capital Diferido a Liquidar -->
                             <div class="space-y-1">
                                 <label for="capDifSettle" class="block text-sm font-medium text-gray-700">
-                                    Capital Diferido a Liquidar
+                                    Capital Diferido:
                                 </label>
                                 <div class="relative rounded-md shadow-sm">
                                     <input min="0" type="number" wire:model.live="capDifSettle"
@@ -95,11 +101,30 @@
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
+                            {{-- 1111 --}}
+
+                            <!-- Interés Devengado a Liquidar -->
+                            <div class="space-y-1">
+                                <label for="intDevSettle" class="block text-sm font-medium text-gray-700">
+                                    Interés Devengado:
+                                </label>
+                                <div class="relative rounded-md shadow-sm">
+                                    <input min="0" type="number" wire:model.live="intDevSettle"
+                                        id="intDevSettle" step="0.10"
+                                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border"
+                                        placeholder="0.00">
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    </div>
+                                </div>
+                                @error('intDevSettle')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
 
                             <!-- Interés a Liquidar -->
                             <div class="space-y-1">
                                 <label for="intSettle" class="block text-sm font-medium text-gray-700">
-                                    Interés a Liquidar (de una mora de {{ $diasMora }} días)
+                                    Interés: (de una mora de {{ $diasMora }} días)
                                 </label>
                                 <div class="relative rounded-md shadow-sm">
                                     <input min="0" type="number" wire:model.live="intSettle" id="intSettle"
@@ -117,7 +142,7 @@
                             <!-- Interés Diferido a Liquidar -->
                             <div class="space-y-1">
                                 <label for="intDifSettle" class="block text-sm font-medium text-gray-700">
-                                    Interés Diferido a Liquidar
+                                    Interés Diferido:
                                 </label>
                                 <div class="relative rounded-md shadow-sm">
                                     <input min="0" type="number" wire:model.live="intDifSettle"
@@ -132,46 +157,10 @@
                                 @enderror
                             </div>
 
-                            <!-- Interés Devengado a Liquidar -->
-                            <div class="space-y-1">
-                                <label for="intDevSettle" class="block text-sm font-medium text-gray-700">
-                                    Interés Devengado a Liquidar
-                                </label>
-                                <div class="relative rounded-md shadow-sm">
-                                    <input min="0" type="number" wire:model.live="intDevSettle"
-                                        id="intDevSettle" step="0.10"
-                                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border"
-                                        placeholder="0.00">
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                    </div>
-                                </div>
-                                @error('intDevSettle')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <!-- Seguro a Liquidar -->
-                            <div class="space-y-1">
-                                <label for="segSettle" class="block text-sm font-medium text-gray-700">
-                                    Seguro a Liquidar
-                                </label>
-                                <div class="relative rounded-md shadow-sm">
-                                    <input min="0" type="number" wire:model.live="segSettle" id="segSettle"
-                                        step="0.10"
-                                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border"
-                                        placeholder="0.00">
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                    </div>
-                                </div>
-                                @error('segSettle')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
                             <!-- Seguro Devengado a Liquidar -->
                             <div class="space-y-1">
                                 <label for="segDevSettle" class="block text-sm font-medium text-gray-700">
-                                    Seguro Devengado a Liquidar
+                                    Seguro Devengado:
                                 </label>
                                 <div class="relative rounded-md shadow-sm">
                                     <input min="0" type="number" wire:model.live="segDevSettle"
@@ -186,11 +175,29 @@
                                 @enderror
                             </div>
 
+                            <!-- Seguro a Liquidar -->
+                            <div class="space-y-1">
+                                <label for="segSettle" class="block text-sm font-medium text-gray-700">
+                                    Seguro:
+                                </label>
+                                <div class="relative rounded-md shadow-sm">
+                                    <input min="0" type="number" wire:model.live="segSettle" id="segSettle"
+                                        step="0.10"
+                                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border"
+                                        placeholder="0.00">
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    </div>
+                                </div>
+                                @error('segSettle')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
                             <!-- Otros a Liquidars -->
                             <div class="space-y-1">
                                 <div class="space-y-1">
                                     <label for="otrosSettle" class="block text-sm font-medium text-gray-700">
-                                        Otros a Liquidar (Gastos Adm, Jud, Not, etc.)
+                                        Otros: (Gastos Adm, Jud, Not, etc.)
                                     </label>
                                     <div class="relative rounded-md shadow-sm">
                                         <input min="0" type="number" wire:model.live="otrosSettle"
@@ -263,7 +270,7 @@
                             <div class="space-y-1">
                                 <label for="comentarios" class="block text-sm font-medium text-gray-700">Comentarios
                                     del Técnico:</label>
-                                <textarea id="comentarios" name="comentarios" rows="5"
+                                <textarea id="comentarios" name="comentarios" rows="3"
                                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                                     wire:model.live="comentarios"></textarea>
                                 @error('comentarios')
@@ -410,11 +417,6 @@
                                         <x-personal.button variant="success" iconLeft="fa-solid fa-paper-plane"
                                             wire:click="save" wire:confirm="¿Está seguro de actualizar la solicitud?">
                                             Actualizar Solicitud
-                                        </x-personal.button>
-                                        <x-personal.button variant="secondary"
-                                            href="{{ route('liquidacion.pdf', $settlement) }}"
-                                            iconLeft="fa-solid fa-file-pdf" to="_blank">
-                                            Descargar Liquidación
                                         </x-personal.button>
                                     </div>
                                 </div>

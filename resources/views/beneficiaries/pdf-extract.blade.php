@@ -434,7 +434,7 @@
                         <td colspan="10" style="text-align: right; padding: 8px; font-weight: bold;">Saldo Credito:
                         </td>
                         <td style="text-align: right; padding: 8px; font-weight: bold;">
-                            {{ number_format($saldo + $beneficiary->helpers->where('estado', 'ACTIVO')->sum('capital') ?? 0, 2) }}
+                            {{ number_format(($beneficiary->saldo_credito == 0 ? 0 : $saldo) + $beneficiary->helpers->where('estado', 'ACTIVO')->sum('capital') ?? 0, 2) }}
                         </td>
                     </tr>
                     <tr>

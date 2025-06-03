@@ -136,6 +136,7 @@ class SettleBeneficiary extends Component
         );
 
         if ($this->comprobante != '' && $this->comprobante != null) {
+
             $this->createPayment(
                 $this->comprobante,
                 1,
@@ -320,6 +321,7 @@ class SettleBeneficiary extends Component
             foreach ($this->beneficiary->getCurrentPlan('CANCELADO', '!=') as $h) {
                 $h->update([
                     'estado' => 'CANCELADO',
+                    'prppgmpag' => 'L',
                     'user_id' => Auth::user()->id,
                 ]);
             }
