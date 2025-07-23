@@ -23,7 +23,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id')->nullable();
 
             // Clave foránea hacia beneficiaries.idepro
-            $table->foreign('idepro')
+            /* $table->foreign('idepro')
                 ->references('idepro')
                 ->on('beneficiaries')
                 ->onDelete('cascade');
@@ -31,7 +31,7 @@ return new class extends Migration
             // Clave foránea hacia users (opcional)
             $table->foreign('user_id')
                 ->references('id')
-                ->on('users');
+                ->on('users'); */
         });
     }
 

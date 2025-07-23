@@ -27,6 +27,8 @@ final class BeneficiaryTable extends PowerGridComponent
 
     public bool $showErrorBag = true;
 
+    public bool $showFilters = true;
+
     public function boot(): void
     {
         config(['livewire-powergrid.filter' => 'outside']);
@@ -42,7 +44,7 @@ final class BeneficiaryTable extends PowerGridComponent
             PowerGrid::header(),
 
             PowerGrid::footer()
-                ->showPerPage(perPage: 25, perPageValues: [25, 50, 100, 500, 1000, 0])
+                ->showPerPage(perPage: 25, perPageValues: [25, 50, 100, 0])
                 ->showRecordCount(),
 
             PowerGrid::detail()
@@ -101,22 +103,9 @@ final class BeneficiaryTable extends PowerGridComponent
             ->add('plan')
             ->add('genero')
             ->add('fecha_nacimiento')
-            ->add('total_activado', fn($ben) => \Illuminate\Support\Number::currency($ben->total_activado ?? 0, in: 'Bs.'))
-            ->add('gastos_judiciales', fn($ben) => \Illuminate\Support\Number::currency($ben->gastos_judiciales ?? 0, in: 'Bs.'))
-            ->add('saldo_credito', fn($ben) => \Illuminate\Support\Number::currency(
-                ($ben->monto_activado - ($ben->payments()->where(function ($query) {
-                    $query->whereNull('observacion')
-                        ->orWhere('observacion', '')
-                        ->orWhere('observacion', '!=', 'LEGACY 22/24');
-                })->where('prtdtdesc', 'LIKE', '%CAPI%')->sum('montopago')
-                    +
-                    $ben->payments()->where(function ($query) {
-                        $query->whereNull('observacion')
-                            ->orWhere('observacion', '')
-                            ->orWhere('observacion', '!=', 'LEGACY 22/24');
-                    })->where('prtdtdesc', 'LIKE', '%AMR%')->sum('montopago'))),
-                in: 'Bs.'
-            ))
+            ->add('monto_activado', fn($ben) => number_format($ben->monto_activado ?? 0, 2))
+            ->add('gastos_judiciales', fn($ben) => number_format($ben->gastos_judiciales ?? 0, 2))
+            ->add('saldo_credito', fn($ben) => number_format($ben->getCurrentPlan('CANCELADO', '!=')->sum('prppgcapi') ?? 0, 2))
             ->add('fecha_activacion')
             ->add('departamento')
             ->add('cuotas_pendientes', fn($beneficiary) => e($beneficiary->getCurrentPlan('CANCELADO', '!=')->where('fecha_ppg', '<', now())->count()));
@@ -150,13 +139,13 @@ final class BeneficiaryTable extends PowerGridComponent
             Column::make('EIF', 'entidad_financiera')
                 ->hidden(),
 
-            Column::make('Total Activado', 'total_activado')
+            Column::make('M. Activado', 'monto_activado')
                 ->sortable(),
 
-            Column::make('Gastos Extra', 'gastos_judiciales')
+            Column::make('Gastos', 'gastos_judiciales')
                 ->sortable(),
 
-            Column::make('Saldo Crédito', 'saldo_credito')
+            Column::make('Saldo <i>k</i>', 'saldo_credito')
                 ->sortable(),
 
             Column::make('F. Activación', 'fecha_activacion')

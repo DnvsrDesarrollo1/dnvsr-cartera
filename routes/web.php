@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Models\Beneficiary;
+use App\Livewire\ActivityLogViewer;
 
 Route::get('/', function () {
     $beneficiarios = Beneficiary::count();
@@ -20,6 +21,7 @@ Route::middleware([
 
     // Beneficiarios
     Route::get('beneficiario', [\App\Http\Controllers\BeneficiaryController::class, 'index'])->name('beneficiario.index');
+    Route::get('beneficiario-test', [\App\Http\Controllers\BeneficiaryController::class, 'indexAll'])->name('beneficiario.index-all');
     Route::get('beneficiario/{cedula}', [\App\Http\Controllers\BeneficiaryController::class, 'show'])->name('beneficiario.show');
     Route::get('beneficiario/{cedula}/pdf', [\App\Http\Controllers\BeneficiaryController::class, 'pdf'])->name('beneficiario.pdf');
     Route::get('beneficiario/{cedula}/pdf-extract', [\App\Http\Controllers\BeneficiaryController::class, 'pdfExtract'])->name('beneficiario.pdf-extract');
@@ -77,4 +79,6 @@ Route::middleware([
         Route::put('usuarios/{user}', [App\Http\Controllers\UserController::class, 'update'])->name('users.update');
         Route::delete('usuarios/{user}', [App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy');
     });
+
+
 });

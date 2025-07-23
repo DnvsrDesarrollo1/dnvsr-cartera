@@ -189,6 +189,10 @@
                 <hr />
                 <h1>PLAN DE PAGOS</h1>
                 <hr />
+                <p style="text-align: center; font-size: 8px; padding: 0; margin: 0;">
+                    <b>CANALES HABILITADOS:</b> BANCO SOL <b>|</b> SINTESIS MIS-CUENTAS (APP MOVIL) <b>|</b> COOP. SAN MARTIN DE PORRES <b>|</b> BANCO PYME ECOFUTURO <b>|</b> CRECER IFD <b>|</b> DIACONIA
+                </p>
+                <hr />
             </header>
             <div class="details">
                 <table class="description">
@@ -277,7 +281,7 @@
                                 {{-- {{ number_format($beneficiary->saldo_credito, 2) }} --}}
                                 <br />
                                 Bs.
-                                {{ number_format(\App\Models\Spend::where('idepro', $beneficiary->idepro)->where('estado', 'ACTIVO')->sum('monto') ?? 0, 2) }}
+                                {{ number_format($beneficiary->spends()->where('estado', 'ACTIVO')->sum('monto') ?? 0, 2) }}
                             </td>
                         </tr>
                         <tr>

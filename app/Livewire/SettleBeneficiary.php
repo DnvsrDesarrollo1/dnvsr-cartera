@@ -5,7 +5,6 @@ namespace App\Livewire;
 use App\Models\Beneficiary;
 use App\Models\Settlement;
 use App\Traits\FinanceTrait;
-use Illuminate\Database\Eloquent\Collection;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Auth;
@@ -47,55 +46,122 @@ class SettleBeneficiary extends Component
         $descuento,
         $diasMora;
 
-    public $comprobante, $fecha_comprobante;
+    public $comprobante = '', $fecha_comprobante;
 
     public function render()
     {
-        if (
-            $this->totalSettle != ''
-        ) {
-            $this->capSettle = $this->totalSettle - ($this->capDifSettle + $this->intSettle + $this->intDifSettle + $this->intDevSettle + $this->segSettle +
-                $this->segDevSettle + $this->otrosSettle);
+        // Ensure totalSettle is numeric before calculations
+        if (is_numeric($this->totalSettle) && $this->totalSettle !== '') {
+            // Cast all values to float to ensure proper calculation
+            $this->capSettle = (float)$this->totalSettle - (
+                (float)($this->capDifSettle ?? 0) +
+                (float)($this->intSettle ?? 0) +
+                (float)($this->intDifSettle ?? 0) +
+                (float)($this->intDevSettle ?? 0) +
+                (float)($this->segSettle ?? 0) +
+                (float)($this->segDevSettle ?? 0) +
+                (float)($this->otrosSettle ?? 0)
+            );
+
+            // Round to 2 decimal places for currency
+            $this->capSettle = round($this->capSettle, 2);
         }
+
         return view('livewire.settle-beneficiary');
     }
 
     public function mount(Beneficiary $beneficiary)
     {
-        $this->beneficiary = $beneficiary;
-        $this->settlement = $beneficiary->settlement ?? new Settlement();
+        try {
+            $this->beneficiary = $beneficiary;
+            $this->settlement = $beneficiary->settlement ?? new Settlement();
 
+            // Safely decode anexos with error handling
+            try {
+                $this->anexos = $this->settlement->id ? json_decode($this->settlement->anexos, true) ?? [] : [];
+            } catch (\Exception $e) {
+                $this->anexos = [];
+            }
 
-        $this->anexos = $this->settlement->id != null ? json_decode($this->settlement->anexos, true) : [];
+            if ($this->estado === 'aprobado') {
+                $this->fill($this->settlement->toArray());
+            }
 
-        if ($this->estado == 'aprobado') {
-            $this->fill($this->settlement);
+            $plan = $this->beneficiary->getCurrentPlan('CANCELADO', '!=') ?? collect();
+            $this->plan_de_pagos = $this->beneficiary->getCurrentPlan() ?? null;
+            $this->diasMora = $this->calcularDiasMora($this->beneficiary);
+
+            // Initialize settlement values with proper null checks and type casting
+            $this->capSettle = round($this->settlement->id ?
+                (float)$this->settlement->capital_final :
+                (float)$this->beneficiary->saldo_credito, 2);
+
+            $this->capDifSettle = round($this->settlement->id ?
+                (float)$this->settlement->capital_diferido :
+                (float)($this->beneficiary->helpers()->where('estado', 'ACTIVO')->sum('capital') ?? 0), 2);
+
+            $this->intSettle = $this->settlement->id ?
+                (float)$this->settlement->interes :
+                $this->calcularInteresAcumulado(
+                    (float)$this->beneficiary->saldo_credito,
+                    (int)$this->diasMora,
+                    (float)($this->beneficiary->tasa_interes / 100)
+                );
+
+            $this->intDifSettle = round($this->settlement->id ?
+                (float)$this->settlement->interes_diferido :
+                (float)($this->beneficiary->helpers()->where('estado', 'ACTIVO')->sum('interes') ?? 0), 2);
+
+            $this->intDevSettle = round($this->settlement->id ?
+                (float)$this->settlement->interes_devengado :
+                (float)($plan->sum('prppggral') ?? 0), 2);
+
+            $this->segSettle = round($this->settlement->id ?
+                (float)$this->settlement->seguro :
+                (float)($plan->where('fecha_ppg', '<=', now())->sum('prppgsegu') ?? 0), 2);
+
+            $this->segDevSettle = round($this->settlement->id ?
+                (float)$this->settlement->seguro_devengado :
+                (float)($plan->sum('prppgcarg') ?? 0), 2);
+
+            $this->otrosSettle = round($this->settlement->id ?
+                (float)$this->settlement->otros :
+                (float)($plan->sum('prppgotro') ?? 0), 2);
+
+            $this->descuento = round($this->settlement->id ?
+                (float)$this->settlement->descuento : 0, 2);
+
+            $this->estado = $this->settlement->id ?
+                (string)$this->settlement->estado : 'pendiente';
+
+            $this->comentarios = $this->settlement->id ?
+                (string)$this->settlement->comentarios : '';
+
+            $this->observaciones = $this->settlement->id ?
+                (string)$this->settlement->observaciones : '';
+        } catch (\Exception $e) {
+            // Reset to default values on error
+            $this->resetProperties();
+            throw new \Exception('Error mounting SettleBeneficiary component: ' . $e->getMessage());
         }
+    }
 
-        $plan = $this->beneficiary->getCurrentPlan('CANCELADO', '!=');
-
-        $this->plan_de_pagos = $this->beneficiary->getCurrentPlan();
-
-        $this->diasMora = $this->calcularDiasMora($this->beneficiary);
-
-        $this->capSettle = round($this->settlement->id != null ? $this->settlement->capital_final : $this->beneficiary->saldo_credito, 2);
-        $this->capDifSettle = round($this->settlement->id != null ? $this->settlement->capital_diferido : $this->beneficiary->helpers()->where('estado', 'ACTIVO')->sum('capital') ?? 0, 2);
-
-        $this->intSettle = $this->settlement->id != null ? $this->settlement->interes : $this->calcularInteresAcumulado(
-            $this->beneficiary->saldo_credito,
-            $this->diasMora,
-            ($this->beneficiary->tasa_interes / 100)
-        );
-
-        $this->intDifSettle = round($this->settlement->id != null ? $this->settlement->interes_diferido : $this->beneficiary->helpers()->where('estado', 'ACTIVO')->sum('interes') ?? 0, 2);
-        $this->intDevSettle = round($this->settlement->id != null ? $this->settlement->interes_devengado : $plan->sum('prppggral'), 2);
-        $this->segSettle = round($this->settlement->id != null ? $this->settlement->seguro : $plan->where('fecha_ppg', '<=', now())->sum('prppgsegu'), 2);
-        $this->segDevSettle = round($this->settlement->id != null ? $this->settlement->seguro_devengado : $plan->sum('prppgcarg'), 2);
-        $this->otrosSettle = round($this->settlement->id != null ? $this->settlement->otros : $plan->sum('prppgotro'), 2);
-        $this->descuento = round($this->settlement->id != null ? $this->settlement->descuento : 0, 2);
-        $this->estado =  $this->settlement->id != null ? $this->settlement->estado : 'pendiente';
-        $this->comentarios =  $this->settlement->id != null ? $this->settlement->comentarios :  '';
-        $this->observaciones =  $this->settlement->id != null ? $this->settlement->observaciones : '';
+    // Helper method to reset properties to default values
+    private function resetProperties()
+    {
+        $this->anexos = [];
+        $this->capSettle = 0;
+        $this->capDifSettle = 0;
+        $this->intSettle = 0;
+        $this->intDifSettle = 0;
+        $this->intDevSettle = 0;
+        $this->segSettle = 0;
+        $this->segDevSettle = 0;
+        $this->otrosSettle = 0;
+        $this->descuento = 0;
+        $this->estado = 'pendiente';
+        $this->comentarios = '';
+        $this->observaciones = '';
     }
 
     public function save()
@@ -329,10 +395,9 @@ class SettleBeneficiary extends Component
             $this->settlement->update([
                 'estado' => 'ejecutado',
             ]);
-
         }
 
-        if ($this->settlement->id != null && $this->settlement->estado == 'EJECUTADO') {
+        if ($this->settlement->id != null && $this->settlement->estado == 'ejecutado') {
             $this->beneficiary->update([
                 'saldo_credito' => 0,
                 'estado' => 'CANCELADO',
@@ -423,13 +488,21 @@ class SettleBeneficiary extends Component
 
     private function calcularInteresAcumulado($capitalInicial, $dias, $tasaInteres)
     {
+        if ($dias <= 0) {
+            return 0;
+        }
+
         $interesAcumulado = ($capitalInicial * $dias * $tasaInteres) / 360;
         return round($interesAcumulado, 2);
     }
 
     private function calcularDiasMora(Beneficiary $beneficiary)
     {
-        $listaPlan = $beneficiary->getCurrentPlan('INACTIVO', '!=')->where('fecha_ppg', '<=', now())->sortBy('fecha_ppg');
+        $listaPlan = $beneficiary->getCurrentPlan('CANCELADO', '!=')->where('fecha_ppg', '<=', now())->sortBy('fecha_ppg');
+
+        if ($listaPlan->isEmpty() || $listaPlan == null) {
+            return 0;
+        }
 
         $arrayComparativo = array();
 

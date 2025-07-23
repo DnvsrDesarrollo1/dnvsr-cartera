@@ -26,17 +26,30 @@ class PlanStatus extends Command
      */
     public function handle()
     {
-        $plans = \App\Models\Plan::where('estado', 'ACTIVO')->get();
+        try {
+            \App\Models\Plan::where('estado', 'ACTIVO')->chunk(15000, function ($plans) {
+                foreach ($plans as $p) {
+                    if ($p->fecha_ppg < now()) {
+                        $p->update([
+                            'estado' => 'VENCIDO'
+                        ]);
+                    }
+                }
+            });
 
-        foreach ($plans as $p)
-        {
-            if ($p->estado == 'ACTIVO' && $p->fecha_ppg < now()->format('Y-m-d')){
-                $p->update([
-                    'estado' => 'VENCIDO'
-                ]);
-            }
+            \App\Models\Readjustment::where('estado', 'ACTIVO')->chunk(10000, function ($plans) {
+                foreach ($plans as $p) {
+                    if ($p->fecha_ppg < now()) {
+                        $p->update([
+                            'estado' => 'VENCIDO'
+                        ]);
+                    }
+                }
+            });
+
+            Log::info('Plan status updated');
+        } catch (\Exception $e) {
+            Log::info('Error updating plan status: ' . $e->getMessage());
         }
-
-        Log::info('Plan status updated');
     }
 }

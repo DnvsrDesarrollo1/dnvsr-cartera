@@ -2,7 +2,27 @@
     <div class="mt-4">
         <div class="w-full px-4 grid sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-2">
             <div class="bg-white shadow-lg rounded-lg p-6 mb-4 h-fit border border-gray-300" id=$"profile_preview">
+                <h1 class="text-lg font-semibold text-gray-800 bg-gray-100 rounded-lg border p-4 mb-2">
+                    Perfil del Beneficiario
+                </h1>
                 <div class="flex items-center justify-between mb-2">
+                    @if ($beneficiary->estado != 'BLOQUEADO' && $beneficiary->estado != 'CANCELADO')
+                        <span class="border bg-gray-100 p-2 rounded-md shadow-md mr-2">
+                            @can('write beneficiaries')
+                                <form action="{{ route('beneficiario.update', $beneficiary) }}" method="POST" class="inline">
+                                    @csrf
+                                    @method('PUT')
+                                    <button type="submit" class="text-red-600 hover:text-red-800"
+                                        onclick="return confirm('¿Está seguro de bloquear este beneficiario?')">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                        </svg>
+                                    </button>
+                                </form>
+                            @endcan
+                        </span>
+                    @endif
                     <div class="border bg-gray-100 p-2 rounded-md shadow-md">
                         <p class="text-lg font-semibold text-gray-800">
                             {{ $beneficiary->nombre }} - {{ $beneficiary->ci }} {{ $beneficiary->complemento }}
@@ -31,40 +51,198 @@
                 @endif
 
                 <div class="mt-2 grid grid-cols-2 gap-2">
-                    <div class="bg-gray-100 rounded-lg p-4 shadow">
-                        <h3 class="font-semibold text-gray-700 mb-2">Estado de Crédito</h3>
-                        <p
-                            class="font-bold {{ $beneficiary->estado == 'CANCELADO' || $beneficiary->estado == 'BLOQUEADO' ? 'text-red-500' : '' }}">
-                            {{ $beneficiary->estado }}
-                        </p>
+                    <div class="bg-gray-100 rounded-lg p-2 shadow">
+                        <table class="w-full border-md border-gray-300">
+                            <tbody>
+                                <tr class="hover:bg-gray-50 transition-colors duration-200 border border-gray-300">
+                                    <td class="px-6 py-4 w-12 border border-gray-300">
+                                        <div class="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
+                                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z">
+                                                </path>
+                                            </svg>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 w-32 border border-gray-300">
+                                        <h3 class="font-semibold text-gray-600 text-sm uppercase tracking-wide">
+                                            Estado del Credito
+                                        </h3>
+                                    </td>
+                                    <td class="px-6 py-4 border border-gray-300">
+                                        <p
+                                            class="font-bold {{ $beneficiary->estado == 'CANCELADO' || $beneficiary->estado == 'BLOQUEADO' ? 'text-red-500' : '' }}">
+                                            {{ $beneficiary->estado }}
+                                        </p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="bg-gray-100 rounded-lg p-4 shadow">
-                        <h3 class="font-semibold text-gray-700 mb-2">Proyecto</h3>
-                        <p class="font-bold">{{ $beneficiary->proyecto }}</p>
+                    <div class="bg-gray-100 rounded-lg p-2 shadow">
+                        <table class="w-full border border-gray-300">
+                            <tbody>
+                                <tr class="hover:bg-gray-50 transition-colors duration-200 border border-gray-300">
+                                    <td class="px-6 py-4 w-12 border border-gray-300">
+                                        <div class="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
+                                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                                    d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                                                </path>
+                                            </svg>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 w-32 border border-gray-300">
+                                        <h3 class="font-semibold text-gray-600 text-sm uppercase tracking-wide">Proyecto
+                                        </h3>
+                                    </td>
+                                    <td class="px-6 py-4 border border-gray-300">
+                                        <p class="font-bold text-gray-800 text-sm">{{ $beneficiary->proyecto }}</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="bg-gray-100 rounded-lg p-4 shadow">
-                        <h3 class="font-semibold text-gray-700 mb-2">Departamento</h3>
-                        <p class="font-bold">{{ $beneficiary->departamento }}</p>
+                    <div class="bg-gray-100 rounded-lg p-2 shadow">
+                        <table class="w-full border border-gray-300">
+                            <tbody>
+                                <tr class="hover:bg-gray-50 transition-colors duration-200 border border-gray-300">
+                                    <td class="px-6 py-4 w-12 border border-gray-300">
+                                        <div class="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
+                                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                                </path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z">
+                                                </path>
+                                            </svg>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 w-32 border border-gray-300">
+                                        <h3 class="font-semibold text-gray-600 text-sm uppercase tracking-wide">
+                                            Departamento
+                                        </h3>
+                                    </td>
+                                    <td class="px-6 py-4 border border-gray-300">
+                                        <p class="font-bold text-gray-800 text-sm">{{ $beneficiary->departamento }}</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="bg-gray-100 rounded-lg p-4 shadow">
-                        <h3 class="font-semibold text-gray-700 mb-2">Fecha de Activación</h3>
-                        <p class="font-bold">{{ $beneficiary->fecha_activacion }}</p>
+                    <div class="bg-gray-100 rounded-lg p-2 shadow">
+                        <table class="w-full border border-gray-300">
+                            <tbody>
+                                <tr class="hover:bg-gray-50 transition-colors duration-200 border border-gray-300">
+                                    <td class="px-6 py-4 w-12 border border-gray-300">
+                                        <div class="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
+                                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 w-32 border border-gray-300">
+                                        <h3 class="font-semibold text-gray-600 text-sm uppercase tracking-wide">
+                                            Fecha Activacion
+                                        </h3>
+                                    </td>
+                                    <td class="px-6 py-4 border border-gray-300">
+                                        <p class="font-bold text-gray-800 text-sm">{{ $beneficiary->fecha_activacion }}
+                                        </p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="bg-gray-100 rounded-lg p-4 shadow">
-                        <h3 class="font-semibold text-gray-700 mb-2">Total Activado</h3>
-                        <p class="font-bold text-sky-800">Bs.
-                            {{ number_format($beneficiary->total_activado, 2) }}</p>
+                    <div class="bg-gray-100 rounded-lg p-2 shadow">
+                        <table class="w-full border border-gray-300">
+                            <tbody>
+                                <tr class="hover:bg-gray-50 transition-colors duration-200 border border-gray-300">
+                                    <td class="px-6 py-4 w-12 border border-gray-300">
+                                        <div class="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
+                                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    stroke-width="1.5"
+                                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 w-32 border border-gray-300">
+                                        <h3 class="font-semibold text-gray-600 text-sm uppercase tracking-wide">
+                                            Monto Activado
+                                        </h3>
+                                    </td>
+                                    <td class="px-6 py-4 border border-gray-300">
+                                        <p class="font-bold text-gray-800 text-sm">
+                                            {{ number_format($beneficiary->monto_activado, 2) }}
+                                        </p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="bg-gray-100 rounded-lg p-4 shadow">
-                        <h3 class="font-semibold text-gray-700 mb-2">Saldo Credito</h3>
-                        <p class="font-bold text-sky-800">Bs.
-                            {{ number_format($beneficiary->saldo_credito, 2) }}</p>
+                    <div class="bg-gray-100 rounded-lg p-2 shadow">
+                        <table class="w-full border border-gray-300">
+                            <tbody>
+                                <tr class="hover:bg-gray-50 transition-colors duration-200 border border-gray-300">
+                                    <td class="px-6 py-4 w-12 border border-gray-300">
+                                        <div class="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
+                                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    stroke-width="1.5"
+                                                    d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+                                            </svg>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 w-32 border border-gray-300">
+                                        <h3 class="font-semibold text-gray-600 text-sm uppercase tracking-wide">
+                                            Saldo Credito
+                                        </h3>
+                                    </td>
+                                    <td class="px-6 py-4 border border-gray-300">
+                                        <p class="font-bold text-gray-800 text-sm">
+                                            {{ number_format($beneficiary->saldo_credito, 2) }}
+                                        </p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="bg-gray-100 rounded-lg p-4 shadow">
-                        <h3 class="font-semibold text-gray-700 mb-2">Total en Pagos</h3>
-                        <p class="font-bold text-sky-800">Bs.
-                            {{ number_format($beneficiary->payments()->where('prtdtdesc', 'like', '%CAPI%')->sum('montopago'), 2) }}
-                        </p>
+                    <div class="bg-gray-100 rounded-lg p-2 shadow">
+                        <table class="w-full border border-gray-300">
+                            <tbody>
+                                <tr class="hover:bg-gray-50 transition-colors duration-200 border border-gray-300">
+                                    <td class="px-6 py-4 w-12 border border-gray-300">
+                                        <div class="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
+                                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    stroke-width="1.5"
+                                                    d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                            </svg>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 w-32 border border-gray-300">
+                                        <h3 class="font-semibold text-gray-600 text-sm uppercase tracking-wide">
+                                            Capital Cancelado
+                                        </h3>
+                                    </td>
+                                    <td class="px-6 py-4 border border-gray-300">
+                                        <p class="font-bold text-gray-800 text-sm">
+                                            {{ number_format($beneficiary->payments()->where('prtdtdesc', 'like', '%CAPI%')->sum('montopago'), 2) }}
+                                        </p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                     <div class="p-4">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -83,7 +261,7 @@
                                     @php
                                         $vencs = $beneficiary
                                             ->plans()
-                                            ->where('estado', 'VENCIDO')
+                                            ->where('estado', '!=', 'CANCELADO')
                                             ->orderBy('fecha_ppg')
                                             ->get();
                                         $total = 0;
@@ -95,7 +273,7 @@
                                             echo "
                                                 <span class=\"w-full bg-white rounded-md text-center text-red-500 p-1\">
                                                     Dias de Mora: <b>" .
-                                                number_format($total, 0) .
+                                                number_format($total <= 0 ? 0 : $total, 0) .
                                                 "</b>
                                                 </span>
                                             ";
@@ -141,22 +319,30 @@
                                     ...plans.map(plan => new Date(plan.fecha_ppg)),
                                     ...payments.map(payment => new Date(payment.fecha_pago))
                                 ));
+
+                                // Ajustar fechas para incluir trimestre completo
+                                startDate.setMonth(startDate.getMonth() - 1);
+                                endDate.setMonth(endDate.getMonth() + 1);
+
                                 let months = [];
                                 let currentDate = new Date(startDate);
 
-                                // Generar array de meses
+                                // Generar array de meses con formato más legible
+                                const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
                                 while (currentDate <= endDate) {
-                                    months.push(currentDate.toISOString().slice(0, 7));
+                                    months.push(`${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`);
                                     currentDate.setMonth(currentDate.getMonth() + 1);
                                 }
 
                                 // Inicializar arrays de datos
                                 let plansData = new Array(months.length).fill(null);
                                 let paymentsData = new Array(months.length).fill(null);
+                                let complianceData = new Array(months.length).fill(null);
 
                                 // Procesar datos de planes
                                 plans.forEach(plan => {
-                                    let planMonth = new Date(plan.fecha_ppg).toISOString().slice(0, 7);
+                                    let planDate = new Date(plan.fecha_ppg);
+                                    let planMonth = `${monthNames[planDate.getMonth()]} ${planDate.getFullYear()}`;
                                     let index = months.indexOf(planMonth);
                                     if (index !== -1) {
                                         plansData[index] = Math.abs(parseFloat(plan.prppgcapi));
@@ -165,52 +351,175 @@
 
                                 // Procesar datos de pagos
                                 payments.forEach(payment => {
-                                    let paymentMonth = new Date(payment.fecha_pago).toISOString().slice(0, 7);
+                                    let paymentDate = new Date(payment.fecha_pago);
+                                    let paymentMonth = `${monthNames[paymentDate.getMonth()]} ${paymentDate.getFullYear()}`;
                                     let index = months.indexOf(paymentMonth);
                                     if (index !== -1) {
                                         paymentsData[index] = (paymentsData[index] || 0) + Math.abs(parseFloat(payment
                                             .montopago));
+
+                                        // Calcular porcentaje de cumplimiento si existe plan para ese mes
+                                        if (plansData[index]) {
+                                            complianceData[index] = (paymentsData[index] / plansData[index]) * 100;
+                                        }
                                     }
                                 });
 
+                                // Modern chart configuration
                                 Highcharts.chart('timelineChart', {
                                     chart: {
-                                        type: 'line'
+                                        type: 'line',
+                                        style: {
+                                            fontFamily: 'Inter, sans-serif'
+                                        },
+                                        backgroundColor: 'transparent',
+                                        borderRadius: 12,
+                                        spacing: [20, 20, 15, 20]
                                     },
                                     title: {
-                                        text: 'Evolución mensual de cumplimiento'
+                                        text: 'Evolución Mensual de Cumplimiento de Pagos',
+                                        align: 'left',
+                                        style: {
+                                            fontSize: '18px',
+                                            fontWeight: '600',
+                                            color: '#1e293b'
+                                        },
+                                        margin: 25
+                                    },
+                                    subtitle: {
+                                        text: 'Comparación entre capital planificado y pagado',
+                                        align: 'left',
+                                        style: {
+                                            color: '#64748b',
+                                            fontSize: '13px'
+                                        }
                                     },
                                     xAxis: {
                                         categories: months,
-                                        title: {
-                                            text: null
+                                        labels: {
+                                            style: {
+                                                color: '#64748b',
+                                                fontSize: '11px'
+                                            },
+                                            rotation: -45
+                                        },
+                                        lineColor: '#e2e8f0',
+                                        tickColor: '#e2e8f0',
+                                        crosshair: {
+                                            width: 1,
+                                            color: '#94a3b8',
+                                            dashStyle: 'dot'
                                         }
                                     },
-                                    yAxis: {
+                                    yAxis: [{
                                         title: {
-                                            text: null
+                                            text: 'Monto (Bs)',
+                                            style: {
+                                                color: '#64748b'
+                                            }
                                         },
                                         labels: {
+                                            style: {
+                                                color: '#64748b'
+                                            },
                                             formatter: function() {
-                                                return Highcharts.numberFormat(this.value, 2);
+                                                return Highcharts.numberFormat(this.value, 0, ',', '.');
                                             }
-                                        }
-                                    },
+                                        },
+                                        gridLineColor: '#f1f5f9',
+                                        opposite: false
+                                    }, {
+                                        title: {
+                                            text: '% Cumplimiento',
+                                            style: {
+                                                color: '#64748b'
+                                            }
+                                        },
+                                        labels: {
+                                            style: {
+                                                color: '#64748b'
+                                            },
+                                            formatter: function() {
+                                                return this.value + '%';
+                                            }
+                                        },
+                                        min: 0,
+                                        max: 100,
+                                        gridLineWidth: 0,
+                                        opposite: true
+                                    }],
                                     tooltip: {
+                                        backgroundColor: 'rgba(255, 255, 255, 0.97)',
+                                        borderWidth: 0,
+                                        borderRadius: 12,
+                                        shadow: {
+                                            color: 'rgba(0,0,0,0.08)',
+                                            width: 10,
+                                            offsetX: 0,
+                                            offsetY: 4
+                                        },
+                                        style: {
+                                            fontSize: '13px',
+                                            fontWeight: '400'
+                                        },
                                         valueDecimals: 2,
                                         valueSuffix: ' Bs',
                                         shared: true,
-                                        crosshairs: true
+                                        useHTML: true,
+                                        headerFormat: '<small style="color: #64748b; font-weight: 600">{point.key}</small><br/><table>',
+                                        pointFormat: '<tr><td><span style="color:{point.color}">●</span> {series.name}: </td>' +
+                                            '<td style="text-align: right"><b>{point.y:,.2f} Bs</b></td></tr>',
+                                        footerFormat: '</table>'
+                                    },
+                                    legend: {
+                                        align: 'center',
+                                        verticalAlign: 'top',
+                                        itemStyle: {
+                                            color: '#475569',
+                                            fontWeight: '500',
+                                            fontSize: '12px'
+                                        },
+                                        itemHoverStyle: {
+                                            color: '#1e293b'
+                                        },
+                                        itemMarginBottom: 8,
+                                        symbolRadius: 0,
+                                        padding: 10
                                     },
                                     plotOptions: {
+                                        series: {
+                                            marker: {
+                                                radius: 5,
+                                                lineWidth: 2,
+                                                lineColor: '#ffffff',
+                                                symbol: 'circle',
+                                                fillColor: null
+                                            },
+                                            states: {
+                                                hover: {
+                                                    halo: {
+                                                        size: 8,
+                                                        opacity: 0.2
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        line: {
+                                            lineWidth: 3,
+                                            fillOpacity: 0
+                                        },
                                         area: {
-                                            fillOpacity: 0.5
+                                            fillOpacity: 0.15,
+                                            marker: {
+                                                enabled: true
+                                            }
                                         }
                                     },
                                     series: [{
                                         name: 'Capital Planificado',
                                         data: plansData,
-                                        color: '#FF6384',
+                                        type: 'area',
+                                        color: '#3b82f6',
                                         fillColor: {
                                             linearGradient: {
                                                 x1: 0,
@@ -219,14 +528,17 @@
                                                 y2: 1
                                             },
                                             stops: [
-                                                [0, 'rgba(255,99,132,0.3)'],
-                                                [1, 'rgba(255,99,132,0)']
+                                                [0, 'rgba(59, 130, 246, 0.2)'],
+                                                [1, 'rgba(59, 130, 246, 0.05)']
                                             ]
-                                        }
+                                        },
+                                        zIndex: 1,
+                                        yAxis: 0
                                     }, {
                                         name: 'Capital Pagado',
                                         data: paymentsData,
-                                        color: '#4BC0C0',
+                                        type: 'area',
+                                        color: '#22c55e',
                                         fillColor: {
                                             linearGradient: {
                                                 x1: 0,
@@ -235,21 +547,46 @@
                                                 y2: 1
                                             },
                                             stops: [
-                                                [0, 'rgba(75,192,192,0.3)'],
-                                                [1, 'rgba(75,192,192,0)']
+                                                [0, 'rgba(34, 197, 94, 0.2)'],
+                                                [1, 'rgba(34, 197, 94, 0.05)']
                                             ]
-                                        }
+                                        },
+                                        zIndex: 2,
+                                        yAxis: 0
+                                    }, {
+                                        name: '% Cumplimiento',
+                                        data: complianceData,
+                                        type: 'line',
+                                        color: '#f59e0b',
+                                        dashStyle: 'Dash',
+                                        marker: {
+                                            symbol: 'diamond'
+                                        },
+                                        yAxis: 1,
+                                        tooltip: {
+                                            valueSuffix: '%',
+                                            valueDecimals: 1
+                                        },
+                                        zIndex: 3
                                     }],
+                                    credits: {
+                                        enabled: false
+                                    },
                                     responsive: {
                                         rules: [{
                                             condition: {
-                                                maxWidth: 500
+                                                maxWidth: 600
                                             },
                                             chartOptions: {
                                                 legend: {
                                                     layout: 'horizontal',
                                                     align: 'center',
                                                     verticalAlign: 'bottom'
+                                                },
+                                                xAxis: {
+                                                    labels: {
+                                                        rotation: -30
+                                                    }
                                                 }
                                             }
                                         }]
@@ -300,92 +637,136 @@
                             </svg>
                         </button>
                     @endif
-                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-300" x-show="show" x-transition x-cloak>
+                    <div class="bg-white rounded-lg shadow-lg p-8 border border-gray-200" x-show="show" x-transition
+                        x-cloak>
                         <form action="{{ route('plan.reajuste') }}" method="post">
                             @csrf
                             <input type="hidden" name="idepro" value="{{ $beneficiary->idepro }}" />
                             <input type="hidden" name="plazo_credito" value="{{ $beneficiary->plazo_credito }}" />
                             <input type="hidden" name="gastos_judiciales"
                                 value="{{ $beneficiary->gastos_judiciales }}" />
-                            <div class="mb-4">
-                                <label for="capital_inicial" class="block text-gray-700 font-bold mb-2">
-                                    1) Capital Inicial:
-                                </label>
-                                <input type="text" inputmode="decimal" id="capital_inicial"
-                                    name="capital_inicial" placeholder="Ej: 25000.75" pattern="[0-9]*[.,]?[0-9]*"
-                                    class="appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:bg-white"
-                                    required value="{{ $beneficiary->saldo_credito }}"
-                                    title="Saldo restante de (Monto Activado menos Monto en Cuotas).">
-                            </div>
-                            <div class="mb-4">
-                                <label for="meses" class="block text-gray-700 font-bold mb-2">
-                                    2) Meses restantes:
-                                </label>
-                                <input type="text" id="meses" name="meses" placeholder="Ej: 10"
-                                    class="appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:bg-white"
-                                    required value="{{ $mesesRestantes }}"
-                                    title="Meses restantes desde hoy, a la fecha de activacion (+ 20 años).">
-                            </div>
-                            <div class="mb-4 grid grid-cols-2 gap-2">
-                                <div>
-                                    <label for="taza_interes" class="block text-gray-700 font-bold mb-2">
-                                        3) Interes:
-                                    </label>
-                                    <input type="text" inputmode="decimal" name="taza_interes"
-                                        placeholder="Ej: 13 (no es necesario agregar simbolo %)"
-                                        pattern="[0-9]*[.,]?[0-9]*"
-                                        class="appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:bg-white"
-                                        required value="3" title="Taza por defecto 3%.">
+
+                            <div class="space-y-6">
+                                <!-- Main Credit Information -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <label for="capital_inicial"
+                                            class="text-gray-700 font-semibold mb-2 flex items-center">
+                                            <span
+                                                class="bg-blue-100 text-blue-800 font-bold rounded-full w-6 h-6 flex items-center justify-center mr-2">1</span>
+                                            Capital Inicial
+                                        </label>
+                                        <input type="text" inputmode="decimal" id="capital_inicial"
+                                            name="capital_inicial" placeholder="Ej: 25000.75"
+                                            pattern="[0-9]*[.,]?[0-9]*"
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                            required value="{{ $beneficiary->saldo_credito }}"
+                                            title="Saldo restante de (Monto Activado menos Monto en Cuotas)">
+                                    </div>
+
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <label for="meses"
+                                            class="text-gray-700 font-semibold mb-2 flex items-center">
+                                            <span
+                                                class="bg-blue-100 text-blue-800 font-bold rounded-full w-6 h-6 flex items-center justify-center mr-2">2</span>
+                                            Meses restantes
+                                        </label>
+                                        <input type="text" id="meses" name="meses" placeholder="Ej: 10"
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                            required value="{{ $mesesRestantes }}"
+                                            title="Meses restantes desde hoy, a la fecha de activacion (+ 20 años)">
+                                    </div>
                                 </div>
-                                <div>
-                                    <label for="seguro" class="block text-gray-700 font-bold mb-2">
-                                        4) Seguro:
-                                    </label>
-                                    <input type="text" inputmode="decimal" name="seguro"
-                                        placeholder="Ej: 13 (no es necesario agregar simbolo %)"
-                                        pattern="[0-9]*[.,]?[0-9]*"
-                                        class="appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:bg-white"
-                                        required value="0.04" title="Seguro por defecto 0.04%.">
+
+                                <!-- Interest and Insurance -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <label for="taza_interes"
+                                            class="text-gray-700 font-semibold mb-2 flex items-center">
+                                            <span
+                                                class="bg-blue-100 text-blue-800 font-bold rounded-full w-6 h-6 flex items-center justify-center mr-2">3</span>
+                                            Interés
+                                        </label>
+                                        <div class="relative">
+                                            <input type="text" inputmode="decimal" name="taza_interes"
+                                                placeholder="Ej: 13" pattern="[0-9]*[.,]?[0-9]*"
+                                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                                required value="{{ $beneficiary->tasa_interes ?? 0 }}" title="Taza por defecto 3%">
+                                            <span class="absolute right-3 top-2 text-gray-500">%</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <label for="seguro"
+                                            class="text-gray-700 font-semibold mb-2 flex items-center">
+                                            <span
+                                                class="bg-blue-100 text-blue-800 font-bold rounded-full w-6 h-6 flex items-center justify-center mr-2">4</span>
+                                            Seguro
+                                        </label>
+                                        <div class="relative">
+                                            <input type="text" inputmode="decimal" name="seguro"
+                                                placeholder="Ej: 0.04" pattern="[0-9]*[.,]?[0-9]*"
+                                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                                required value="0.04" title="Seguro por defecto 0.04%">
+                                            <span class="absolute right-3 top-2 text-gray-500">%</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Additional Options -->
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <div class="space-y-4">
+                                        <label for="correlativo"
+                                            class="hidden items-center p-4 bg-white rounded-lg shadow-sm border border-gray-200 cursor-pointer hover:bg-gray-50 transition"
+                                            title="Desactivado: el n# de cuota empezará desde el 1 para adelante, de lo contrario, desde la ultima cuota correspondiente a los meses restantes">
+                                            <span
+                                                class="bg-blue-100 text-blue-800 font-bold rounded-full w-6 h-6 flex items-center justify-center mr-2">5</span>
+                                            <x-checkbox id="correlativo" name="correlativo" />
+                                            <span class="ml-2 text-gray-700">Reajuste (marcado) / Activacion
+                                                (desmarcado)</span>
+                                        </label>
+
+                                        <div class="mt-4">
+                                            <label for="fecha_inicio"
+                                                class="text-gray-700 font-semibold mb-2 flex items-center">
+                                                <span
+                                                    class="bg-blue-100 text-blue-800 font-bold rounded-full w-6 h-6 flex items-center justify-center mr-2">6</span>
+                                                Fecha de inicio
+                                            </label>
+                                            <input type="date" id="fecha_inicio" name="fecha_inicio"
+                                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                                required value="<?php echo date('Y-m-d'); ?>" title="Fecha actual por defecto">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Optional Deferral Section -->
+                                <div class="bg-gray-50 p-6 rounded-lg space-y-4">
+                                    <h3 class="font-semibold text-gray-800 mb-4">Diferimiento de cobro (Opcional)</h3>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <input type="number" id="diff_cuotas" name="diff_cuotas"
+                                            placeholder="Número de cuotas"
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                            title="Cantidad de cuotas adicionales">
+
+                                        <input type="text" id="diff_capital" name="diff_capital"
+                                            placeholder="Monto diferido" pattern="[0-9]*[.,]?[0-9]*"
+                                            inputmode="decimal"
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                            title="Monto del diferimiento">
+
+                                        <input type="text" id="diff_interes" name="diff_interes"
+                                            placeholder="Interés diferido" pattern="[0-9]*[.,]?[0-9]*"
+                                            inputmode="decimal"
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                            title="Interes del diferimiento">
+                                    </div>
                                 </div>
                             </div>
-                            <div class="mb-4">
-                                <div class="block mt-4">
-                                    <label for="correlativo"
-                                        class="bg-gray-100 flex items-center text-gray-700 font-bold mb-2 p-4 border rounded-md cursor-pointer"
-                                        title="Desactivado: el n# de cuota empezará desde el 1 para adelante, de lo contrario, desde la ultima cuota correspondiente a los meses restantes.">
-                                        5) &nbsp;
-                                        <x-checkbox checked id="correlativo" name="correlativo" />
-                                        <span class="ms-2 text-gray-600 dark:text-gray-400">
-                                            Reajuste (marcado) / Activacion (desmarcado)
-                                        </span>
-                                    </label>
-                                    <label for="fecha_inicio" class="block text-gray-700 font-bold mb-2">
-                                        6) Fecha de inicio:
-                                    </label>
-                                    <input type="date" id="fecha_inicio" name="fecha_inicio"
-                                        class="appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:bg-white"
-                                        required value="<?php echo date('Y-m-d'); ?>" title="Fecha actual por defecto." />
-                                </div>
-                            </div>
-                            <hr class="mt-4 mb-4">
-                            <div class="mb-4">
-                                <label class="block text-gray-700 font-bold mb-2">
-                                    (Opcional) Diferimiento de cobro (de no existir, dejar todos los campos vacios):
-                                </label>
-                                <input type="number" id="diff_cuotas" name="diff_cuotas" placeholder="Ej: 10"
-                                    class="mt-2 appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:bg-white"
-                                    title="Cantidad de cuotas adicionales." />
-                                <input type="text" id="diff_capital" name="diff_capital"
-                                    placeholder="Ej: 3500.75" pattern="[0-9]*[.,]?[0-9]*" inputmode="decimal"
-                                    class="mt-2 appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:bg-white"
-                                    title="Monto del diferimiento." />
-                                <input type="text" id="diff_interes" name="diff_interes"
-                                    placeholder="Ej: 1200.50" pattern="[0-9]*[.,]?[0-9]*" inputmode="decimal"
-                                    class="mt-2 appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:bg-white"
-                                    title="Interes del diferimiento." />
-                            </div>
-                            <div class="flex justify-end mt-4">
-                                <x-personal.button submit="true" iconCenter="fa-solid fa-calculator text-xl">
+
+                            <div class="flex justify-end mt-6">
+                                <x-personal.button submit="true" iconCenter="fa-solid fa-calculator text-xl"
+                                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200">
                                     Vista Previa del Plan
                                 </x-personal.button>
                             </div>

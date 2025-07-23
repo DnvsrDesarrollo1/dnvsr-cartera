@@ -84,12 +84,16 @@
                                     <span class="text-red-500 text-xs">{{ $message }}</span>
                                 @enderror
                             </div>
+
+                            <x-personal.alert clossable='false' type='info' message='Recuerde validar el SALDO CREDITO antes de registrar cualquier pago.' />
+
                             <div class="border-l-4 border-green-600 pl-4">
 
                                 <div class="mb-4">
                                     <label for="totalpagado" class="block text-gray-700 text-sm font-bold mb-2">Total
                                         Pagado:</label>
-                                    <input type="number" wire:model.live.debounce.300ms="totalpagado" id="totalpagado" step="0.10"
+                                    <input type="number" wire:model.live.debounce.300ms="totalpagado" id="totalpagado"
+                                        step="0.10"
                                         class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                     @error('totalpagado')
                                         <span class="text-red-500 text-xs">{{ $message }}</span>
@@ -99,23 +103,12 @@
                                     Este valor determinará el monto real destinado a Capital (k), usar solo en caso de
                                     necesitar re-elaborar el plan vigente.
                                 </span>
-                                <span id="minus" @class([
-                                    'text-red-600',
-                                    'text-sm',
-                                    'italic',
-                                    'bold',
-                                    'text-end',
-                                    'hidden' => $montopago <= $totalpagado,
-                                    'block' => $montopago > $totalpagado,
-                                ])>
-                                    Monto menor al planificado! - Considere la posibilidad de inconsistencias en el plan
-                                    de pagos recalculado.
-                                </span>
                                 <hr class="mt-4 mb-4" />
                                 <div class="mb-4">
                                     <label for="capital"
                                         class="block text-gray-700 text-sm font-bold mb-2">CAPITAL:</label>
-                                    <input type="number" wire:model.live.debounce.300ms="capital" id="capital" step="0.10"
+                                    <input type="number" wire:model.live.debounce.300ms="capital" id="capital"
+                                        step="0.10"
                                         class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                     @error('capital')
                                         <span class="text-red-500 text-xs">{{ $message }}</span>
@@ -125,7 +118,8 @@
                                 <div class="mb-4">
                                     <label for="interes"
                                         class="block text-gray-700 text-sm font-bold mb-2">INTERES:</label>
-                                    <input type="number" wire:model.live.debounce.300ms="interes" id="interes" step="0.10"
+                                    <input type="number" wire:model.live.debounce.300ms="interes" id="interes"
+                                        step="0.10"
                                         class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                     @error('interes')
                                         <span class="text-red-500 text-xs">{{ $message }}</span>
@@ -136,8 +130,8 @@
                                     <label for="interes_devg"
                                         class="block text-gray-700 text-sm font-bold mb-2">INTERES
                                         DEVENGADO:</label>
-                                    <input type="number" wire:model.live.debounce.300ms="interes_devg" id="interes_devg"
-                                        step="0.10"
+                                    <input type="number" wire:model.live.debounce.300ms="interes_devg"
+                                        id="interes_devg" step="0.10"
                                         class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                     @error('interes_devg')
                                         <span class="text-red-500 text-xs">{{ $message }}</span>
@@ -147,7 +141,8 @@
                                 <div class="mb-4">
                                     <label for="seguro"
                                         class="block text-gray-700 text-sm font-bold mb-2">SEGURO:</label>
-                                    <input type="number" wire:model.live.debounce.300ms="seguro" id="seguro" step="0.10"
+                                    <input type="number" wire:model.live.debounce.300ms="seguro" id="seguro"
+                                        step="0.10"
                                         class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                     @error('seguro')
                                         <span class="text-red-500 text-xs">{{ $message }}</span>
@@ -157,8 +152,8 @@
                                 <div class="mb-4">
                                     <label for="seguro_devg" class="block text-gray-700 text-sm font-bold mb-2">SEGURO
                                         DEVENGADO:</label>
-                                    <input type="number" wire:model.live.debounce.300ms="seguro_devg" id="seguro_devg"
-                                        step="0.10"
+                                    <input type="number" wire:model.live.debounce.300ms="seguro_devg"
+                                        id="seguro_devg" step="0.10"
                                         class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                     @error('seguro_devg')
                                         <span class="text-red-500 text-xs">{{ $message }}</span>
@@ -168,7 +163,8 @@
                                 <div class="mb-4">
                                     <label for="otros"
                                         class="block text-gray-700 text-sm font-bold mb-2">OTROS:</label>
-                                    <input type="number" wire:model.live.debounce.300ms="otros" id="otros" step="0.10"
+                                    <input type="number" wire:model.live.debounce.300ms="otros" id="otros"
+                                        step="0.10"
                                         class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                     @error('otros')
                                         <span class="text-red-500 text-xs">{{ $message }}</span>
@@ -197,8 +193,8 @@
                                                 class="block text-gray-700 text-sm font-bold mb-2">
                                                 NRO° CUOTA DIFERIDA:
                                             </label>
-                                            <input type="number" wire:model.live.debounce.300ms="cuota_diff" id="cuota_diff"
-                                                step="1"
+                                            <input type="number" wire:model.live.debounce.300ms="cuota_diff"
+                                                id="cuota_diff" step="1"
                                                 class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                             @error('cuota_diff')
                                                 <span class="text-red-500 text-xs">{{ $message }}</span>
@@ -209,8 +205,8 @@
                                                 class="block text-gray-700 text-sm font-bold mb-2">
                                                 CAPITAL DIFERIDO:
                                             </label>
-                                            <input type="number" wire:model.live.debounce.300ms="capital_diff" id="capital_diff"
-                                                step="0.10"
+                                            <input type="number" wire:model.live.debounce.300ms="capital_diff"
+                                                id="capital_diff" step="0.10"
                                                 class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                             @error('capital_diff')
                                                 <span class="text-red-500 text-xs">{{ $message }}</span>
@@ -221,8 +217,8 @@
                                                 class="block text-gray-700 text-sm font-bold mb-2">
                                                 INTERES DIFERIDO:
                                             </label>
-                                            <input type="number" wire:model.live.debounce.300ms="interes_diff" id="interes_diff"
-                                                step="0.10"
+                                            <input type="number" wire:model.live.debounce.300ms="interes_diff"
+                                                id="interes_diff" step="0.10"
                                                 class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                             @error('interes_diff')
                                                 <span class="text-red-500 text-xs">{{ $message }}</span>

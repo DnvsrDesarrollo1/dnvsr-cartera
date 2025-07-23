@@ -7,6 +7,29 @@ use Illuminate\Database\Eloquent\Collection;
 
 trait FinanceTrait
 {
+    private function dividirConRedondeo($total, $partes)
+    {
+        if ($partes <= 0) return []; // Validación básica
+
+        // Convertir el total a centavos (trabajar en enteros)
+        $totalCentavos = round($total * 100);
+
+        // Calcular la base entera y el residuo
+        $baseEntera = floor($totalCentavos / $partes);
+        $residuo = $totalCentavos % $partes; // Centavos sobrantes
+
+        $resultados = [];
+        for ($i = 0; $i < $partes; $i++) {
+            $centavos = $baseEntera;
+            // Distribuir el residuo: un centavo extra en las primeras $residuo partes
+            if ($i < $residuo) {
+                $centavos += 1;
+            }
+            $resultados[] = $centavos / 100; // Convertir a dólares
+        }
+        return $resultados;
+    }
+
     private function calcularPagoMensual(float $valorPresente, float $tasaInteres, int $numPeriodos): float
     {
         if ($tasaInteres == 0) {

@@ -99,11 +99,11 @@
                                 @enderror
                             </div>
                             <div class="mb-4">
-                                <label for="total_activado" class="block text-gray-700 text-sm font-bold">Total
+                                <label for="total_activado" class="block text-gray-700 text-sm font-bold">Monto
                                     Activado:</label>
-                                <input type="number" wire:model="total_activado" id="total_activado"
+                                <input type="number" wire:model="monto_activado" id="monto_activado"
                                     class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                                @error('total_activado')
+                                @error('monto_activado')
                                     <span class="text-red-500 text-xs">{{ $message }}</span>
                                 @enderror
                             </div>
@@ -123,10 +123,10 @@
                                 @if (
                                     $beneficiary->total_activado - $beneficiary->payments()->where('prtdtdesc', 'LIKE', '%CAP%')->sum('montopago') !=
                                         $beneficiary->saldo_credito)
-                                    <span class="text-gray-500">
+                                    <span class="text-gray-500 text-sm">
                                         <i>
-                                            El sistema detecta un saldo aprox. de
-                                            {{ $beneficiary->total_activado - $beneficiary->payments()->where('prtdtdesc', 'LIKE', '%CAP%')->sum('montopago') }}
+                                            El sistema detecta un saldo aprox. de Bs.
+                                            {{ number_format($beneficiary->total_activado - $beneficiary->payments()->where('prtdtdesc', 'LIKE', '%CAP%')->sum('montopago'), 3) }}
                                         </i>
                                     </span>
                                 @endif

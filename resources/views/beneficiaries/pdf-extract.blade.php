@@ -91,11 +91,8 @@
 
         .description {
             width: 100%;
-            margin-top: 10px;
             border-collapse: collapse;
         }
-
-        .description>thead>th {}
 
         .description>tbody>tr {
             border-bottom: 1px solid #eee;
@@ -195,15 +192,6 @@
         </header>
         <div class="details">
             <table class="description">
-                <thead>
-                    <th>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    </th>
-                </thead>
                 <tbody>
                     <tr>
                         <td></td>
@@ -282,6 +270,12 @@
                             {{ number_format(\App\Models\Spend::where('idepro', $beneficiary->idepro)->where('estado', 'ACTIVO')->sum('monto') ?? 0, 2) }}
                         </td>
                     </tr>
+                    <tr>
+                        <td>Cuotas Pendientes por Cancelar:</td>
+                        <td>{{$beneficiary->getCurrentPlan('CANCELADO', '!=')->count()}} <b>de</b> {{$beneficiary->getCurrentPlan('INACTIVO', '!=')->count()}}</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -323,7 +317,7 @@
                             Otros Cargos
                         </th>
                         <th
-                            style="text-align: right; padding: 8px; background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
+                            style="text-align: center; padding: 8px; background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
                             Monto Total
                         </th>
                         <th
@@ -344,18 +338,18 @@
                                 ->orWhere('obs_pago', '!=', 'LEGACY 22/24');
                     })->orderBy('numpago', 'ASC')->get() as $v)
                         <tr>
-                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #eee;">
+                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #a5a4a47a;">
                                 {{ $loop->iteration }}</td>
                             <td
-                                style="text-align: center; padding: 4px; border-bottom: 1px solid #eee; font-size: 9px;">
+                                style="text-align: center; padding: 4px; border-bottom: 1px solid #a5a4a47a; font-size: 9px;">
                                 {{ \Carbon\Carbon::parse($v->fecha_pago)->format('d/m/Y') }} <br />
                                 {{ \Carbon\Carbon::parse($v->hora_pago)->format('H:i') }}
                             </td>
-                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #eee;">
+                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #a5a4a47a;">
                                 {{ $v->numpago }}</td>
-                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #eee;">
+                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #a5a4a47a;">
                                 {{ $v->numtramite }}</td>
-                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #eee;">
+                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #a5a4a47a;">
                                 @php
                                     $cd = $v
                                         ->payments()
@@ -373,16 +367,16 @@
                                     ? ' + ' . $cd
                                     : '') }}
                             </td>
-                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #eee;">
+                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #a5a4a47a;">
                                 {{ number_format($v->payments()->where('prtdtnpag', $v->numpago)->where('prtdtdesc', 'LIKE', 'INTE%')->sum('montopago'), 2) }}
                             </td>
-                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #eee;">
+                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #a5a4a47a;">
                                 {{ number_format($v->payments()->where('prtdtnpag', $v->numpago)->where('prtdtdesc', 'LIKE', 'SEGU%')->sum('montopago'), 2) }}
                             </td>
-                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #eee;">
+                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #a5a4a47a;">
                                 {{ number_format($v->payments()->where('prtdtnpag', $v->numpago)->where('prtdtdesc', 'LIKE', 'OTR%')->sum('montopago'), 2) }}
                             </td>
-                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #eee;">
+                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #a5a4a47a;">
                                 {{ number_format($v->montopago, 2) }}
                             </td>
                             @php
@@ -401,11 +395,11 @@
                                         ->sum('montopago'));
                             @endphp
                             <td
-                                style="text-align: center; font-weight: 800;padding: 4px; border-bottom: 1px solid #eee;">
+                                style="text-align: center; font-weight: 800;padding: 4px; border-bottom: 1px solid #a5a4a49d;">
                                 {{ number_format($saldo, 2) }}
                             </td>
                             <td
-                                style="text-align: center; padding: 4px; border-bottom: 1px solid #eee; font-size: 8px;">
+                                style="text-align: center; padding: 4px; border-bottom: 1px solid #a5a4a47a; font-size: 8px;">
                                 {{ $v->obs_pago }}
                             </td>
                         </tr>

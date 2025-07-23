@@ -18,10 +18,10 @@ return new class extends Migration
             $table->timestamps(0); // Precisión 0 según el PDF
 
             // Clave foránea hacia beneficiaries.idepro
-            $table->foreign('idepro')
+            /* $table->foreign('idepro')
                 ->references('idepro')
                 ->on('beneficiaries')
-                ->onDelete('cascade');
+                ->onDelete('cascade'); */
         });
     }
 

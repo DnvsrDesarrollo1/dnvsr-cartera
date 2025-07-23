@@ -10,6 +10,7 @@ use App\Models\Readjustment;
 use Barryvdh\DomPDF\Facade\Pdf;
 use DateTime;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use ZipArchive;
@@ -19,6 +20,11 @@ class BeneficiaryController extends Controller
     public function index()
     {
         return view('beneficiaries.index');
+    }
+
+    public function indexAll()
+    {
+        return view('beneficiaries.index-all');
     }
 
     public function store(Request $request)
@@ -42,6 +48,25 @@ class BeneficiaryController extends Controller
             'plansArray',
             'paymentsArray'
         ));
+    }
+
+    public function update(Request $request, Beneficiary $beneficiary)
+    {
+        // Check if user has permission to update beneficiaries
+        if (!Auth::user()->can('write beneficiaries')) {
+            abort(403);
+        }
+
+        try {
+            // Update beneficiary status to blocked
+            $beneficiary->update([
+                'estado' => 'BLOQUEADO'
+            ]);
+
+            return redirect()->back()->with('success', 'Beneficiario bloqueado exitosamente.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error al bloquear beneficiario: ' . $e->getMessage());
+        }
     }
 
     public function pdf($cedula)

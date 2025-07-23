@@ -128,7 +128,7 @@ class PlanController extends Controller
 
         $data = $this->generarPlan(
             $validatedData['capital_inicial'],
-            \App\Models\Spend::where('idepro', $request->input('idepro'))->where('estado', 'ACTIVO')->first()->monto ?? 0,
+            Beneficiary::where('idepro', $beneficiary)->first()->spends()->where('estado', 'ACTIVO')->sum('monto') ?? 0,
             $validatedData['meses'],
             $validatedData['taza_interes'],
             $request->input('seguro'),

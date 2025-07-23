@@ -21,7 +21,7 @@ return new class extends Migration
             $table->text('image_xml'); // XML asociado
             $table->timestamps(6); // Precisión 6 según el PDF
 
-            $table->foreign('idepro')->references('idepro')->on('beneficiaries');
+            /* $table->foreign('idepro')->references('idepro')->on('beneficiaries'); */
         });
     }
 

@@ -26,7 +26,7 @@ class BeneficiaryStatus extends Command
      */
     public function handle()
     {
-        $beneficiaries = \App\Models\Beneficiary::where('estado', '!=', 'BLOQUEADO')->get();
+        $beneficiaries = \App\Models\Beneficiary::where('estado', '!=', 'CANCELADO')->where('estado', '!=', 'BLOQUEADO')->get();
         $count = 0;
 
         foreach ($beneficiaries as $b) {

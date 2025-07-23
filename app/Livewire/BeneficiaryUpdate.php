@@ -8,7 +8,7 @@ use Livewire\Component;
 class BeneficiaryUpdate extends Component
 {
     public $beneficiary;
-    public $nombre, $ci, $complemento, $expedido, $estado, $idepro, $fecha_nacimiento, $total_activado,
+    public $nombre, $ci, $complemento, $expedido, $estado, $idepro, $fecha_nacimiento, $total_activado, $monto_activado,
         $gastos_judiciales, $saldo_credito, $monto_recuperado, $fecha_activacion, $plazo_credito, $tasa_interes,
         $departamento, $seguro;
     public $cuota;
@@ -24,6 +24,7 @@ class BeneficiaryUpdate extends Component
         'idepro' => 'required|string|max:50',
         'fecha_nacimiento' => 'required|date',
         'total_activado' => 'required|numeric',
+        'monto_activado' => 'required|numeric',
         'gastos_judiciales' => 'required|numeric',
         'saldo_credito' => 'required|numeric',
         'monto_recuperado' => 'required|numeric',
@@ -54,9 +55,12 @@ class BeneficiaryUpdate extends Component
         $this->validate();
 
         if ($this->idepro != $this->beneficiary->idepro){
-            $this->beneficiary->getCurrentPlan('INACTIVO', '!=')->update([
-                'idepro' => $this->idepro,
-            ]);
+
+            foreach ($this->beneficiary->getCurrentPlan('INACTIVO', '!=') as $p) {
+                $p->update([
+                    'idepro' => $this->idepro,
+                ]);
+            }
 
             $this->beneficiary->helpers()->update([
                 'idepro' => $this->idepro,
@@ -87,7 +91,7 @@ class BeneficiaryUpdate extends Component
             'estado' => $this->estado,
             'idepro' => $this->idepro,
             'fecha_nacimiento' => $this->fecha_nacimiento,
-            'total_activado' => $this->total_activado,
+            'monto_activado' => $this->monto_activado,
             'gastos_judiciales' => $this->gastos_judiciales,
             'saldo_credito' => $this->saldo_credito,
             'monto_recuperado' => $this->monto_recuperado,

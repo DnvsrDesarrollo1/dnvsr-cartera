@@ -37,4 +37,6 @@ class Payment extends Model
     {
         return $this->belongsTo(Voucher::class, 'numtramite', 'numtramite');
     }
+
+
 }

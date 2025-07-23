@@ -62,7 +62,7 @@
                         <x-personal.alert type="info" message="La ejecución de esta liquidación venció."
                             clossable="false" />
                     @endif
-                    <form class="space-y-2" wire:submit="save">
+                    <form class="space-y-2" wire:submit.prevent="save">
                         <div
                             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-2 bg-white rounded-lg shadow-md">
 
@@ -72,7 +72,7 @@
                                     Capital:
                                 </label>
                                 <div class="relative rounded-md shadow-sm">
-                                    <input min="0" type="number" wire:model.live="capSettle" id="capSettle"
+                                    <input min="0" type="number" wire:model.blur="capSettle" id="capSettle"
                                         step="0.10"
                                         class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border"
                                         placeholder="0.00">
@@ -90,7 +90,7 @@
                                     Capital Diferido:
                                 </label>
                                 <div class="relative rounded-md shadow-sm">
-                                    <input min="0" type="number" wire:model.live="capDifSettle"
+                                    <input min="0" type="number" wire:model.blur="capDifSettle"
                                         id="capDifSettle" step="0.10"
                                         class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border"
                                         placeholder="0.00">
@@ -109,7 +109,7 @@
                                     Interés Devengado:
                                 </label>
                                 <div class="relative rounded-md shadow-sm">
-                                    <input min="0" type="number" wire:model.live="intDevSettle"
+                                    <input min="0" type="number" wire:model.blur="intDevSettle"
                                         id="intDevSettle" step="0.10"
                                         class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border"
                                         placeholder="0.00">
@@ -127,7 +127,7 @@
                                     Interés: (de una mora de {{ $diasMora }} días)
                                 </label>
                                 <div class="relative rounded-md shadow-sm">
-                                    <input min="0" type="number" wire:model.live="intSettle" id="intSettle"
+                                    <input min="0" type="number" wire:model.blur="intSettle" id="intSettle"
                                         step="0.10"
                                         class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border"
                                         placeholder="0.00">
@@ -145,7 +145,7 @@
                                     Interés Diferido:
                                 </label>
                                 <div class="relative rounded-md shadow-sm">
-                                    <input min="0" type="number" wire:model.live="intDifSettle"
+                                    <input min="0" type="number" wire:model.blur="intDifSettle"
                                         id="intDifSettle" step="0.10"
                                         class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border"
                                         placeholder="0.00">
@@ -163,7 +163,7 @@
                                     Seguro Devengado:
                                 </label>
                                 <div class="relative rounded-md shadow-sm">
-                                    <input min="0" type="number" wire:model.live="segDevSettle"
+                                    <input min="0" type="number" wire:model.blur="segDevSettle"
                                         id="segDevSettle" step="0.10"
                                         class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border"
                                         placeholder="0.00">
@@ -181,7 +181,7 @@
                                     Seguro:
                                 </label>
                                 <div class="relative rounded-md shadow-sm">
-                                    <input min="0" type="number" wire:model.live="segSettle" id="segSettle"
+                                    <input min="0" type="number" wire:model.blur="segSettle" id="segSettle"
                                         step="0.10"
                                         class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border"
                                         placeholder="0.00">
@@ -200,7 +200,7 @@
                                         Otros: (Gastos Adm, Jud, Not, etc.)
                                     </label>
                                     <div class="relative rounded-md shadow-sm">
-                                        <input min="0" type="number" wire:model.live="otrosSettle"
+                                        <input min="0" type="number" wire:model.blur="otrosSettle"
                                             id="otrosSettle" step="0.10"
                                             class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border"
                                             placeholder="0.00">
@@ -217,9 +217,9 @@
                                         Descuento al Gasto Administrativo:
                                     </label>
                                     <div class="relative rounded-md shadow-sm">
-                                        <input min="0" type="number" wire:model.live="descuento"
+                                        <input min="0" type="number" wire:model.blur="descuento"
                                             id="descuento" step="0.10"
-                                            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border"
+                                            class="block w-full rounded-md border-red-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border"
                                             placeholder="0.00">
                                         <div
                                             class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
@@ -237,7 +237,7 @@
                                     Campo de autocálculo y autodistribución:
                                 </label>
                                 <div class="relative rounded-md shadow-sm">
-                                    <input type="number" wire:model.live="totalSettle" id="totalSettle"
+                                    <input type="number" wire:model.blur="totalSettle" id="totalSettle"
                                         step="0.10"
                                         class="block w-full bg-gray-200 rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 sm:text-sm py-2 px-3 border"
                                         placeholder="0.00">
@@ -254,7 +254,7 @@
                                 <label for="estado" class="block text-sm font-medium text-gray-700">Estado</label>
                                 <select id="estado"
                                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                                    wire:model.live="estado">
+                                    wire:model.blur="estado">
                                     @foreach ($estados as $estadoOption)
                                         <option value="{{ $estadoOption }}" @selected($estado == $estadoOption)>
                                             {{ ucfirst($estadoOption) }}
@@ -272,7 +272,7 @@
                                     del Técnico:</label>
                                 <textarea id="comentarios" name="comentarios" rows="3"
                                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                                    wire:model.live="comentarios"></textarea>
+                                    wire:model.blur="comentarios"></textarea>
                                 @error('comentarios')
                                     <span class="text-sm text-red-600">{{ $message }}</span>
                                 @enderror
@@ -286,7 +286,7 @@
                                 @can('write settlements')
                                     <textarea id="observaciones" name="observaciones" rows="3"
                                         class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500"
-                                        wire:model.live="observaciones"></textarea>
+                                        wire:model.blur="observaciones"></textarea>
                                     @error('observaciones')
                                         <span class="text-sm text-red-600">{{ $message }}</span>
                                     @enderror
@@ -316,9 +316,13 @@
                                             <span class="text-sm text-red-600">{{ $message }}</span>
                                         @enderror
 
-                                        <div wire:loading wire:target="anexos" class="text-sm text-gray-500 mt-1">
-                                            Subiendo
-                                            archivos...</div>
+                                        <div wire:loading wire:target="anexos" class="flex items-center space-x-2 text-sm text-gray-600 mt-2 bg-blue-50 p-2 rounded-md border border-blue-200">
+                                            <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            <span>Subiendo archivos, por favor espere...</span>
+                                        </div>
 
                                         @if (count($anexos) > 0)
                                             <div class="mt-2">
@@ -355,7 +359,7 @@
                                             Comprobante de Deposito:
                                         </label>
                                         <div class="relative rounded-md shadow-sm">
-                                            <input type="text" wire:model.live="comprobante" id="comprobante"
+                                            <input type="text" wire:model.blur="comprobante" id="comprobante"
                                                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 sm:text-sm py-2 px-3 border"
                                                 placeholder="12345678900ABC">
                                             <div
@@ -372,7 +376,7 @@
                                             Comprobante de Deposito:
                                         </label>
                                         <div class="relative rounded-md shadow-sm">
-                                            <input type="date" wire:model.live="fecha_comprobante"
+                                            <input type="date" wire:model.blur="fecha_comprobante"
                                                 id="fecha_comprobante"
                                                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 sm:text-sm py-2 px-3 border">
                                             <div

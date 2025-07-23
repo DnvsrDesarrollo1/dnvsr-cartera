@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
 use Illuminate\Support\Facades\Http;
 
 class Beneficiary extends Model
@@ -190,4 +189,6 @@ class Beneficiary extends Model
             return [];
         }
     }
+
+
 }

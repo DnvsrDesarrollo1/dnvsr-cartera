@@ -16,29 +16,29 @@ return new class extends Migration
             $table->string('idepro', 255); // Relación con beneficiaries.idepro
             $table->date('fecha_ppg');
             $table->string('prppgnpag', 255);
-            $table->double('prppgcapi');
-            $table->double('prppginte');
-            $table->double('prppggral');
-            $table->double('prppgsegu');
-            $table->double('prppgotro');
-            $table->double('prppgcarg');
-            $table->double('prppgtota');
-            $table->string('prppgahor', 255);
-            $table->string('prppgmpag', 255);
+            $table->double('prppgcapi')->nullable();
+            $table->double('prppginte')->nullable();
+            $table->double('prppggral')->nullable();
+            $table->double('prppgsegu')->nullable();
+            $table->double('prppgotro')->nullable();
+            $table->double('prppgcarg')->nullable();
+            $table->double('prppgtota')->nullable();
+            $table->string('prppgahor', 255)->nullable();
+            $table->string('prppgmpag', 255)->nullable();
             $table->string('estado', 100);
             $table->unsignedBigInteger('user_id');
             $table->timestamps(6);
 
             // Clave foránea hacia beneficiaries.idepro
-            $table->foreign('idepro')
-                ->references('idepro')
-                ->on('beneficiaries')
-                ->onDelete('cascade');
+            //$table->foreign('idepro')
+            //    ->references('idepro')
+            //    ->on('beneficiaries')
+            //    ->onDelete('cascade');
 
             // Clave foránea hacia users (si es necesario)
-            $table->foreign('user_id')
-                ->references('id')
-                ->on('users');
+            //$table->foreign('user_id')
+            //    ->references('id')
+            //    ->on('users');
         });
     }
 

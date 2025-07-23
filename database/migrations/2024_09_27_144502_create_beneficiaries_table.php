@@ -14,40 +14,40 @@ return new class extends Migration
         Schema::create('beneficiaries', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('nombre', 255);
-            $table->string('ci', 255)->unique();
+            $table->string('ci', 255)->nullable();
             $table->string('complemento', 255)->nullable();
-            $table->string('expedido', 255);
-            $table->string('mail', 255);
-            $table->string('estado', 255);
-            $table->string('entidad_financiera', 255);
-            $table->string('cod_proy', 255); // Clave foránea hacia projects (proy_cod)
-            $table->string('idepro', 255);
-            $table->string('cod_promotor', 255);
-            $table->string('cod_cristorey', 255);
-            $table->string('cod_fondesif', 255);
-            $table->string('cod_smp', 255);
-            $table->string('proyecto', 255);
-            $table->string('genero', 255);
-            $table->date('fecha_nacimiento');
-            $table->double('monto_credito');
-            $table->double('monto_activado');
-            $table->double('total_activado');
-            $table->double('gastos_judiciales')->default(0);
+            $table->string('expedido', 255)->nullable();
+            $table->string('mail', 255)->nullable();
+            $table->string('estado', 255)->nullable();
+            $table->string('entidad_financiera', 255)->nullable();
+            $table->string('cod_proy', 255)->nullable(); // Clave foránea hacia projects (proy_cod)
+            $table->string('idepro', 255)->nullable();
+            $table->string('cod_promotor', 255)->nullable();
+            $table->string('cod_cristorey', 255)->nullable();
+            $table->string('cod_fondesif', 255)->nullable();
+            $table->string('cod_smp', 255)->nullable();
+            $table->string('proyecto', 255)->nullable();
+            $table->string('genero', 255)->nullable();
+            $table->date('fecha_nacimiento')->nullable();
+            $table->double('monto_credito')->nullable();
+            $table->double('monto_activado')->nullable();
+            $table->double('total_activado')->nullable();
+            $table->double('gastos_judiciales')->nullable()->default(0);
             $table->double('saldo_credito');
-            $table->double('monto_recuperado')->default(0);
-            $table->date('fecha_activacion');
-            $table->integer('plazo_credito');
-            $table->text('tasa_interes');
+            $table->double('monto_recuperado')->nullable()->default(0);
+            $table->date('fecha_activacion')->nullable();
+            $table->integer('plazo_credito')->nullable();
+            $table->text('tasa_interes')->nullable();
             $table->string('departamento', 255);
             $table->bigInteger('user_id')->nullable();
             $table->date('fecha_extendida')->nullable();
             $table->timestamps(6);
 
             // Clave foránea hacia projects
-            $table->foreign('cod_proy')
+            /* $table->foreign('cod_proy')
                 ->references('proy_cod')
                 ->on('projects')
-                ->onDelete('cascade');
+                ->onDelete('cascade'); */
         });
     }
 

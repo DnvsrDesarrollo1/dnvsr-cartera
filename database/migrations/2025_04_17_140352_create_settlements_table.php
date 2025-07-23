@@ -14,19 +14,20 @@ return new class extends Migration
         Schema::create('settlements', function (Blueprint $table) {
             $table->id();
 
-            $table->double('capital_inicial');
-            $table->double('capital_final');
-            $table->double('capital_diferido');
-            $table->double('interes');
-            $table->double('interes_devengado');
-            $table->double('interes_diferido');
-            $table->double('seguro');
-            $table->double('seguro_devengado');
-            $table->double('gastos_judiciales');
-            $table->double('gastos_administrativos');
-            $table->double('otros');
+            $table->double('capital_inicial')->nullable();
+            $table->double('capital_final')->nullable();
+            $table->double('capital_diferido')->nullable();
+            $table->double('interes')->nullable();
+            $table->double('interes_devengado')->nullable();
+            $table->double('interes_diferido')->nullable();
+            $table->double('seguro')->nullable();
+            $table->double('seguro_devengado')->nullable();
+            $table->double('gastos_judiciales')->nullable();
+            $table->double('gastos_administrativos')->nullable();
+            $table->double('otros')->nullable();
+            $table->double('descuento')->nullable();
 
-            $table->text('plan_de_pagos');
+            $table->text('plan_de_pagos')->nullable();
 
             $table->enum(
                 'estado',
@@ -35,7 +36,7 @@ return new class extends Migration
                     'aprobado',
                     'ejecutado'
                 ]
-            );
+            )->nullable();
 
             $table->text('comentarios')->nullable();
             $table->text('observaciones')->nullable();
@@ -45,14 +46,14 @@ return new class extends Migration
             $table->unsignedBigInteger('beneficiary_id')->unique();
             $table->unsignedBigInteger('user_id');
 
-            $table->foreign('user_id')
+            /* $table->foreign('user_id')
                 ->references('id')
                 ->on('users')
                 ->onDelete('cascade');
             $table->foreign('beneficiary_id')
                 ->references('id')
                 ->on('beneficiaries')
-                ->onDelete('cascade');
+                ->onDelete('cascade'); */
 
             $table->timestamps();
         });

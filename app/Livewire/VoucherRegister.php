@@ -101,7 +101,7 @@ class VoucherRegister extends Component
 
                 #VOUCHER
                 \App\Models\Voucher::create([
-                    'agencia_pago' => $this->agencia_pago . ' : (VENTANILLA) ' . \Illuminate\Support\Facades\Auth::user()->name,
+                    'agencia_pago' => $this->agencia_pago . ' : (VENTANILLA) ' . Auth::user()->name,
                     'descripcion' => $this->descripcion,
                     'fecha_pago' => $this->fecha_pago,
                     'hora_pago' => $this->hora_pago,
@@ -117,7 +117,7 @@ class VoucherRegister extends Component
                     'capital' => $this->capital_diff,
                     'interes' => $this->interes_diff,
                     'estado' => 'CANCELADO',
-                    'user_id' => \Illuminate\Support\Facades\Auth::user()->id ?? 1,
+                    'user_id' => Auth::user()->id ?? 1,
                 ]);
 
                 $desabilitar = $this->beneficiario->helpers()->where('estado', 'ACTIVO')->where('indice', '>', $this->cuota_diff)->get();
@@ -127,7 +127,7 @@ class VoucherRegister extends Component
                         'capital' => 0,
                         'interes' => 0,
                         'estado' => 'CANCELADO',
-                        'user_id' => \Illuminate\Support\Facades\Auth::user()->id ?? 1,
+                        'user_id' => Auth::user()->id ?? 1,
                     ]);
                 }
 
@@ -170,7 +170,7 @@ class VoucherRegister extends Component
 
                 #VOUCHER
                 \App\Models\Voucher::create([
-                    'agencia_pago' => $this->agencia_pago . ' : (VENTANILLA) ' . \Illuminate\Support\Facades\Auth::user()->name,
+                    'agencia_pago' => $this->agencia_pago . ' : (VENTANILLA) ' . Auth::user()->name,
                     'descripcion' => $this->descripcion,
                     'fecha_pago' => $this->fecha_pago,
                     'hora_pago' => $this->hora_pago,
@@ -184,12 +184,12 @@ class VoucherRegister extends Component
 
                 $this->beneficiario->helpers()->where('indice', $this->cuota_diff)->update([
                     'estado' => 'CANCELADO',
-                    'user_id' => \Illuminate\Support\Facades\Auth::user()->id ?? 1,
+                    'user_id' => Auth::user()->id ?? 1,
                 ]);
 
                 $this->beneficiario->update([
                     'saldo_credito' => $this->beneficiario->saldo_credito - $this->capital_diff,
-                    'user_id' => \Illuminate\Support\Facades\Auth::user()->id,
+                    'user_id' => Auth::user()->id,
                     'updated_at' => now()
                 ]);
 
@@ -243,7 +243,7 @@ class VoucherRegister extends Component
                 'prtdtpref' => 20,
                 'prtdtccon' => 2,
                 'fecha_pago' => $this->fecha_pago,
-                'prtdtdesc' => 'INTERES DEVG',
+                'prtdtdesc' => 'INTERES DEVENGADO',
                 'montopago' => $this->interes_devg,
                 'prtdtuser' => 'AEV-PVS VENTANILLA',
                 'hora_pago' => $this->hora_pago,
@@ -260,7 +260,7 @@ class VoucherRegister extends Component
                 'prtdtpref' => 20,
                 'prtdtccon' => 2,
                 'fecha_pago' => $this->fecha_pago,
-                'prtdtdesc' => 'SEGURO DESGRV',
+                'prtdtdesc' => 'SEGURO DESGRAVAMEN',
                 'montopago' => $this->seguro,
                 'prtdtuser' => 'AEV-PVS VENTANILLA',
                 'hora_pago' => $this->hora_pago,
@@ -277,7 +277,7 @@ class VoucherRegister extends Component
                 'prtdtpref' => 21,
                 'prtdtccon' => 37,
                 'fecha_pago' => $this->fecha_pago,
-                'prtdtdesc' => 'SEGURO DESGRV DEVG',
+                'prtdtdesc' => 'SEGURO DESGRAVAMEN DEVENGADO',
                 'montopago' => $this->seguro_devg,
                 'prtdtuser' => 'AEV-PVS VENTANILLA',
                 'hora_pago' => $this->hora_pago,
@@ -308,7 +308,7 @@ class VoucherRegister extends Component
 
             #VOUCHER
             \App\Models\Voucher::create([
-                'agencia_pago' => $this->agencia_pago . ' : (VENTANILLA) ' . \Illuminate\Support\Facades\Auth::user()->name,
+                'agencia_pago' => $this->agencia_pago . ' : (VENTANILLA) ' . Auth::user()->name,
                 'descripcion' => $this->descripcion,
                 'fecha_pago' => $this->fecha_pago,
                 'hora_pago' => $this->hora_pago,
@@ -325,7 +325,7 @@ class VoucherRegister extends Component
                 'prppgcapi' => $this->capital,
                 'prppgtota' => $this->montopago,
                 'estado' => 'CANCELADO',
-                'user_id' => \Illuminate\Support\Facades\Auth::user()->id,
+                'user_id' => Auth::user()->id,
             ]);
 
             $this->beneficiario->update([
@@ -352,7 +352,7 @@ class VoucherRegister extends Component
                 $this->beneficiario->update([
                     'saldo_credito' => 0,
                     'estado' => 'CANCELADO',
-                    'user_id' => \Illuminate\Support\Facades\Auth::user()->id,
+                    'user_id' => Auth::user()->id,
                     'updated_at' => now()
                 ]);
             }

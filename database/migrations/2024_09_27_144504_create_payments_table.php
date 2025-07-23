@@ -13,31 +13,31 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('numtramite', 255);
-            $table->string('prtdtitem', 255);
-            $table->string('prtdtttrn', 255);
-            $table->string('numprestamo', 255); // Relación con beneficiaries.idepro
-            $table->date('fecha_pago');
-            $table->string('prtdtpref', 255);
-            $table->string('prtdtccon', 255);
-            $table->string('prtdtdesc', 255);
-            $table->double('montopago');
-            $table->string('prtdtcmon', 255);
-            $table->string('prtdtmrcb', 255);
-            $table->string('prtdtuser', 255);
-            $table->time('hora_pago', 6);
-            $table->date('prtdtfpro')->nullable();
-            $table->integer('prtdtnpag');
-            $table->string('agencia_pago', 255);
-            $table->string('depto_pago', 255);
-            $table->text('observacion')->nullable();
+            $table->string('numtramite', 255)->nullable();
+            $table->string('prtdtitem', 255)->nullable();
+            $table->string('prtdtttrn', 255)->nullable();
+            $table->string('numprestamo', 255)->nullable(); // Relación con beneficiaries.idepro
+            $table->date('fecha_pago')->nullable();
+            $table->string('prtdtpref', 255)->nullable();
+            $table->string('prtdtccon', 255)->nullable();
+            $table->string('prtdtdesc', 255)->nullable();
+            $table->double('montopago')->nullable();
+            $table->string('prtdtcmon', 255)->nullable();
+            $table->string('prtdtmrcb', 255)->nullable();
+            $table->string('prtdtuser', 255)->nullable();
+            $table->time('hora_pago', 6)->nullable();
+            $table->date('prtdtfpro')->nullable()->nullable();
+            $table->integer('prtdtnpag')->nullable();
+            $table->string('agencia_pago', 255)->nullable();
+            $table->string('depto_pago', 255)->nullable();
+            $table->text('observacion')->nullable()->nullable();
             $table->timestamps(6);
 
             // Clave foránea hacia beneficiaries.idepro (vía numprestamo)
-            $table->foreign('numprestamo')
-                ->references('idepro')
-                ->on('beneficiaries')
-                ->onDelete('cascade');
+            //$table->foreign('numprestamo')
+            //    ->references('idepro')
+            //    ->on('beneficiaries')
+            //    ->onDelete('cascade');
         });
     }
 

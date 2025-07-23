@@ -81,6 +81,10 @@
                     <td>{{ $settlement->beneficiary->ci }}</td>
                 </tr>
                 <tr>
+                    <td><strong>Fecha de Activacion del Credito:</strong></td>
+                    <td>{{ date('d/m/Y', strtotime($settlement->beneficiary->fecha_activacion)) }}</td>
+                </tr>
+                <tr>
                     <td><strong>Entidad Financiera del Crédito:</strong></td>
                     <td>{{ $settlement->beneficiary->entidad_financiera }}</td>
                 </tr>
@@ -90,15 +94,15 @@
                 </tr>
                 <tr>
                     <td><strong>Fecha de Liquidación:</strong></td>
-                    <td>{{ $settlement->created_at }}</td>
+                    <td>{{ date('d/m/Y H:i', strtotime($settlement->created_at)) }}</td>
                 </tr>
                 <tr>
                     <td><strong>Fecha de Aprobación:</strong></td>
-                    <td>{{ $settlement->updated_at }}</td>
+                    <td>{{ date('d/m/Y H:i', strtotime($settlement->updated_at)) }}</td>
                 </tr>
                 <tr>
                     <td><strong>Fecha de Vencimiento:</strong></td>
-                    <td>{{ \Carbon\Carbon::parse($settlement->updated_at)->addDays(5) }}</td>
+                    <td>{{ \Carbon\Carbon::parse($settlement->updated_at)->addDays(5)->format('d/m/Y H:i') }}</td>
                 </tr>
                 <tr>
                     <td><strong>Estado de la Liquidación:</strong></td>
