@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class Beneficiary extends Model
 {
@@ -185,7 +186,7 @@ class Beneficiary extends Model
             return $response->throw()->json()['data'] ?? [];
         } catch (\Exception $e) {
             // Log error if needed
-            \Log::error("API request failed for {$endpoint}: " . $e->getMessage());
+            Log::error("API request failed for {$endpoint}: " . $e->getMessage());
             return [];
         }
     }

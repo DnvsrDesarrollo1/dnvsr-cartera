@@ -44,6 +44,9 @@
                                     Numero de Tramite:</label>
                                 <input type="text" wire:model="numtramite" id="numtramite"
                                     class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                {{-- @if (\App\Models\Voucher::where('numtramite', $numtramite)->exists())
+                                    <span class="text-red-500 text-xs">Comprobante Duplicado</span>
+                                @endif --}}
                                 @error('numtramite')
                                     <span class="text-red-500 text-xs">{{ $message }}</span>
                                 @enderror
@@ -85,7 +88,8 @@
                                 @enderror
                             </div>
 
-                            <x-personal.alert clossable='false' type='info' message='Recuerde validar el SALDO CREDITO antes de registrar cualquier pago.' />
+                            <x-personal.alert clossable='false' type='info'
+                                message='Recuerde validar el SALDO CREDITO antes de registrar cualquier pago.' />
 
                             <div class="border-l-4 border-green-600 pl-4">
 

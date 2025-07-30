@@ -37,11 +37,13 @@ class VoucherRegister extends Component
     public $totalpagado = 0;
     public $totalinicial = 0;
 
+    public $comprobanteDuplicado = false;
+
     public $voucherModal = false;
 
     protected $rules = [
         'numpago' => 'required',
-        'numtramite' => 'required',
+        'numtramite' => 'required|unique:vouchers',
         'numprestamo' => 'required',
         'fecha_pago' => 'required',
         'descripcion' => 'required',

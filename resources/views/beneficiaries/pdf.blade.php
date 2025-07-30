@@ -214,8 +214,8 @@
                             <td>{{-- {{ date('d/m/Y', strtotime(now())) }} --}}</td>
                         </tr>
                         <tr>
-                            <td>Codigo Prestamo:</td>
-                            <td>{{ $beneficiary->idepro }}</td>
+                            <td>C.I. / Codigo Prestamo:</td>
+                            <td>{{ $beneficiary->ci }} / {{ $beneficiary->idepro }}</td>
                             <td></td>
                             <td>Monto Activado:</td>
                             <td>Bs. {{ number_format($beneficiary->monto_credito, 2) }}</td>

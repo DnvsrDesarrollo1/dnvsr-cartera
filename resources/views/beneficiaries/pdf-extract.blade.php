@@ -211,7 +211,7 @@
                     </tr>
                     <tr>
                         <td>Codigo Prestamo:</td>
-                        <td>{{ $beneficiary->idepro }}</td>
+                        <td>{{ $beneficiary->ci }} / {{ $beneficiary->idepro }}</td>
                         <td></td>
                         <td>Monto Migrado:</td>
                         <td>Bs. {{ number_format($beneficiary->total_activado, 2) }}</td>

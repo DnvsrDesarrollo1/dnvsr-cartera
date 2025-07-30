@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('payments', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->bigIncrements('id')->startingValue(1);
             $table->string('numtramite', 255)->nullable();
             $table->string('prtdtitem', 255)->nullable();
             $table->string('prtdtttrn', 255)->nullable();
