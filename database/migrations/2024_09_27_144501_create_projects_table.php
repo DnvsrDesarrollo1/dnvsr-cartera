@@ -12,29 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('projects', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('proy_cod', 255)->unique(); // Clave única para relación
-            $table->string('cod_proy_credito', 255);
-            $table->string('proy_nombre', 255);
-            $table->string('proy_subprograma', 255);
-            $table->string('proy_numActa', 255);
-            $table->date('proy_fechaAprobacion');
-            $table->integer('proy_numViviendas');
-            $table->string('proy_estado', 255);
-            $table->string('proy_modalidad', 255);
-            $table->string('entidad_inter_finan', 255);
-            $table->string('proy_programa', 255);
-            $table->date('fecha_ini_obra')->nullable();
-            $table->date('fecha_fin_obra')->nullable();
-            $table->integer('proy_viv_concluidas');
-            $table->integer('proy_viv_cartera');
-            $table->string('proy_componente', 255);
-            $table->string('proy_depto', 255);
-            $table->string('proy_provincia', 255);
-            $table->string('proy_municipio', 255);
-            $table->string('proy_ubicacion', 255);
-            $table->double('proy_avance_finan', 8, 2);
-            $table->double('proy_avance_fis', 8, 2);
+            $table->bigIncrements('id')->startingValue(1);
+            $table->string('nombre_proyecto')->unique();
+            $table->string('subprograma')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->string('observaciones')->nullable();
             $table->timestamps(6);
         });
     }

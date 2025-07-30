@@ -59,7 +59,7 @@ class Beneficiary extends Model
 
     public function project(): BelongsTo
     {
-        return $this->belongsTo(Project::class, 'cod_proy', 'cod_proy_credito');
+        return $this->belongsTo(Project::class, 'proyecto', 'nombre_proyecto');
     }
 
     public function plans()

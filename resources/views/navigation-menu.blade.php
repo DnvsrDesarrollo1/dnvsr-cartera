@@ -5,17 +5,24 @@
             <!-- Left Navigation Links -->
             <div class="hidden sm:flex sm:items-center">
                 <div class="flex space-x-8">
-                    <x-nav-link href="{{ route('importaciones') }}" :active="request()->routeIs('importaciones')" class="transition duration-150 ease-in-out">
-                        {{ ('Carga de Datos') }}
+                    {{-- <x-nav-link href="{{ route('importaciones') }}" :active="request()->routeIs('importaciones')" class="transition duration-150 ease-in-out">
+                        {{ ('Panel resumen') }}
+                    </x-nav-link> --}}
+                    <x-nav-link href="{{ route('proyecto.index') }}" :active="request()->routeIs('proyecto.*')"
+                        class="transition duration-150 ease-in-out">
+                        {{ 'Proyectos' }}
                     </x-nav-link>
-                    <x-nav-link href="{{ route('beneficiario.index') }}" :active="request()->routeIs('beneficiario.*')" class="transition duration-150 ease-in-out">
-                        {{ ('Beneficiarios') }}
+                    <x-nav-link href="{{ route('importaciones') }}" :active="request()->routeIs('importaciones')"
+                        class="transition duration-150 ease-in-out">
+                        {{ 'Carga de Datos' }}
                     </x-nav-link>
-                    <x-nav-link href="{{ route('proyecto.index') }}" :active="request()->routeIs('proyecto.*')" class="transition duration-150 ease-in-out">
-                        {{ ('Proyectos') }}
+                    <x-nav-link href="{{ route('beneficiario.index') }}" :active="request()->routeIs('beneficiario.*')"
+                        class="transition duration-150 ease-in-out">
+                        {{ 'Beneficiarios' }}
                     </x-nav-link>
-                    <x-nav-link href="{{ route('bi.index') }}" :active="request()->routeIs('bi.*')" class="transition duration-150 ease-in-out">
-                        {{ ('B.I.') }}
+                    <x-nav-link href="{{ route('bi.index') }}" :active="request()->routeIs('bi.*')"
+                        class="transition duration-150 ease-in-out">
+                        {{ 'B.I.' }}
                     </x-nav-link>
                 </div>
             </div>
@@ -51,8 +58,7 @@
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
                             @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
-                                <button
-                                    title="{{ Auth::user()->name }}"
+                                <button title="{{ Auth::user()->name }}"
                                     class="flex text-sm border-2 border-green-600 rounded-full focus:outline-none focus:border-green-300 transition">
                                     <img class="h-10 w-10 rounded-full object-cover"
                                         src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" />
@@ -76,22 +82,22 @@
                         <x-slot name="content">
                             <!-- Account Management -->
                             <div class="block px-4 py-2 text-xs text-gray-400">
-                                {{ ('Manage Account') }}
+                                {{ 'Manage Account' }}
                             </div>
 
                             @can('write beneficiaries')
                                 <x-dropdown-link href="{{ route('users.index') }}">
-                                    {{ ('Usuarios') }}
+                                    {{ 'Usuarios' }}
                                 </x-dropdown-link>
                             @endcan
 
                             <x-dropdown-link href="{{ route('profile.show') }}">
-                                {{ ('Profile') }}
+                                {{ 'Profile' }}
                             </x-dropdown-link>
 
                             @if (Laravel\Jetstream\Jetstream::hasApiFeatures())
                                 <x-dropdown-link href="{{ route('api-tokens.index') }}">
-                                    {{ ('API Tokens') }}
+                                    {{ 'API Tokens' }}
                                 </x-dropdown-link>
                             @endif
 
@@ -101,8 +107,9 @@
                             <form method="POST" action="{{ route('logout') }}" x-data>
                                 @csrf
 
-                                <x-dropdown-link @class(['font-bold']) href="{{ route('logout') }}" @click.prevent="$root.submit();">
-                                    {{ ('Log Out') }}
+                                <x-dropdown-link @class(['font-bold']) href="{{ route('logout') }}"
+                                    @click.prevent="$root.submit();">
+                                    {{ 'Log Out' }}
                                 </x-dropdown-link>
                             </form>
                         </x-slot>
@@ -135,17 +142,17 @@
     <div :class="{ 'block': open, 'hidden': !open }" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
             <!-- Mobile Navigation Links -->
+            <x-responsive-nav-link href="{{ route('proyecto.index') }}" :active="request()->routeIs('proyecto.*')">
+                {{ 'Proyectos' }}
+            </x-responsive-nav-link>
             <x-responsive-nav-link href="{{ route('importaciones') }}" :active="request()->routeIs('importaciones')">
-                {{ ('Carga de Datos') }}
+                {{ 'Carga de Datos' }}
             </x-responsive-nav-link>
             <x-responsive-nav-link href="{{ route('beneficiario.index') }}" :active="request()->routeIs('beneficiario.*')">
-                {{ ('Beneficiarios') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link href="{{ route('proyecto.index') }}" :active="request()->routeIs('proyecto.*')">
-                {{ ('Proyectos') }}
+                {{ 'Beneficiarios' }}
             </x-responsive-nav-link>
             <x-responsive-nav-link href="{{ route('bi.index') }}" :active="request()->routeIs('bi.*')">
-                {{ ('B.I.') }}
+                {{ 'B.I.' }}
             </x-responsive-nav-link>
 
             <!-- Mobile Theme Toggle -->
@@ -187,17 +194,17 @@
                 <!-- Account Management -->
                 @can('write beneficiaries')
                     <x-responsive-nav-link href="{{ route('users.index') }}">
-                        {{ ('Usuarios') }}
+                        {{ 'Usuarios' }}
                     </x-responsive-nav-link>
                 @endcan
 
                 <x-responsive-nav-link href="{{ route('profile.show') }}" :active="request()->routeIs('profile.show')">
-                    {{ ('Profile') }}
+                    {{ 'Profile' }}
                 </x-responsive-nav-link>
 
                 @if (Laravel\Jetstream\Jetstream::hasApiFeatures())
                     <x-responsive-nav-link href="{{ route('api-tokens.index') }}" :active="request()->routeIs('api-tokens.index')">
-                        {{ ('API Tokens') }}
+                        {{ 'API Tokens' }}
                     </x-responsive-nav-link>
                 @endif
 
@@ -206,7 +213,7 @@
                     @csrf
 
                     <x-responsive-nav-link href="{{ route('logout') }}" @click.prevent="$root.submit();">
-                        {{ ('Log Out') }}
+                        {{ 'Log Out' }}
                     </x-responsive-nav-link>
                 </form>
             </div>

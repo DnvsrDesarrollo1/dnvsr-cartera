@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('earns', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->bigIncrements('id')->startingValue(1);
             $table->string('idepro', 255); // Relación con beneficiaries.idepro
             $table->double('capital');
             $table->double('interes');

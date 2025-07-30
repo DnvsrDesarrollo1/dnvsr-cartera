@@ -52,6 +52,7 @@ Route::middleware([
 
     // Proyectos
     Route::get('proyecto', [\App\Http\Controllers\ProjectController::class, 'index'])->name('proyecto.index');
+    Route::get('proyecto/nuevo', [\App\Http\Controllers\ProjectController::class, 'create'])->name('proyecto.create');
     Route::get('proyecto/{codigo}', [\App\Http\Controllers\ProjectController::class, 'show'])->name('proyecto.show');
     Route::get('proyecto/{codigo}/editar', [\App\Http\Controllers\ProjectController::class, 'edit'])->name('proyecto.edit');
     Route::post('proyecto', [\App\Http\Controllers\ProjectController::class, 'store'])->name('proyecto.store');

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Project;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
@@ -88,7 +89,11 @@ class UserController extends Controller
     public function edit(User $user)
     {
         $roles = Role::all();
-        return view('users.edit', compact('user', 'roles'));
+        $proyectos = Project::where('user_id', null)
+            ->orWhere('user_id', $user->id)
+            ->get();
+
+        return view('users.edit', compact('user', 'roles', 'proyectos'));
     }
 
     /**
@@ -96,20 +101,35 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
+        //return $request;
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8',
+            'proyectos' => 'nullable|array',
+            'proyectos.*' => 'exists:projects,id'
         ]);
 
         $user->name = $request->name;
         $user->email = $request->email;
 
         if ($request->filled('password')) {
-            $user->password = bcrypt($request->password);
+            $user->update([
+                'password' => bcrypt($request->password)
+            ]);
         }
 
+        // Save user changes
         $user->save();
+
+        // Sync projects relationship
+        if ($request->has('proyectos')) {
+            // Update user_id in projects table using foreach
+            foreach ($request->proyectos as $projectId) {
+                Project::where('id', $projectId)
+                    ->update(['user_id' => $user->id]);
+            }
+        }
 
         return redirect()->route('users.index')->with('success', 'Usuario actualizado correctamente');
     }

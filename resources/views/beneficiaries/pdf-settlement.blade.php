@@ -108,7 +108,7 @@
                     <td><strong>Estado de la Liquidación:</strong></td>
                     <td>{{ strtoupper($settlement->estado) }}</td>
                 </tr>
-                @if ($settlement->anexos != null)
+                @if ($settlement->anexos != null && $settlement->anexos != '[]')
                     <tr>
                         <td colspan="2"><strong>La presente liquidación cuenta con documentos anexos al
                                 informe.</strong></td>

@@ -36,6 +36,8 @@ class SettleBeneficiary extends Component
         $intDevSettle,
         $segSettle,
         $segDevSettle,
+        $gastosAdm,
+        $gastosJud,
         $otrosSettle,
         $totalSettle = '',
         $numtramite,
@@ -60,6 +62,8 @@ class SettleBeneficiary extends Component
                 (float)($this->intDevSettle ?? 0) +
                 (float)($this->segSettle ?? 0) +
                 (float)($this->segDevSettle ?? 0) +
+                (float)($this->gastosAdm ?? 0) +
+                (float)($this->gastosJud ?? 0) +
                 (float)($this->otrosSettle ?? 0)
             );
 
@@ -124,6 +128,14 @@ class SettleBeneficiary extends Component
                 (float)$this->settlement->seguro_devengado :
                 (float)($plan->sum('prppgcarg') ?? 0), 2);
 
+            $this->gastosAdm = round($this->settlement->id ?
+                (float)$this->settlement->gastos_administrativos :
+                (float)($this->beneficiary->spends()->where('criterio', 'LIKE', 'ADMIN')->sum('monto') ?? 0), 2);
+
+            $this->gastosJud = round($this->settlement->id ?
+                (float)$this->settlement->gastos_judiciales :
+                (float)($this->beneficiary->spends()->where('criterio', 'LIKE', 'JUDIC')->sum('monto') ?? 0), 2);
+
             $this->otrosSettle = round($this->settlement->id ?
                 (float)$this->settlement->otros :
                 (float)($plan->sum('prppgotro') ?? 0), 2);
@@ -157,6 +169,8 @@ class SettleBeneficiary extends Component
         $this->intDevSettle = 0;
         $this->segSettle = 0;
         $this->segDevSettle = 0;
+        $this->gastosAdm = 0;
+        $this->gastosJud = 0;
         $this->otrosSettle = 0;
         $this->descuento = 0;
         $this->estado = 'pendiente';
@@ -188,8 +202,8 @@ class SettleBeneficiary extends Component
                 'interes_diferido' => $this->intDifSettle,
                 'seguro' => $this->segSettle,
                 'seguro_devengado' => $this->segDevSettle,
-                'gastos_judiciales' => $this->beneficiary->spends->where('criterio', 'LIKE', '%JUDICIAL%')->where('estado', 'ACTIVO')->sum('monto'),
-                'gastos_administrativos' => $this->beneficiary->spends->where('criterio', 'LIKE', '%ADMINISTRA%')->where('estado', 'ACTIVO')->sum('monto'),
+                'gastos_judiciales' => $this->gastosJud,
+                'gastos_administrativos' => $this->gastosAdm,
                 'otros' => $this->otrosSettle,
                 'descuento' => $this->descuento,
                 'plan_de_pagos' => $this->plan_de_pagos ? $this->plan_de_pagos->pluck('id', 'estado') : [],

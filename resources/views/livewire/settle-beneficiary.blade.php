@@ -194,40 +194,68 @@
                             </div>
 
                             <!-- Otros a Liquidars -->
-                            <div class="space-y-1">
-                                <div class="space-y-1">
-                                    <label for="otrosSettle" class="block text-sm font-medium text-gray-700">
-                                        Otros: (Gastos Adm, Jud, Not, etc.)
-                                    </label>
-                                    <div class="relative rounded-md shadow-sm">
-                                        <input min="0" type="number" wire:model.blur="otrosSettle"
-                                            id="otrosSettle" step="0.10"
-                                            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border"
-                                            placeholder="0.00">
-                                        <div
-                                            class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                            <div class="space-y-2 bg-gray-50 p-3 rounded-lg">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <!-- Otros -->
+                                    <div class="flex items-center space-x-2">
+                                        <label for="otrosSettle"
+                                            class="w-1/3 text-sm font-medium text-gray-700">Otros:</label>
+                                        <div class="w-2/3">
+                                            <input min="0" type="number" wire:model.blur="otrosSettle"
+                                                id="otrosSettle" step="0.10"
+                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-8"
+                                                placeholder="0.00">
+                                            @error('otrosSettle')
+                                                <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                                            @enderror
                                         </div>
                                     </div>
-                                    @error('otrosSettle')
-                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                <div class="space-y-1">
-                                    <label for="descuento" class="block text-sm font-medium text-gray-700">
-                                        Descuento al Gasto Administrativo:
-                                    </label>
-                                    <div class="relative rounded-md shadow-sm">
-                                        <input min="0" type="number" wire:model.blur="descuento"
-                                            id="descuento" step="0.10"
-                                            class="block w-full rounded-md border-red-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border"
-                                            placeholder="0.00">
-                                        <div
-                                            class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+
+                                    <!-- Gastos Administrativos -->
+                                    <div class="flex items-center space-x-2">
+                                        <label for="gastosAdm"
+                                            class="w-1/3 text-sm font-medium text-gray-700">Gastos Admin.:</label>
+                                        <div class="w-2/3">
+                                            <input min="0" type="number"
+                                                wire:model.blur="gastosAdm" id="gastosAdm"
+                                                step="0.10"
+                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-8"
+                                                placeholder="0.00">
+                                            @error('gastosAdm')
+                                                <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                                            @enderror
                                         </div>
                                     </div>
-                                    @error('descuento')
-                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                    @enderror
+
+                                    <!-- Gastos Judiciales -->
+                                    <div class="flex items-center space-x-2">
+                                        <label for="gastosJud"
+                                            class="w-1/3 text-sm font-medium text-gray-700">Gastos Jud.:</label>
+                                        <div class="w-2/3">
+                                            <input min="0" type="number" wire:model.blur="gastosJud"
+                                                id="gastosJud" step="0.10"
+                                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-8"
+                                                placeholder="0.00">
+                                            @error('gastosJud')
+                                                <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                                            @enderror
+                                        </div>
+                                    </div>
+
+                                    <!-- Descuento -->
+                                    <div class="flex items-center space-x-2">
+                                        <label for="descuento"
+                                            class="w-1/3 text-sm font-medium text-gray-700">Descuento G.A.:</label>
+                                        <div class="w-2/3">
+                                            <input min="0" type="number" wire:model.blur="descuento"
+                                                id="descuento" step="0.10"
+                                                class="w-full rounded-md border-red-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-8"
+                                                placeholder="0.00">
+                                            @error('descuento')
+                                                <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                                            @enderror
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -316,10 +344,16 @@
                                             <span class="text-sm text-red-600">{{ $message }}</span>
                                         @enderror
 
-                                        <div wire:loading wire:target="anexos" class="flex items-center space-x-2 text-sm text-gray-600 mt-2 bg-blue-50 p-2 rounded-md border border-blue-200">
-                                            <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        <div wire:loading wire:target="anexos"
+                                            class="flex items-center space-x-2 text-sm text-gray-600 mt-2 bg-blue-50 p-2 rounded-md border border-blue-200">
+                                            <svg class="animate-spin h-5 w-5 text-blue-500"
+                                                xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                    stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor"
+                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                </path>
                                             </svg>
                                             <span>Subiendo archivos, por favor espere...</span>
                                         </div>
@@ -430,12 +464,12 @@
                             @if ($settlement->id != null && $settlement->estado != 'ejecutado')
                                 <h2 class="text-right text-gray-700">
                                     Se liquidará un monto total de: <strong>Bs.
-                                        {{ number_format(($capSettle ?: 0) + ($capDifSettle ?: 0) + ($intSettle ?: 0) + ($intDevSettle ?: 0) + ($intDifSettle ?: 0) + ($segSettle ?: 0) + ($segDevSettle ?: 0) + ($otrosSettle ?: 0), 2) }}</strong>
+                                        {{ number_format(($capSettle ?: 0) + ($capDifSettle ?: 0) + ($intSettle ?: 0) + ($intDevSettle ?: 0) + ($intDifSettle ?: 0) + ($segSettle ?: 0) + ($segDevSettle ?: 0) + ($gastosAdm ?: 0) + ($gastosJud ?: 0) + ($otrosSettle ?: 0), 2) }}</strong>
                                 </h2>
                             @else
                                 <h2 class="text-right text-gray-700">
                                     La presente liquidación fue ejecutada por un monto total de: <strong>Bs.
-                                        {{ number_format(($capSettle ?: 0) + ($capDifSettle ?: 0) + ($intSettle ?: 0) + ($intDevSettle ?: 0) + ($intDifSettle ?: 0) + ($segSettle ?: 0) + ($segDevSettle ?: 0) + ($otrosSettle ?: 0), 2) }}</strong>
+                                        {{ number_format(($capSettle ?: 0) + ($capDifSettle ?: 0) + ($intSettle ?: 0) + ($intDevSettle ?: 0) + ($intDifSettle ?: 0) + ($segSettle ?: 0) + ($segDevSettle ?: 0) + ($gastosAdm ?: 0) + ($gastosJud ?: 0) + ($otrosSettle ?: 0), 2) }}</strong>
                                 </h2>
                             @endif
                         </div>

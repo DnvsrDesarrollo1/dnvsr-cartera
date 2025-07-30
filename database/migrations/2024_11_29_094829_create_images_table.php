@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('images', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->bigIncrements('id')->startingValue(1);
             $table->text('image_b64'); // Imagen en Base64
             $table->text('image_json'); // Metadatos en JSON
             $table->text('ci'); // Cédula de identidad
