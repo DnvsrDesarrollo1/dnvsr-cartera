@@ -7,9 +7,12 @@ use App\Models\Plan;
 use App\Models\Readjustment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Traits\FinanceTrait;
 
 class PlanController extends Controller
 {
+    use FinanceTrait;
+
     public function index()
     {
         //$plans = Plan::paginate(500);
@@ -177,6 +180,8 @@ class PlanController extends Controller
                 'plans.prppgsegu',
                 'plans.prppgotro',
                 'plans.prppgtota',
+                'plans.prppggral',
+                'plans.prppgcarg',
                 'plans.estado',
                 'beneficiaries.nombre',
                 'beneficiaries.ci',
@@ -199,6 +204,8 @@ class PlanController extends Controller
                 'readjustments.prppgsegu',
                 'readjustments.prppgotro',
                 'readjustments.prppgtota',
+                'readjustments.prppggral',
+                'readjustments.prppgcarg',
                 'readjustments.estado',
                 'beneficiaries.nombre',
                 'beneficiaries.ci',

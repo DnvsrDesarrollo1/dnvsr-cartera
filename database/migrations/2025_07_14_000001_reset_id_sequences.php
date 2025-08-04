@@ -37,7 +37,7 @@ return new class extends Migration
 
             if ($sequenceExists[0]->exists) {
                 // Obtener el máximo ID de la tabla
-                $maxId = DB::table($table)->max('id') ?? 0;
+                $maxId = DB::table($table)->max('id') ?? 1;
 
                 // Resetear la secuencia al máximo ID
                 DB::statement("SELECT SETVAL(?, ?)", [$sequence, $maxId]);

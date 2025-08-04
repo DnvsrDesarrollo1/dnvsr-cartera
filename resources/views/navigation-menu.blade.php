@@ -117,8 +117,9 @@
                 </div>
 
                 <!-- Notifications -->
-                <div class="ml-3">
+                <div class="ml-3 flex items-center space-x-2">
                     <livewire:plans-notification lazy="on-load" />
+                    <livewire:notifications-manager lazy="on-load" />
                 </div>
             </div>
 

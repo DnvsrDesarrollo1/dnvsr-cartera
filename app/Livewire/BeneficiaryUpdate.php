@@ -66,6 +66,10 @@ class BeneficiaryUpdate extends Component
                 'idepro' => $this->idepro,
             ]);
 
+            $this->beneficiary->spends()->update([
+                'idepro' => $this->idepro,
+            ]);
+
             $this->beneficiary->insurance()->update([
                 'idepro' => $this->idepro,
             ]);

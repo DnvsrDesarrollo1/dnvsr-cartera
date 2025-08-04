@@ -117,7 +117,8 @@ final class BeneficiaryTable extends PowerGridComponent
             Column::make('Nombres', 'nombre')
                 ->sortable(),
 
-            Column::make('CI', 'ci')
+            Column::make('C.I.', 'ci')
+                ->editOnClick(hasPermission: \Illuminate\Support\Facades\Auth::user()->can('write beneficiaries'))
                 ->sortable(),
 
             Column::make('Prestamo', 'idepro')

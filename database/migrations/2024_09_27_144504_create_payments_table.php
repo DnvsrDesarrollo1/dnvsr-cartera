@@ -26,11 +26,11 @@ return new class extends Migration
             $table->string('prtdtmrcb', 255)->nullable();
             $table->string('prtdtuser', 255)->nullable();
             $table->time('hora_pago', 6)->nullable();
-            $table->date('prtdtfpro')->nullable()->nullable();
+            $table->date('prtdtfpro')->nullable();
             $table->integer('prtdtnpag')->nullable();
             $table->string('agencia_pago', 255)->nullable();
             $table->string('depto_pago', 255)->nullable();
-            $table->text('observacion')->nullable()->nullable();
+            $table->text('observacion')->nullable();
             $table->timestamps(6);
 
             // Clave foránea hacia beneficiaries.idepro (vía numprestamo)

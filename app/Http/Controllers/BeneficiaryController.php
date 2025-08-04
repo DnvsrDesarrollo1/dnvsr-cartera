@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\GenerateBeneficiaryPdfsZip;
 use App\Models\Beneficiary;
 use App\Models\Helper;
 use App\Models\Payment;
@@ -11,9 +12,6 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
-use ZipArchive;
 
 class BeneficiaryController extends Controller
 {
@@ -92,30 +90,19 @@ class BeneficiaryController extends Controller
     public function bulkPdf($data)
     {
         $decodedData = json_decode($data, true);
-        $identificationNumbers = array_diff(array_values($decodedData));
+        $identificationNumbers = array_values($decodedData);
+        $user = Auth::user();
 
-        $beneficiaries = Beneficiary::find($identificationNumbers);
-
-        try {
-            $zipUrl = null;
-
-            $archivos = $this->generatePDFs($beneficiaries);
-            $zipPath = $this->createZipFile($archivos);
-            $this->cleanupPDFs($archivos);
-
-            Log::info("ZIP file created at: {$zipUrl}");
-            $zipUrl = asset('storage/exports/' . basename($zipPath));
-            // Example usage: Log the URL or notify the user
-            Log::info("ZIP file created at: {$zipUrl}");
-
-            return redirect()->route('beneficiario.index')
-                ->with('success', "La exportación masiva de {$beneficiaries->count()} beneficiarios fue realizada correctamente.")
-                ->with('link', $zipUrl);
-        } catch (\Exception $e) {
-            return redirect()->route('beneficiario.index')
-                ->with('error', "La exportación masiva de {$beneficiaries->count()} beneficiarios no fue realizada.")
-                ->with('data', $e->getMessage());
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Debes iniciar sesión para realizar esta acción.');
         }
+
+        // Dispatch the job to the queue
+        GenerateBeneficiaryPdfsZip::dispatch($identificationNumbers, $user->id);
+
+        // Redirect back immediately with a success message
+        return redirect()->route('beneficiario.index')
+            ->with('success', 'La exportación ha comenzado. Recibirás una notificación cuando el archivo esté listo para descargar.');
     }
 
     private function calculatePaymentTotals($idepro)
@@ -171,44 +158,5 @@ class BeneficiaryController extends Controller
     {
         $differs = Helper::where('idepro', $idepro)->where('estado', 'ACTIVO')->orderBy('indice', 'asc')->get();
         return $differs;
-    }
-
-    private function generatePDFs($beneficiaries)
-    {
-        return $beneficiaries->map(function ($beneficiary) {
-            $plans = $this->getActivePlans($beneficiary->idepro);
-            $differs = $this->getActiveDiffers($beneficiary->idepro);
-
-            $cleanName = preg_replace('/[^A-Za-z0-9 \-]/', '_', $beneficiary->nombre);
-            $filePath = 'storage/exports/' . $cleanName . '.pdf';
-
-            PDF::loadView('beneficiaries.pdf', compact('beneficiary', 'plans', 'differs'))->save($filePath);
-            return $filePath;
-        })->toArray();
-    }
-
-    private function createZipFile($files)
-    {
-        $zipName = 'beneficiarios_' . uniqid() . '.zip';
-        $zipPath = storage_path('app/public/exports/' . $zipName);
-
-        $zip = new ZipArchive;
-        if ($zip->open($zipPath, ZipArchive::CREATE) !== TRUE) {
-            throw new \Exception("No se pudo crear el archivo ZIP");
-        }
-
-        foreach ($files as $file) {
-            $zip->addFile(public_path($file), basename($file));
-        }
-        $zip->close();
-
-        return $zipPath;
-    }
-
-    private function cleanupPDFs($files)
-    {
-        foreach ($files as $file) {
-            File::delete(public_path($file));
-        }
     }
 }
