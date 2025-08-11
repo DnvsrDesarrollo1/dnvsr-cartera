@@ -13,7 +13,7 @@ class BeneficiaryTable extends Component
 
     public $search = '';
     public $sortField = 'id';
-    public $sortDirection = 'desc';
+    public $sortDirection = 'asc';
     public $perPage = 25;
     public $selected = [];
     public $expandedRows = [];
@@ -27,8 +27,8 @@ class BeneficiaryTable extends Component
         'genero' => '',
         'fecha_activacion_desde' => '',
         'fecha_activacion_hasta' => '',
-        'monto_credito_min' => '',
-        'monto_credito_max' => '',
+        'monto_activado_min' => '',
+        'monto_activado_max' => '',
         'saldo_credito_min' => '',
         'saldo_credito_max' => '',
         'plazo_credito' => ''
@@ -72,6 +72,7 @@ class BeneficiaryTable extends Component
     {
         if ($value) {
             $this->selected = $this->getBeneficiaries()
+                ->paginate($this->perPage)
                 ->pluck('id')
                 ->map(fn($id) => (string) $id)
                 ->toArray();
@@ -85,39 +86,12 @@ class BeneficiaryTable extends Component
         return count($this->selected);
     }
 
-    public function getSelectAllProperty()
-    {
-        return count($this->selected) === $this->getBeneficiaries()->count();
-    }
-
-    public function selectAll()
-    {
-        $this->selected = $this->getBeneficiaries()->pluck('id')->toArray();
-    }
-
-    public function deselectAll()
-    {
-        $this->selected = [];
-    }
-
     public function updatingSearch()
     {
         $this->resetPage();
     }
 
     public function updatingFilters()
-    {
-        $this->resetPage();
-    }
-
-    // Agregar debounce para la búsqueda
-    public function updatedSearch()
-    {
-        $this->resetPage();
-    }
-
-    // Optimizar la actualización de filtros
-    public function updatedFilters()
     {
         $this->resetPage();
     }
@@ -138,8 +112,8 @@ class BeneficiaryTable extends Component
             'genero' => '',
             'fecha_activacion_desde' => '',
             'fecha_activacion_hasta' => '',
-            'monto_credito_min' => '',
-            'monto_credito_max' => '',
+            'monto_activado_min' => '',
+            'monto_activado_max' => '',
             'saldo_credito_min' => '',
             'saldo_credito_max' => '',
             'plazo_credito' => ''
@@ -151,67 +125,167 @@ class BeneficiaryTable extends Component
         $this->showFilters = !$this->showFilters;
     }
 
+    public $editingId = null;
+    public $editingField = null;
+    public $editingValue = '';
+    public $statusOptions = ['VIGENTE', 'VENCIDO', 'CANCELADO', 'BLOQUEADO', 'EJECUCION'];
+
+    public function edit($id, $field)
+    {
+        $this->editingId = $id;
+        $this->editingField = $field;
+        $this->editingValue = Beneficiary::find($id)->$field;
+    }
+
+    public function save()
+    {
+        if ($this->editingId === null) {
+            return;
+        }
+
+        $rules = [];
+        if ($this->editingField === 'estado') {
+            $rules['editingValue'] = ['required', \Illuminate\Validation\Rule::in($this->statusOptions)];
+        } else {
+            $rules['editingValue'] = 'required|string|max:255';
+        }
+
+        $this->validate($rules);
+
+        Beneficiary::find($this->editingId)->update([
+            $this->editingField => $this->editingValue
+        ]);
+
+        $this->editingId = null;
+        $this->editingField = null;
+        $this->editingValue = '';
+
+        $this->dispatch('notify', 'Guardado!');
+    }
+
     private function getBeneficiaries()
     {
-        $query = Beneficiary::query()
-            ->select([
-                'id',
-                'nombre',
-                'ci',
-                'idepro',
-                'cod_proy',
-                'estado',
-                'entidad_financiera',
-                'departamento',
-                'genero',
-                'fecha_activacion',
-                'monto_credito',
-                'saldo_credito',
-                'plazo_credito'
-            ])
-            ->when($this->search, function ($query) {
+        $query = Beneficiary::query();
+
+        $query->select([
+            'id',
+            'nombre',
+            'ci',
+            'idepro',
+            'estado',
+            'entidad_financiera',
+            'departamento',
+            'fecha_activacion',
+            'monto_activado',
+            'saldo_credito'
+        ])
+            ->when($this->search != '', function ($query) {
                 $query->where(function ($query) {
                     $query->where('nombre', 'like', '%' . $this->search . '%')
                         ->orWhere('ci', 'like', '%' . $this->search . '%')
-                        ->orWhere('idepro', 'like', '%' . $this->search . '%')
-                        ->orWhere('cod_proy', 'like', '%' . $this->search . '%');
+                        ->orWhere('idepro', 'like', '%' . $this->search . '%');
                 });
             })
-            ->when($this->filters['estado'], fn($query) => $query->where('estado', $this->filters['estado']))
-            ->when($this->filters['entidad_financiera'], fn($query) => $query->where('entidad_financiera', $this->filters['entidad_financiera']))
-            ->when($this->filters['departamento'], fn($query) => $query->where('departamento', $this->filters['departamento']))
-            ->when($this->filters['genero'], fn($query) => $query->where('genero', $this->filters['genero']))
-            ->when($this->filters['fecha_activacion_desde'], fn($query) => $query->whereDate('fecha_activacion', '>=', $this->filters['fecha_activacion_desde']))
-            ->when($this->filters['fecha_activacion_hasta'], fn($query) => $query->whereDate('fecha_activacion', '<=', $this->filters['fecha_activacion_hasta']))
-            ->when($this->filters['monto_credito_min'], fn($query) => $query->where('monto_credito', '>=', $this->filters['monto_credito_min']))
-            ->when($this->filters['monto_credito_max'], fn($query) => $query->where('monto_credito', '<=', $this->filters['monto_credito_max']))
-            ->when($this->filters['saldo_credito_min'], fn($query) => $query->where('saldo_credito', '>=', $this->filters['saldo_credito_min']))
-            ->when($this->filters['saldo_credito_max'], fn($query) => $query->where('saldo_credito', '<=', $this->filters['saldo_credito_max']))
-            ->when($this->filters['plazo_credito'], fn($query) => $query->where('plazo_credito', $this->filters['plazo_credito']))
-            ->orderBy($this->sortField, $this->sortDirection);
+            ->when($this->filters['estado']  != '', fn($query) => $query->where('estado', $this->filters['estado']))
+            ->when($this->filters['entidad_financiera'] != '', fn($query) => $query->where('entidad_financiera', $this->filters['entidad_financiera']))
+            ->when($this->filters['departamento'] != '', fn($query) => $query->where('departamento', $this->filters['departamento']))
+            ->when($this->filters['genero'] != '', fn($query) => $query->where('genero', $this->filters['genero']))
+            ->when($this->filters['fecha_activacion_desde'] != '', fn($query) => $query->whereDate('fecha_activacion', '>=', $this->filters['fecha_activacion_desde']))
+            ->when($this->filters['fecha_activacion_hasta'] != '', fn($query) => $query->whereDate('fecha_activacion', '<=', $this->filters['fecha_activacion_hasta']))
+            ->when($this->filters['monto_activado_min'] != '', fn($query) => $query->where('monto_activado', '>=', $this->filters['monto_activado_min']))
+            ->when($this->filters['monto_activado_max'] != '', fn($query) => $query->where('monto_activado', '<=', $this->filters['monto_activado_max']))
+            ->when($this->filters['saldo_credito_min'] != '', fn($query) => $query->where('saldo_credito', '>=', $this->filters['saldo_credito_min']))
+            ->when($this->filters['saldo_credito_max'] != '', fn($query) => $query->where('saldo_credito', '<=', $this->filters['saldo_credito_max']))
+            ->when($this->filters['plazo_credito'] != '', fn($query) => $query->where('plazo_credito', $this->filters['plazo_credito']));
+
+        $query->orderBy($this->sortField, $this->sortDirection);
 
         return $query;
     }
 
     public function render()
     {
-        // Obtener valores únicos para los filtros usando colecciones en memoria
-        $beneficiaries = $this->getBeneficiaries()->paginate($this->perPage);
+        $beneficiaries = $this->getBeneficiaries()
+            ->paginate($this->perPage);
 
-        $allBeneficiaries = Beneficiary::select('estado', 'entidad_financiera', 'departamento', 'genero')
-            ->distinct()
-            ->get();
+        $filterOptions = Cache::remember('beneficiary_filter_options', now()->addDay(), function () {
+            $allBeneficiaries = Beneficiary::select('estado', 'entidad_financiera', 'departamento', 'genero')
+                ->distinct()
+                ->get();
 
-        $filterOptions = [
-            'estados' => $allBeneficiaries->pluck('estado')->unique()->filter()->values(),
-            'entidades' => $allBeneficiaries->pluck('entidad_financiera')->unique()->filter()->values(),
-            'departamentos' => $allBeneficiaries->pluck('departamento')->unique()->filter()->values(),
-            'generos' => $allBeneficiaries->pluck('genero')->unique()->filter()->values(),
-        ];
+            return [
+                'estados' => $allBeneficiaries->pluck('estado')->unique()->filter()->values(),
+                'entidades' => $allBeneficiaries->pluck('entidad_financiera')->unique()->filter()->values(),
+                'departamentos' => $allBeneficiaries->pluck('departamento')->unique()->filter()->values(),
+                'generos' => $allBeneficiaries->pluck('genero')->unique()->filter()->values(),
+            ];
+        });
 
         return view('livewire.components.beneficiary-table', [
             'beneficiaries' => $beneficiaries,
             'filterOptions' => $filterOptions
         ]);
+    }
+
+    public function bulkActivation()
+    {
+        if ($this->selected) {
+            $this->js('
+            Swal.fire({
+                title: "Ingrese la tasa de interés (-1 para usar dato del perfil): (0, 1, 2, 3...)",
+                input: "number",
+                inputAttributes: {
+                    min: -1,
+                    step: 0.01
+                },
+                showCancelButton: true,
+                confirmButtonText: "Siguiente",
+                cancelButtonText: "Cancelar",
+                inputValidator: (value) => {
+                    if (!value || isNaN(value)) {
+                        return "Por favor, ingrese un número válido.";
+                    }
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: "Ingrese la tasa de seguro (-1 para usar dato del perfil): (0, 0.040, 0.076...)",
+                        input: "number",
+                        inputAttributes: {
+                            min: -1,
+                            step: 0.01
+                        },
+                        showCancelButton: true,
+                        confirmButtonText: "Confirmar",
+                        cancelButtonText: "Cancelar",
+                        inputValidator: (value) => {
+                            if (!value || isNaN(value)) {
+                                return "Por favor, ingrese un número válido.";
+                            }
+                        }
+                    }).then((resultSeguro) => {
+                        if (resultSeguro.isConfirmed) {
+                            $wire.processBulkActivation(result.value, resultSeguro.value);
+                        }
+                    });
+                }
+            });
+        ');
+        }
+    }
+
+    public function processBulkActivation($inputInterest, $inputInsurance)
+    {
+        if ($this->selected) {
+            $data = $this->selected;
+            $data["interes"] = strval($inputInterest);
+            $data["seguro"] = strval($inputInsurance);
+
+            $this->selected = [];
+
+            $encodedData = urlencode(json_encode($data));
+
+            return redirect()->route('plan.bulk-activation', ['data' => $encodedData]);
+        }
     }
 }

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Models\Beneficiary;
 use Illuminate\Support\Facades\Mail;
 
-Route::get('/test-mail', function () {
+/* Route::get('/test-mail', function () {
     try {
         Mail::raw('Este es un correo de prueba para verificar la configuración de Brevo.', function ($message) {
             $message->to('kevin.altamirano@aevivienda.gob.bo')
@@ -14,7 +14,7 @@ Route::get('/test-mail', function () {
     } catch (\Exception $e) {
         return 'Error al enviar el correo: ' . $e->getMessage();
     }
-});
+}); */
 
 Route::get('/', function () {
     $beneficiarios = Beneficiary::count();
@@ -92,6 +92,4 @@ Route::middleware([
         Route::put('usuarios/{user}', [App\Http\Controllers\UserController::class, 'update'])->name('users.update');
         Route::delete('usuarios/{user}', [App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy');
     });
-
-
 });

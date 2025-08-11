@@ -1,11 +1,9 @@
 <div x-data="{ openNotification: @entangle('openNotification') }">
     <div class="relative">
-        @if ($unreadCount > 0)
-            <span
-                class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
-                {{ $unreadCount }}
-            </span>
-        @endif
+        <span wire:poll.3s="loadNotifications"
+            class="absolute top-0 right-0 inline-flex items-center justify-center px-1 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
+            {{ $unreadCount }}
+        </span>
         <button @click="openNotification = true" @keydown.escape.window="openNotification = false"
             class="text-gray-400 text-lg hover:text-gray-700 focus:outline-none">
             <i class="fa-solid fa-file-pdf"></i>
@@ -40,7 +38,7 @@
             <div class="divide-y divide-gray-200 max-h-96 overflow-y-auto">
                 @forelse($notifications as $notification)
                     <div class="px-4 py-3 hover:bg-gray-50 {{ is_null($notification->read_at) ? 'bg-blue-50' : '' }}">
-                        <div class="flex justify-between items-start">
+                        <div class="flex justify-between items-center">
                             <div class="flex-1">
                                 <p class="text-sm font-medium text-gray-900">
                                     {{ $notification->data['title'] ?? 'Nueva notificación' }}
@@ -56,15 +54,17 @@
                                 <div class="flex items-center">
                                     @if (isset($notification->data['action_url']))
                                         <a href="{{ $notification->data['action_url'] }}" title="Descargar archivo"
-                                            class="mr-2 text-blue-600 hover:text-blue-800">
+                                            class="mr-2 text-blue-600 hover:text-blue-800 p-2 bg-blue-200 rounded">
                                             <i class="fa-solid fa-download"></i>
                                         </a>
                                     @endif
                                     <button wire:click="markAsRead('{{ $notification->id }}')" title="Marcar como leída"
-                                        class="text-blue-600 hover:text-blue-800">
+                                        class="text-blue-600 hover:text-blue-800 p-2 bg-blue-200 rounded">
                                         <i class="fa-solid fa-check-double"></i>
                                     </button>
                                 </div>
+                            @else
+                                <i class="text-green-500 fa-solid fa-check-double"></i>
                             @endif
                         </div>
                     </div>

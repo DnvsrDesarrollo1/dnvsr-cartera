@@ -91,6 +91,7 @@ class UserController extends Controller
         $roles = Role::all();
         $proyectos = Project::where('user_id', null)
             ->orWhere('user_id', $user->id)
+            ->orderBy('nombre_proyecto', 'asc')
             ->get();
 
         return view('users.edit', compact('user', 'roles', 'proyectos'));

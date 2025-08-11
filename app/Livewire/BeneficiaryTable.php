@@ -29,6 +29,11 @@ final class BeneficiaryTable extends PowerGridComponent
 
     public bool $showFilters = true;
 
+    public bool $deferLoading = true;
+
+    // Using HTML loading spinner instead of component
+    public string $loadingComponent = 'components.personal.loading-component';
+
     public function boot(): void
     {
         config(['livewire-powergrid.filter' => 'outside']);
@@ -38,10 +43,17 @@ final class BeneficiaryTable extends PowerGridComponent
     {
         $this->showCheckBox();
 
-        $this->persist(['columns', 'filters'], prefix: \Illuminate\Support\Facades\Auth::user()->id ?? '');
+        $this->persist(
+            [
+                'columns',
+                'filters'
+            ],
+            prefix: \Illuminate\Support\Facades\Auth::user()->id ?? ''
+        );
 
         return [
-            PowerGrid::header(),
+            PowerGrid::header()
+                ->withoutLoading(),
 
             PowerGrid::footer()
                 ->showPerPage(perPage: 25, perPageValues: [25, 50, 100, 0])
@@ -50,6 +62,10 @@ final class BeneficiaryTable extends PowerGridComponent
             PowerGrid::detail()
                 ->view('components.detail')
                 ->showCollapseIcon(),
+
+            PowerGrid::cache()
+                ->ttl(60)
+                ->prefix(\Illuminate\Support\Facades\Auth::user()->id . '_'),
         ];
     }
 
@@ -84,7 +100,19 @@ final class BeneficiaryTable extends PowerGridComponent
 
     public function datasource(): Builder
     {
-        return Beneficiary::query();
+        return Beneficiary::query()->select([
+            'id',
+            'nombre',
+            'ci',
+            'estado',
+            'entidad_financiera',
+            'idepro',
+            'proyecto',
+            'monto_activado',
+            'gastos_judiciales',
+            'fecha_activacion',
+            'departamento'
+        ]);
     }
 
     public function fields(): PowerGridFields
@@ -93,16 +121,10 @@ final class BeneficiaryTable extends PowerGridComponent
             ->add('id')
             ->add('nombre')
             ->add('ci')
-            ->add('complemento')
-            ->add('expedido')
-            ->add('mail')
             ->add('estado')
             ->add('entidad_financiera')
             ->add('idepro')
             ->add('proyecto')
-            ->add('plan')
-            ->add('genero')
-            ->add('fecha_nacimiento')
             ->add('monto_activado', fn($ben) => number_format($ben->monto_activado ?? 0, 2))
             ->add('gastos_judiciales', fn($ben) => number_format($ben->gastos_judiciales ?? 0, 2))
             ->add('saldo_credito', fn($ben) => number_format($ben->getCurrentPlan('CANCELADO', '!=')->sum('prppgcapi') ?? 0, 2))

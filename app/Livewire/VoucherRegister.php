@@ -338,18 +338,22 @@ class VoucherRegister extends Component
 
                 $planVigente = $this->beneficiario->getCurrentPlan('CANCELADO', '!=');
 
+                $totalPlan = $this->beneficiario->getCurrentPlan('INACTIVO', '!=')->sum('prppgcapi');
+
                 $this->beneficiario = $this->beneficiario->refresh();
 
-                $this->actualizarPlanActual($this->numprestamo, $this->beneficiario->saldo_credito, $planVigente);
+                $this->actualizarPlanActual($this->numprestamo, $this->beneficiario->saldo_credito, $planVigente, $totalPlan);
             }
 
             if ($this->beneficiario->saldo_credito <= 0) {
 
                 $planVigente = $this->beneficiario->getCurrentPlan('ACTIVO');
 
+                $totalPlan = $this->beneficiario->getCurrentPlan('INACTIVO', '!=')->sum('prppgcapi');
+
                 $this->beneficiario = $this->beneficiario->refresh();
 
-                $this->actualizarPlanActual($this->numprestamo, $this->beneficiario->saldo_credito, $planVigente);
+                $this->actualizarPlanActual($this->numprestamo, $this->beneficiario->saldo_credito, $planVigente, $totalPlan);
 
                 $this->beneficiario->update([
                     'saldo_credito' => 0,

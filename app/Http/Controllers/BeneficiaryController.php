@@ -101,7 +101,7 @@ class BeneficiaryController extends Controller
         GenerateBeneficiaryPdfsZip::dispatch($identificationNumbers, $user->id);
 
         // Redirect back immediately with a success message
-        return redirect()->route('beneficiario.index')
+        return back()
             ->with('success', 'La exportación ha comenzado. Recibirás una notificación cuando el archivo esté listo para descargar.');
     }
 

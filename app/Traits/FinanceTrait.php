@@ -67,7 +67,7 @@ trait FinanceTrait
     }
 
 
-    public function actualizarPlanActual(string $idepro, float $saldoCapital, Collection $planVigente): Collection
+    public function actualizarPlanActual(string $idepro, float $saldoCapital, Collection $planVigente, float $totalPlan): Collection
     {
         $cuotasPendientes = $planVigente->count();
 
