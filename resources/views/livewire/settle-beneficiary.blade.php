@@ -2,7 +2,7 @@
     <!-- Modal -->
     <div x-data="{ settleModal: @entangle('settleModal') }">
         <!-- Trigger Button -->
-        <x-personal.button variant="success" @click="settleModal = true" iconCenter="fa-solid fa-handshake">
+        <x-personal.button variant="success" @click="settleModal = true" iconCenter="fa-solid fa-handshake" size="sm">
             @if ($settlement->id != null)
                 Actualizar Liquidación
             @else
@@ -18,7 +18,7 @@
             class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
             <!-- Modal Content -->
 
-            <div class="bg-white overflow-hidden rounded-lg transform transition-all sm:max-w-5xl sm:w-full m-4 z-50"
+            <div class="bg-white overflow-hidden rounded-lg transform transition-all sm:max-w-6xl sm:w-full m-4 z-50"
                 @click.outside="settleModal = false">
                 <div class="bg-gray-100 px-4 py-3 border-b border-gray-200">
                     <div class="flex items-center justify-between">
@@ -245,7 +245,7 @@
                                     <!-- Descuento -->
                                     <div class="flex items-center space-x-2">
                                         <label for="descuento"
-                                            class="w-1/3 text-sm font-medium text-gray-700">Descuento G.A.:</label>
+                                            class="w-1/3 text-sm font-medium text-gray-700">Desc. G.A.:</label>
                                         <div class="w-2/3">
                                             <input min="0" type="number" wire:model.blur="descuento"
                                                 id="descuento" step="0.10"

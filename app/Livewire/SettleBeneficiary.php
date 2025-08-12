@@ -228,7 +228,7 @@ class SettleBeneficiary extends Component
                 'CAPITAL',
                 $this->capSettle,
                 'VENTANILLA: ' . Auth::user()->name,
-                $this->beneficiary->getFirstQuote()->prppgnpag,
+                $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'DEPOSITO DE LIQUIDACION'
             );
@@ -244,7 +244,7 @@ class SettleBeneficiary extends Component
                 'CAPITAL DIFERIDO',
                 $this->capDifSettle,
                 'VENTANILLA: ' . Auth::user()->name,
-                $this->beneficiary->getFirstQuote()->prppgnpag,
+                $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'DEPOSITO DE LIQUIDACION'
             );
@@ -260,7 +260,7 @@ class SettleBeneficiary extends Component
                 'INTERES',
                 $this->intSettle,
                 'VENTANILLA: ' . Auth::user()->name,
-                $this->beneficiary->getFirstQuote()->prppgnpag,
+                $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'DEPOSITO DE LIQUIDACION'
             );
@@ -276,7 +276,7 @@ class SettleBeneficiary extends Component
                 'INTERES DIFERIDO',
                 $this->intDifSettle,
                 'VENTANILLA: ' . Auth::user()->name,
-                $this->beneficiary->getFirstQuote()->prppgnpag,
+                $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'DEPOSITO DE LIQUIDACION'
             );
@@ -292,7 +292,7 @@ class SettleBeneficiary extends Component
                 'INTERES DEVENGADO',
                 $this->intDevSettle,
                 'VENTANILLA: ' . Auth::user()->name,
-                $this->beneficiary->getFirstQuote()->prppgnpag,
+                $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'DEPOSITO DE LIQUIDACION'
             );
@@ -308,7 +308,7 @@ class SettleBeneficiary extends Component
                 'SEGURO',
                 $this->segSettle,
                 'VENTANILLA: ' . Auth::user()->name,
-                $this->beneficiary->getFirstQuote()->prppgnpag,
+                $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'DEPOSITO DE LIQUIDACION'
             );
@@ -324,7 +324,7 @@ class SettleBeneficiary extends Component
                 'SEGURO DEVENGADO',
                 $this->segDevSettle,
                 'VENTANILLA: ' . Auth::user()->name,
-                $this->beneficiary->getFirstQuote()->prppgnpag,
+                $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'DEPOSITO DE LIQUIDACION'
             );
@@ -340,7 +340,39 @@ class SettleBeneficiary extends Component
                 'OTROS',
                 $this->otrosSettle,
                 'VENTANILLA: ' . Auth::user()->name,
-                $this->beneficiary->getFirstQuote()->prppgnpag,
+                $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
+                null,
+                'DEPOSITO DE LIQUIDACION'
+            );
+
+            $this->createPayment(
+                $this->comprobante,
+                8,
+                $this->beneficiary->idepro,
+                21,
+                37,
+                $this->fecha_comprobante,
+                null,
+                'GASTOS ADMINISTRATIVOS',
+                $this->gastosAdm,
+                'VENTANILLA: ' . Auth::user()->name,
+                $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
+                null,
+                'DEPOSITO DE LIQUIDACION'
+            );
+
+            $this->createPayment(
+                $this->comprobante,
+                8,
+                $this->beneficiary->idepro,
+                21,
+                37,
+                $this->fecha_comprobante,
+                null,
+                'GASTOS JUDICIALES',
+                $this->gastosJud,
+                'VENTANILLA: ' . Auth::user()->name,
+                $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'DEPOSITO DE LIQUIDACION'
             );
@@ -356,7 +388,7 @@ class SettleBeneficiary extends Component
                 'DESCUENTO AL GASTO ADMINISTRATIVO',
                 $this->descuento,
                 'VENTANILLA: ' . Auth::user()->name,
-                $this->beneficiary->getFirstQuote()->prppgnpag,
+                $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'DEPOSITO DE LIQUIDACION'
             );
@@ -366,8 +398,8 @@ class SettleBeneficiary extends Component
                 'PAGO DE LIQUIDACION',
                 $this->fecha_comprobante,
                 null,
-                ($this->capSettle) + ($this->capDifSettle) + ($this->intSettle) + ($this->intDevSettle) + ($this->intDifSettle) + ($this->segSettle) + ($this->segDevSettle) + ($this->otrosSettle),
-                $this->beneficiary->getFirstQuote()->prppgnpag,
+                ($this->capSettle) + ($this->capDifSettle) + ($this->intSettle) + ($this->intDevSettle) + ($this->intDifSettle) + ($this->segSettle) + ($this->segDevSettle) + ($this->otrosSettle) + ($this->gastosAdm) + ($this->gastosJud),
+                $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 $this->beneficiary->idepro,
                 $this->comprobante,
                 null,

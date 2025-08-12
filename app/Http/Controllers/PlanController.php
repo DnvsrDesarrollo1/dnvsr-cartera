@@ -34,10 +34,10 @@ class PlanController extends Controller
             $departamento = $group->first()->departamento ?? 'N/A';
 
             return [
-            'morosos' => $morosos,
-            'total' => $totalBeneficiarios,
-            'porcentajeMora' => $porcentajeMora,
-            'departamento' => $departamento,
+                'morosos' => $morosos,
+                'total' => $totalBeneficiarios,
+                'porcentajeMora' => $porcentajeMora,
+                'departamento' => $departamento,
             ];
         });
 
@@ -309,7 +309,7 @@ class PlanController extends Controller
 
         $beneficiaries = Beneficiary::find($identificationNumbers)
             ->where('estado', '<>', 'CANCELADO');
-            //->where('estado', '<>', 'BLOQUEADO');
+        //->where('estado', '<>', 'BLOQUEADO');
 
         try {
             DB::transaction(function () use ($beneficiaries, $interestRate, $secureRate) {
@@ -318,10 +318,10 @@ class PlanController extends Controller
                 }
             });
 
-            return redirect()->route('beneficiario.index')
+            return back()
                 ->with('success', "La activación masiva-automática de {$beneficiaries->count()} beneficiarios fue realizada");
         } catch (\Exception $e) {
-            return redirect()->route('beneficiario.index')
+            return back()
                 ->with('error', "La activación masiva-automática de {$beneficiaries->count()} beneficiarios no fue realizada ->" . $e->getMessage());
         }
     }

@@ -13,7 +13,7 @@
 
 @php
     $baseClasses =
-        'inline-flex items-center justify-center font-medium rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 transition duration-200 ease-in-out disabled:opacity-50';
+        'inline-flex items-center justify-center font-medium rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 transition duration-200 ease-in-out disabled:opacity-50';
 
     $sizes = [
         'xs' => 'px-2.5 py-1.5 text-xs',

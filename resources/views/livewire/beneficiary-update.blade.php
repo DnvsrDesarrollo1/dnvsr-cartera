@@ -1,5 +1,5 @@
 <div x-data="{ benModal: @entangle('benModal') }">
-    <x-personal.button @click="benModal = true" @keydown.escape.window="benModal = false" variant="primary" size="md"
+    <x-personal.button @click="benModal = true" @keydown.escape.window="benModal = false" variant="primary" size="sm"
         iconCenter="fa-solid fa-user-pen">
         Editar
     </x-personal.button>

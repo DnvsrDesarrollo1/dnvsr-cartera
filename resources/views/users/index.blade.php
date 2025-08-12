@@ -17,86 +17,71 @@
                     </div>
                 @endif
 
-                <table class="min-w-full divide-y divide-gray-200 rounded-md overflow-hidden">
+                <table class="min-w-full border border-gray-200 rounded-lg overflow-hidden">
                     <thead>
-                        <tr class="bg-gray-800 divide-x divide-gray-600">
-                            <th class="px-6 py-3 text-center text-xs font-bold text-gray-300 uppercase tracking-wider">
-                                Nombre
-                            </th>
-                            <th class="px-6 py-3 text-center text-xs font-bold text-gray-300 uppercase tracking-wider">
-                                Email
-                            </th>
-                            <th class="px-6 py-3 text-center text-xs font-bold text-gray-300 uppercase tracking-wider">
-                                Permisos
-                            </th>
-                            <th class="px-6 py-3 text-center text-xs font-bold text-gray-300 uppercase tracking-wider">
-                                Rol
-                            </th>
-                            <th class="px-6 py-3 text-center text-xs font-bold text-gray-300 uppercase tracking-wider">
-
-                            </th>
+                        <tr class="bg-gray-200">
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Permisos</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Rol</th>
+                            <th class="px-4 py-2"></th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody class="divide-y divide-gray-200">
                         @foreach ($users as $user)
-                            <tr">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">
-                                        {{ $user->name }}
-                                    </div>
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-4 py-2">
+                                    <span class="text-sm font-medium text-gray-900">{{ $user->name }}</span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-500">
-                                        {{ $user->email }}
-                                    </div>
+                                <td class="px-4 py-2">
+                                    <span class="text-sm text-gray-500">{{ $user->email }}</span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    <form action="{{ route('users.update.permissions', $user) }}" method="POST">
+                                <td class="px-4 py-2">
+                                    <form action="{{ route('users.update.permissions', $user) }}" method="POST"
+                                        class="space-y-2">
                                         @csrf
                                         @method('PUT')
-                                        <div class="flex flex-col gap-2">
+                                        <div class="grid grid-cols-2 gap-1">
                                             @foreach ($permissions as $permission)
-                                                <label class="inline-flex items-center">
+                                                <label class="flex items-center space-x-2">
                                                     <input type="checkbox" name="permissions[]"
                                                         value="{{ $permission->name }}"
-                                                        class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                        class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                                         {{ $user->hasPermissionTo($permission->name) ? 'checked' : '' }}>
-                                                    <span
-                                                        class="ml-2 text-sm text-gray-600">{{ $permission->name }}</span>
+                                                    <span class="text-xs text-gray-600">{{ $permission->name }}</span>
                                                 </label>
                                             @endforeach
-                                            <x-personal.button variant="success" :submit="true"
-                                                iconLeft="fa-solid fa-arrows-rotate">
-                                                Sync Permisos
-                                            </x-personal.button>
                                         </div>
+                                        <x-personal.button variant="success" :submit="true"
+                                            iconLeft="fa-solid fa-arrows-rotate" class="!px-2 !py-1 text-xs">
+                                            Sync
+                                        </x-personal.button>
                                     </form>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    <form action="{{ route('users.update.role', $user) }}" method="POST">
+                                <td class="px-4 py-2">
+                                    <form action="{{ route('users.update.role', $user) }}" method="POST"
+                                        class="flex items-center space-x-2">
                                         @csrf
                                         @method('PUT')
-                                        <div class="flex gap-2">
-                                            <select name="role"
-                                                class="rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                                @foreach ($roles as $role)
-                                                    <option value="{{ $role->name }}"
-                                                        {{ $user->hasRole($role->name) ? 'selected' : '' }}>
-                                                        {{ strtoupper($role->name) }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                            <x-personal.button variant="success" :submit="true"
-                                                iconLeft="fa-solid fa-floppy-disk">
-                                                Aplicar Rol
-                                            </x-personal.button>
-                                        </div>
+                                        <select name="role"
+                                            class="text-sm rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                                            @foreach ($roles as $role)
+                                                <option value="{{ $role->name }}"
+                                                    {{ $user->hasRole($role->name) ? 'selected' : '' }}>
+                                                    {{ strtoupper($role->name) }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <x-personal.button variant="success" :submit="true"
+                                            iconLeft="fa-solid fa-check" class="!px-2 !py-1 text-xs">
+                                            OK
+                                        </x-personal.button>
                                     </form>
                                 </td>
-                                <td>
-                                    <div class="flex gap-2">
+                                <td class="px-4 py-2">
+                                    <div class="flex items-center space-x-1">
                                         <x-personal.button variant="primary" href="{{ route('users.edit', $user) }}"
-                                            iconLeft="fa-solid fa-pencil">
+                                            iconLeft="fa-solid fa-pencil" class="!px-2 !py-1 text-xs">
                                             Editar
                                         </x-personal.button>
 
@@ -104,13 +89,13 @@
                                             @csrf
                                             @method('DELETE')
                                             <x-personal.button variant="danger" :submit="true"
-                                                iconLeft="fa-solid fa-trash-can">
+                                                iconLeft="fa-solid fa-trash-can" class="!px-2 !py-1 text-xs">
                                                 Eliminar
                                             </x-personal.button>
                                         </form>
                                     </div>
                                 </td>
-                                </tr>
+                            </tr>
                         @endforeach
                     </tbody>
                 </table>

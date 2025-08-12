@@ -5,12 +5,14 @@ namespace App\Livewire\Projects;
 use App\Models\Beneficiary;
 use App\Models\Project;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class BeneficiariesByStatus extends Component
 {
+    use WithPagination;
+
     public $project;
     public $projectBeneficiaries;
-
     public $statusFilter = '';
 
     public function mount(Project $project)
@@ -21,12 +23,13 @@ class BeneficiariesByStatus extends Component
     public function render()
     {
         $beneficiaries = Beneficiary::query()
+            ->with(['plans', 'readjustments']) // Eager loading relationships
             ->where('proyecto', $this->project->nombre_proyecto)
             ->when($this->statusFilter, function ($query) {
                 return $query->where('estado', $this->statusFilter);
             })
             ->orderBy('nombre', 'asc')
-            ->get();
+            ->paginate(15); // Using pagination
 
         $statuses = Beneficiary::where('proyecto', $this->project->nombre_proyecto)
             ->select('estado')

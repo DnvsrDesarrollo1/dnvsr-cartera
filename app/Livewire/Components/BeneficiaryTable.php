@@ -13,10 +13,9 @@ class BeneficiaryTable extends Component
 
     public $search = '';
     public $sortField = 'id';
-    public $sortDirection = 'asc';
+    public $sortDirection = 'desc';
     public $perPage = 25;
     public $selected = [];
-    public $expandedRows = [];
     public $showFilters = false;
 
     // Filtros avanzados
@@ -45,24 +44,6 @@ class BeneficiaryTable extends Component
         } else {
             $this->sortField = $field;
             $this->sortDirection = 'asc';
-        }
-    }
-
-    public function toggleRow($id)
-    {
-        if (in_array($id, $this->expandedRows)) {
-            $this->expandedRows = array_diff($this->expandedRows, [$id]);
-        } else {
-            $this->expandedRows[] = $id;
-        }
-    }
-
-    public function toggleSelect($id)
-    {
-        if (in_array($id, $this->selected)) {
-            $this->selected = array_diff($this->selected, [$id]);
-        } else {
-            $this->selected[] = $id;
         }
     }
 
@@ -118,6 +99,12 @@ class BeneficiaryTable extends Component
             'saldo_credito_max' => '',
             'plazo_credito' => ''
         ];
+
+        $this->search = '';
+        $this->sortField = 'id';
+        $this->sortDirection = 'desc';
+
+        $this->reset();
     }
 
     public function toggleFilters()
@@ -125,40 +112,22 @@ class BeneficiaryTable extends Component
         $this->showFilters = !$this->showFilters;
     }
 
-    public $editingId = null;
-    public $editingField = null;
-    public $editingValue = '';
     public $statusOptions = ['VIGENTE', 'VENCIDO', 'CANCELADO', 'BLOQUEADO', 'EJECUCION'];
 
-    public function edit($id, $field)
+    public function save($id, $field, $value)
     {
-        $this->editingId = $id;
-        $this->editingField = $field;
-        $this->editingValue = Beneficiary::find($id)->$field;
-    }
-
-    public function save()
-    {
-        if ($this->editingId === null) {
-            return;
-        }
-
         $rules = [];
-        if ($this->editingField === 'estado') {
-            $rules['editingValue'] = ['required', \Illuminate\Validation\Rule::in($this->statusOptions)];
+        if ($field === 'estado') {
+            $rules['value'] = ['required', \Illuminate\Validation\Rule::in($this->statusOptions)];
         } else {
-            $rules['editingValue'] = 'required|string|max:255';
+            $rules['value'] = 'required|string|max:255';
         }
 
-        $this->validate($rules);
+        //$this->validate($rules, ['value' => $value]);
 
-        Beneficiary::find($this->editingId)->update([
-            $this->editingField => $this->editingValue
+        Beneficiary::find($id)->update([
+            $field => $value
         ]);
-
-        $this->editingId = null;
-        $this->editingField = null;
-        $this->editingValue = '';
 
         $this->dispatch('notify', 'Guardado!');
     }
@@ -208,7 +177,7 @@ class BeneficiaryTable extends Component
         $beneficiaries = $this->getBeneficiaries()
             ->paginate($this->perPage);
 
-        $filterOptions = Cache::remember('beneficiary_filter_options', now()->addDay(), function () {
+        $filterOptions = Cache::remember('beneficiary_filter_options', now()->addMinutes(30), function () {
             $allBeneficiaries = Beneficiary::select('estado', 'entidad_financiera', 'departamento', 'genero')
                 ->distinct()
                 ->get();

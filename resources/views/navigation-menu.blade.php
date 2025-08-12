@@ -12,10 +12,6 @@
                         class="transition duration-150 ease-in-out">
                         {{ 'Proyectos' }}
                     </x-nav-link>
-                    <x-nav-link href="{{ route('importaciones') }}" :active="request()->routeIs('importaciones')"
-                        class="transition duration-150 ease-in-out">
-                        {{ 'Carga de Datos' }}
-                    </x-nav-link>
                     <x-nav-link href="{{ route('beneficiario.index') }}" :active="request()->routeIs('beneficiario.*')"
                         class="transition duration-150 ease-in-out">
                         {{ 'Beneficiarios' }}
@@ -82,17 +78,21 @@
                         <x-slot name="content">
                             <!-- Account Management -->
                             <div class="block px-4 py-2 text-xs text-gray-400">
-                                {{ 'Manage Account' }}
+                                {{ 'Opciones' }}
                             </div>
 
-                            @can('write beneficiaries')
+                            <x-dropdown-link href="{{ route('importaciones') }}">
+                                {{ 'Carga de CSV' }}
+                            </x-dropdown-link>
+
+                            @can(abilities: 'write beneficiaries')
                                 <x-dropdown-link href="{{ route('users.index') }}">
-                                    {{ 'Usuarios' }}
+                                    {{ 'Gestionar Usuarios' }}
                                 </x-dropdown-link>
                             @endcan
 
                             <x-dropdown-link href="{{ route('profile.show') }}">
-                                {{ 'Profile' }}
+                                {{ 'Mi Perfil' }}
                             </x-dropdown-link>
 
                             @if (Laravel\Jetstream\Jetstream::hasApiFeatures())
@@ -109,7 +109,7 @@
 
                                 <x-dropdown-link @class(['font-bold']) href="{{ route('logout') }}"
                                     @click.prevent="$root.submit();">
-                                    {{ 'Log Out' }}
+                                    {{ 'Cerrar Sesión' }}
                                 </x-dropdown-link>
                             </form>
                         </x-slot>
@@ -117,7 +117,7 @@
                 </div>
 
                 <!-- Notifications -->
-                <div class="ml-3 flex items-center space-x-2">
+                <div class="ml-3 flex items-center space-x-4">
                     <livewire:plans-notification lazy="on-load" />
                     <livewire:notifications-manager lazy="on-load" />
                 </div>
@@ -145,9 +145,6 @@
             <!-- Mobile Navigation Links -->
             <x-responsive-nav-link href="{{ route('proyecto.index') }}" :active="request()->routeIs('proyecto.*')">
                 {{ 'Proyectos' }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link href="{{ route('importaciones') }}" :active="request()->routeIs('importaciones')">
-                {{ 'Carga de Datos' }}
             </x-responsive-nav-link>
             <x-responsive-nav-link href="{{ route('beneficiario.index') }}" :active="request()->routeIs('beneficiario.*')">
                 {{ 'Beneficiarios' }}
@@ -193,14 +190,19 @@
 
             <div class="mt-3 space-y-1">
                 <!-- Account Management -->
+
+                <x-responsive-nav-link href="{{ route('importaciones') }}" :active="request()->routeIs('importaciones')">
+                    {{ 'Carga de Datos' }}
+                </x-responsive-nav-link>
+
                 @can('write beneficiaries')
                     <x-responsive-nav-link href="{{ route('users.index') }}">
-                        {{ 'Usuarios' }}
+                        {{ 'Gestionar Usuarios' }}
                     </x-responsive-nav-link>
                 @endcan
 
                 <x-responsive-nav-link href="{{ route('profile.show') }}" :active="request()->routeIs('profile.show')">
-                    {{ 'Profile' }}
+                    {{ 'Mi Cuenta' }}
                 </x-responsive-nav-link>
 
                 @if (Laravel\Jetstream\Jetstream::hasApiFeatures())
@@ -214,7 +216,7 @@
                     @csrf
 
                     <x-responsive-nav-link href="{{ route('logout') }}" @click.prevent="$root.submit();">
-                        {{ 'Log Out' }}
+                        {{ 'Cerrar Sesión' }}
                     </x-responsive-nav-link>
                 </form>
             </div>

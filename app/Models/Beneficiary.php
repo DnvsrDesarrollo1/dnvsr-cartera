@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class Beneficiary extends Model
 {
@@ -46,6 +47,32 @@ class Beneficiary extends Model
     private const RETRY_DELAY = 100; // milliseconds
 
     //public $incrementing = false;
+
+    public function getDaysInArrearsAttribute()
+    {
+        // First, check the 'plans' relationship
+        $firstUnpaidPlan = $this->plans
+            ->where('estado', '!=', 'CANCELADO')
+            ->sortBy('fecha_ppg')
+            ->first();
+
+        // If no unpaid plan found, check 'readjustments'
+        if (!$firstUnpaidPlan) {
+            $firstUnpaidPlan = $this->readjustments
+                ->where('estado', '!=', 'CANCELADO')
+                ->sortBy('fecha_ppg')
+                ->first();
+        }
+
+        if ($firstUnpaidPlan) {
+            $startDate = Carbon::parse($firstUnpaidPlan->fecha_ppg);
+            $endDate = now();
+            $days = $startDate->diffInDays($endDate);
+            return $days > 0 ? $days : 0;
+        }
+
+        return 0;
+    }
 
     public function payments()
     {

@@ -2,18 +2,23 @@
     <div class="mt-4">
         <div class="w-full px-4 grid sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-2">
             <div class="bg-white shadow-lg rounded-lg p-6 mb-4 h-fit border border-gray-300" id=$"profile_preview">
-                <h1 class="text-lg font-semibold text-gray-800 bg-gray-100 rounded-lg border p-4 mb-2">
-                    Perfil del Beneficiario
-                </h1>
-                <div class="flex items-center justify-between mb-2">
-                    @if ($beneficiary->estado != 'BLOQUEADO' && $beneficiary->estado != 'CANCELADO')
-                        <span class="border bg-gray-100 p-2 rounded-md shadow-md mr-2">
+                <div class="flex items-center justify-between border-b pb-4">
+                    <div class="flex items-center space-x-4">
+                        <h1 class="text-xl font-medium text-gray-900">
+                            {{ $beneficiary->nombre }}
+                        </h1>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        @if ($beneficiary->estado != 'BLOQUEADO' && $beneficiary->estado != 'CANCELADO')
                             @can('write beneficiaries')
                                 <form action="{{ route('beneficiario.update', $beneficiary) }}" method="POST" class="inline">
                                     @csrf
                                     @method('PUT')
-                                    <button type="submit" class="text-red-600 hover:text-red-800"
-                                        onclick="return confirm('¿Está seguro de bloquear este beneficiario?')">
+                                    <button type="submit"
+                                        class="p-1.5 rounded-full hover:bg-gray-100 text-gray-500 hover:text-red-600 transition-colors"
+                                        onclick="return confirm('¿Está seguro de bloquear este beneficiario?')"
+                                        title="Bloquear beneficiario">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -21,28 +26,22 @@
                                     </button>
                                 </form>
                             @endcan
-                        </span>
-                    @endif
-                    <div class="border bg-gray-100 p-2 rounded-md shadow-md">
-                        <p class="text-lg font-semibold text-gray-800">
-                            {{ $beneficiary->nombre }} - {{ $beneficiary->ci }} {{ $beneficiary->complemento }}
-                            {{ $beneficiary->expedido }}
-                        </p>
-                        <hr class="my-2" />
-                        <p class="text-gray-600">
-                            <i>
-                                COD.CREDITO: {{ $beneficiary->idepro }}
-                            </i>
-                        </p>
-                    </div>
-                    <div class="ml-auto flex justify-end gap-2">
+                        @endif
+
                         @can('write beneficiaries')
                             @livewire('beneficiary-update', ['beneficiary' => $beneficiary])
                         @endcan
+
                         @if (auth()->user()->can('read settlements') || auth()->user()->can('write settlements'))
                             @livewire('settle-beneficiary', ['beneficiary' => $beneficiary])
                         @endif
                     </div>
+                </div>
+
+                <div class="flex items-center my-2">
+                    <span class="text-sm text-gray-600">
+                        CI: {{ $beneficiary->ci }} {{ $beneficiary->complemento }} {{ $beneficiary->expedido }} | COD.CREDITO: <span class="font-medium">{{ $beneficiary->idepro }}</span>
+                    </span>
                 </div>
                 <hr>
                 @if (session('success'))
@@ -50,247 +49,113 @@
                         goto="{{ session('file') ?? null }}" />
                 @endif
 
-                <div class="mt-2 grid grid-cols-2 gap-2">
-                    <div class="bg-gray-100 rounded-lg p-2 shadow">
-                        <table class="w-full border-md border-gray-300">
-                            <tbody>
-                                <tr class="hover:bg-gray-50 transition-colors duration-200 border border-gray-300">
-                                    <td class="px-6 py-4 w-12 border border-gray-300">
-                                        <div class="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
-                                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z">
-                                                </path>
-                                            </svg>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 w-32 border border-gray-300">
-                                        <h3 class="font-semibold text-gray-600 text-sm uppercase tracking-wide">
-                                            Estado del Credito
-                                        </h3>
-                                    </td>
-                                    <td class="px-6 py-4 border border-gray-300">
-                                        <p
-                                            class="font-bold {{ $beneficiary->estado == 'CANCELADO' || $beneficiary->estado == 'BLOQUEADO' ? 'text-red-500' : '' }}">
-                                            {{ $beneficiary->estado }}
-                                        </p>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="bg-gray-100 rounded-lg p-2 shadow">
-                        <table class="w-full border border-gray-300">
-                            <tbody>
-                                <tr class="hover:bg-gray-50 transition-colors duration-200 border border-gray-300">
-                                    <td class="px-6 py-4 w-12 border border-gray-300">
-                                        <div class="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
-                                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                                    d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
-                                                </path>
-                                            </svg>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 w-32 border border-gray-300">
-                                        <h3 class="font-semibold text-gray-600 text-sm uppercase tracking-wide">Proyecto
-                                        </h3>
-                                    </td>
-                                    <td class="px-6 py-4 border border-gray-300">
-                                        <p class="font-bold text-gray-800 text-sm">{{ $beneficiary->proyecto }}</p>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="bg-gray-100 rounded-lg p-2 shadow">
-                        <table class="w-full border border-gray-300">
-                            <tbody>
-                                <tr class="hover:bg-gray-50 transition-colors duration-200 border border-gray-300">
-                                    <td class="px-6 py-4 w-12 border border-gray-300">
-                                        <div class="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
-                                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
-                                                </path>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z">
-                                                </path>
-                                            </svg>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 w-32 border border-gray-300">
-                                        <h3 class="font-semibold text-gray-600 text-sm uppercase tracking-wide">
-                                            Departamento
-                                        </h3>
-                                    </td>
-                                    <td class="px-6 py-4 border border-gray-300">
-                                        <p class="font-bold text-gray-800 text-sm">{{ $beneficiary->departamento }}</p>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="bg-gray-100 rounded-lg p-2 shadow">
-                        <table class="w-full border border-gray-300">
-                            <tbody>
-                                <tr class="hover:bg-gray-50 transition-colors duration-200 border border-gray-300">
-                                    <td class="px-6 py-4 w-12 border border-gray-300">
-                                        <div class="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
-                                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                            </svg>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 w-32 border border-gray-300">
-                                        <h3 class="font-semibold text-gray-600 text-sm uppercase tracking-wide">
-                                            Fecha Activacion
-                                        </h3>
-                                    </td>
-                                    <td class="px-6 py-4 border border-gray-300">
-                                        <p class="font-bold text-gray-800 text-sm">{{ $beneficiary->fecha_activacion }}
-                                        </p>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="bg-gray-100 rounded-lg p-2 shadow">
-                        <table class="w-full border border-gray-300">
-                            <tbody>
-                                <tr class="hover:bg-gray-50 transition-colors duration-200 border border-gray-300">
-                                    <td class="px-6 py-4 w-12 border border-gray-300">
-                                        <div class="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
-                                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                    stroke-width="1.5"
-                                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 w-32 border border-gray-300">
-                                        <h3 class="font-semibold text-gray-600 text-sm uppercase tracking-wide">
-                                            Monto Activado
-                                        </h3>
-                                    </td>
-                                    <td class="px-6 py-4 border border-gray-300">
-                                        <p class="font-bold text-gray-800 text-sm">
-                                            {{ number_format($beneficiary->monto_activado, 2) }}
-                                        </p>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="bg-gray-100 rounded-lg p-2 shadow">
-                        <table class="w-full border border-gray-300">
-                            <tbody>
-                                <tr class="hover:bg-gray-50 transition-colors duration-200 border border-gray-300">
-                                    <td class="px-6 py-4 w-12 border border-gray-300">
-                                        <div class="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
-                                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                    stroke-width="1.5"
-                                                    d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
-                                            </svg>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 w-32 border border-gray-300">
-                                        <h3 class="font-semibold text-gray-600 text-sm uppercase tracking-wide">
-                                            Saldo Credito
-                                        </h3>
-                                    </td>
-                                    <td class="px-6 py-4 border border-gray-300">
-                                        <p class="font-bold text-gray-800 text-sm">
-                                            {{ number_format($beneficiary->saldo_credito, 2) }}
-                                        </p>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="bg-gray-100 rounded-lg p-2 shadow">
-                        <table class="w-full border border-gray-300">
-                            <tbody>
-                                <tr class="hover:bg-gray-50 transition-colors duration-200 border border-gray-300">
-                                    <td class="px-6 py-4 w-12 border border-gray-300">
-                                        <div class="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
-                                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                    stroke-width="1.5"
-                                                    d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                                            </svg>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 w-32 border border-gray-300">
-                                        <h3 class="font-semibold text-gray-600 text-sm uppercase tracking-wide">
-                                            Capital Cancelado
-                                        </h3>
-                                    </td>
-                                    <td class="px-6 py-4 border border-gray-300">
-                                        <p class="font-bold text-gray-800 text-sm">
-                                            {{ number_format($beneficiary->payments()->where('prtdtdesc', 'like', '%CAPI%')->sum('montopago'), 2) }}
-                                        </p>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="p-4">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div
-                                class="bg-gray-100 rounded-lg p-4 shadow-md flex flex-col justify-between items-center">
-                                @php
-                                    $plans = $beneficiary->getCurrentPlan();
-                                @endphp
+                <div class="mt-2 grid grid-cols-2 gap-4">
+                    @php
+                        $infoCards = [
+                            [
+                                'icon' => 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
+                                'label' => 'Estado del Credito',
+                                'value' => $beneficiary->estado,
+                                'isStatus' => true,
+                            ],
+                            [
+                                'icon' =>
+                                    'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',
+                                'label' => 'Proyecto',
+                                'value' => $beneficiary->proyecto,
+                            ],
+                            [
+                                'icon' =>
+                                    'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z',
+                                'label' => 'Departamento',
+                                'value' => $beneficiary->departamento,
+                            ],
+                            [
+                                'icon' =>
+                                    'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',
+                                'label' => 'Fecha Activacion',
+                                'value' => $beneficiary->fecha_activacion,
+                            ],
+                            [
+                                'icon' =>
+                                    'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+                                'label' => 'Monto Activado',
+                                'value' => number_format($beneficiary->monto_activado, 2),
+                            ],
+                            [
+                                'icon' =>
+                                    'M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3',
+                                'label' => 'Saldo Credito',
+                                'value' => number_format($beneficiary->saldo_credito, 2),
+                            ],
+                            [
+                                'icon' =>
+                                    'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z',
+                                'label' => 'Capital Cancelado',
+                                'value' => number_format(
+                                    $beneficiary->payments()->where('prtdtdesc', 'like', '%CAPI%')->sum('montopago'),
+                                    2,
+                                ),
+                            ],
+                        ];
+                    @endphp
+
+                    @foreach ($infoCards as $card)
+                        <div class="bg-white rounded-lg p-3 shadow-sm border border-gray-100 flex items-center gap-3">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                            d="{{ $card['icon'] }}" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <p class="text-xs text-gray-500 font-medium">{{ $card['label'] }}</p>
+                                <p
+                                    class="text-sm font-semibold {{ isset($card['isStatus']) && ($beneficiary->estado == 'CANCELADO' || $beneficiary->estado == 'BLOQUEADO') ? 'text-red-500' : 'text-gray-700' }}">
+                                    {{ $card['value'] }}
+                                </p>
+                            </div>
+                        </div>
+                    @endforeach
+
+                    <div class="col-span-2 grid grid-cols-2 gap-4">
+                        <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+                            @php
+                                $plans = $beneficiary->getCurrentPlan();
+                            @endphp
+                            <div class="flex flex-col items-center gap-2">
                                 @if ($plans->count() > 0)
                                     <livewire:plan-modal lazy :beneficiary="$beneficiary" title="Plan de Pagos" />
-                                @else
-                                    <p class="text-gray-500 italic">Sin plan de pagos registrado</p>
-                                @endif
-                                <hr class="my-2" />
-                                @if ($plans->count() > 0)
                                     @php
                                         $vencs = $beneficiary
                                             ->plans()
                                             ->where('estado', '!=', 'CANCELADO')
                                             ->orderBy('fecha_ppg')
                                             ->get();
-                                        $total = 0;
                                         if ($vencs->count() > 0) {
                                             $fechaInicio = \Carbon\Carbon::parse($vencs->first()->fecha_ppg);
-                                            $fechaFin = now();
-                                            $diff = $fechaInicio->diffInDays($fechaFin);
-                                            $total = $diff;
-                                            echo "
-                                                <span class=\"w-full bg-white rounded-md text-center text-red-500 p-1\">
-                                                    Dias de Mora: <b>" .
-                                                number_format($total <= 0 ? 0 : $total, 0) .
-                                                "</b>
-                                                </span>
-                                            ";
+                                            $diff = $fechaInicio->diffInDays(now());
+                                            echo "<p class=\"text-sm text-red-500\">Dias de Mora: <b>" .
+                                                number_format(max(0, $diff), 0) .
+                                                '</b></p>';
                                         }
                                     @endphp
+                                @else
+                                    <p class="text-sm text-gray-500 italic">Sin plan de pagos registrado</p>
                                 @endif
                             </div>
-                            <div
-                                class="bg-gray-100 rounded-lg p-4 shadow-md flex flex-col justify-between items-center">
+                        </div>
+
+                        <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+                            <div class="flex flex-col items-center gap-2">
                                 @if ($beneficiary->payments()->count() > 0)
                                     <livewire:payment-modal lazy :beneficiary="$beneficiary" title="Historial de Pagos" />
                                 @else
-                                    <p class="text-gray-500 italic">Sin historial de pagos registrado</p>
+                                    <p class="text-sm text-gray-500 italic">Sin historial de pagos registrado</p>
                                 @endif
-
-                                <hr class="my-2" />
-
                                 <livewire:voucher-register :idepro="$beneficiary->idepro" title="Registrar Pago" />
                             </div>
                         </div>
@@ -377,23 +242,23 @@
                                         spacing: [20, 20, 15, 20]
                                     },
                                     title: {
-                                        text: 'Evolución Mensual de Cumplimiento de Pagos',
+                                        text: null,//'Evolución Mensual de Cumplimiento de Pagos',
                                         align: 'left',
-                                        style: {
+                                        /* style: {
                                             fontSize: '18px',
                                             fontWeight: '600',
                                             color: '#1e293b'
                                         },
-                                        margin: 25
+                                        margin: 25 */
                                     },
-                                    subtitle: {
+                                    /* subtitle: {
                                         text: 'Comparación entre capital planificado y pagado',
                                         align: 'left',
                                         style: {
                                             color: '#64748b',
                                             fontSize: '13px'
                                         }
-                                    },
+                                    }, */
                                     xAxis: {
                                         categories: months,
                                         labels: {
@@ -691,7 +556,8 @@
                                             <input type="text" inputmode="decimal" name="taza_interes"
                                                 placeholder="Ej: 13" pattern="[0-9]*[.,]?[0-9]*"
                                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                                                required value="{{ $beneficiary->tasa_interes ?? 0 }}" title="Taza por defecto 3%">
+                                                required value="{{ $beneficiary->tasa_interes ?? 0 }}"
+                                                title="Taza por defecto 3%">
                                             <span class="absolute right-3 top-2 text-gray-500">%</span>
                                         </div>
                                     </div>

@@ -58,26 +58,9 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">{{ $beneficiary->ci }}</td>
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                @php
-                                                    $vencs = $beneficiary
-                                                        ->getCurrentPlan('CANCELADO', '!=');
-                                                    $total = 0;
-                                                    if ($vencs->count() > 0) {
-                                                        $fechaInicio = \Carbon\Carbon::parse(
-                                                            $vencs->first()->fecha_ppg,
-                                                        );
-                                                        $fechaFin = now();
-                                                        $diff = $fechaInicio->diffInDays($fechaFin);
-                                                        $total = $diff;
-                                                        echo "
-                                                <span class=\"w-full bg-white rounded-md text-center p-1\">
-                                                    <b>" .
-                                                            number_format($total <= 0 ? 0 : $total, 0) .
-                                                            "</b>
+                                                <span class="w-full bg-white rounded-md text-center p-1">
+                                                    <b>{{ number_format($beneficiary->days_in_arrears, 0) }}</b>
                                                 </span>
-                                            ";
-                                                    }
-                                                @endphp
                                             </td>
                                         </tr>
                                     @endforeach
@@ -85,6 +68,9 @@
                             </table>
                         </div>
                     </div>
+                </div>
+                <div class="mt-4">
+                    {{ $beneficiaries->links() }}
                 </div>
             </div>
 
