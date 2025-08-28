@@ -124,7 +124,7 @@
                             <!-- Interés a Liquidar -->
                             <div class="space-y-1">
                                 <label for="intSettle" class="block text-sm font-medium text-gray-700">
-                                    Interés: (de una mora de {{ $diasMora }} días)
+                                    Interés: (de {{ $diasMora }} días)
                                 </label>
                                 <div class="relative rounded-md shadow-sm">
                                     <input min="0" type="number" wire:model.blur="intSettle" id="intSettle"

@@ -544,13 +544,15 @@ class SettleBeneficiary extends Component
 
     private function calcularDiasMora(Beneficiary $beneficiary)
     {
-        $listaPlan = $beneficiary->getCurrentPlan('CANCELADO', '!=')->where('fecha_ppg', '<=', now())->sortBy('fecha_ppg');
+        $listaPlan = $beneficiary->getCurrentPlan('CANCELADO', '=')->last() ?? null;
 
-        if ($listaPlan->isEmpty() || $listaPlan == null) {
+        if ($listaPlan == null) {
             return 0;
         }
 
-        $arrayComparativo = array();
+        return round(\Carbon\Carbon::parse($listaPlan->fecha_ppg)->diffInDays(now()), 0);
+
+        /* $arrayComparativo = array();
 
         foreach ($listaPlan as $key => $value) {
             $pago = $beneficiary->vouchers->where('numpago', $value->prppgnpag)->first();
@@ -569,6 +571,6 @@ class SettleBeneficiary extends Component
 
         //dd($arrayComparativo);
 
-        return floor(collect($arrayComparativo)->max(3) + collect($arrayComparativo)->min(3));
+        return floor(collect($arrayComparativo)->max(3) + collect($arrayComparativo)->min(3)); */
     }
 }

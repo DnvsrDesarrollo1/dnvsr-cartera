@@ -4,7 +4,6 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class ExportReadyNotification extends Notification implements ShouldQueue
@@ -46,7 +45,7 @@ class ExportReadyNotification extends Notification implements ShouldQueue
     {
         return [
             'title' => '¡Exportación completada!',
-            'message' => "Tu archivo ZIP con {$this->count} PDFs está listo para ser descargado.",
+            'message' => "Tu archivo ZIP con {$this->count} archivos está listo para ser descargado.",
             'action_url' => $this->zipUrl,
             'icon' => 'fas fa-file-archive',
         ];

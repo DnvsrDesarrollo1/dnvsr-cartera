@@ -74,7 +74,7 @@ class BeneficiaryController extends Controller
         $differs = $this->getActiveDiffers($beneficiary->idepro);
 
         $pdf = PDF::loadView('beneficiaries.pdf', compact('beneficiary', 'plans', 'differs'));
-        return $pdf->stream("beneficiary_{$cedula}_" . uniqid() . '.pdf');
+        return $pdf->stream("beneficiario_{$cedula}_" . uniqid() . '.pdf');
     }
 
     public function pdfExtract($cedula)
@@ -84,7 +84,7 @@ class BeneficiaryController extends Controller
 
         $pdf = PDF::loadView('beneficiaries.pdf-extract', compact('beneficiary', 'payments'));
 
-        return $pdf->stream("beneficiary_{$cedula}_extracto_" . uniqid() . '.pdf');
+        return $pdf->stream("beneficiario_{$cedula}_extracto_" . uniqid() . '.pdf');
     }
 
     public function bulkPdf($data)

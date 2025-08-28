@@ -253,12 +253,12 @@
                         <td>
                             Bs.
                             {{ number_format(
-                                \App\Models\Earn::where('idepro', $beneficiary->idepro)->where('estado', 'ACTIVO')->sum('interes') ?? 0,
+                                \App\Models\Earn::where('idepro', $beneficiary->idepro)->sum('interes') ?? 0,
                                 2,
                             ) }}
                             /
                             Bs.
-                            {{ number_format(\App\Models\Earn::where('idepro', $beneficiary->idepro)->where('estado', 'ACTIVO')->sum('seguro') ?? 0, 2) }}
+                            {{ number_format(\App\Models\Earn::where('idepro', $beneficiary->idepro)->sum('seguro') ?? 0, 2) }}
                             <br>
                             {{ $beneficiary->helpers()->count() ?? 0 }} / Bs.
                             {{ number_format($beneficiary->helpers()->sum('capital') ?? 0, 2) }} /

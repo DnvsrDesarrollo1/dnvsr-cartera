@@ -26,14 +26,15 @@ class BeneficiaryStatus extends Command
      */
     public function handle()
     {
-        $beneficiaries = \App\Models\Beneficiary::where('estado', '!=', 'CANCELADO')->where('estado', '!=', 'BLOQUEADO')->get();
+        $beneficiaries = \App\Models\Beneficiary::where('estado', '!=', 'CANCELADO')
+            ->where('estado', '!=', 'BLOQUEADO')
+            ->get();
+
         $count = 0;
 
         foreach ($beneficiaries as $b) {
             $venc = $b
-                ->plans()
-                ->where('estado', 'VENCIDO')
-                ->orderBy('fecha_ppg', 'ASC')
+                ->getCurrentPlan('VENCIDO', '=')
                 ->first() ?? null;
 
             $total = 0;
@@ -64,6 +65,6 @@ class BeneficiaryStatus extends Command
             $count++;
         }
 
-        Log::info('Beneficiaries status updated ['. $count .']');
+        Log::info('Beneficiaries status updated [' . $count . ']');
     }
 }

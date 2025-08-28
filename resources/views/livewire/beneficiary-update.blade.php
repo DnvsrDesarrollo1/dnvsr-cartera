@@ -120,13 +120,26 @@
                                 <label for="saldo_credito" class="block text-gray-700 text-sm font-bold">
                                     Saldo Crédito:
                                 </label>
-                                @if (
-                                    $beneficiary->total_activado - $beneficiary->payments()->where('prtdtdesc', 'LIKE', '%CAP%')->sum('montopago') !=
-                                        $beneficiary->saldo_credito)
+                                @php
+                                    $saldo_credito =
+                                        $beneficiary->monto_activado -
+                                        $beneficiary
+                                            ->payments()
+                                            ->where('prtdtdesc', 'LIKE', 'CAPI%')
+                                            ->where('prtdtdesc', 'NOT LIKE', '%DIFER%')
+                                            ->where(function ($query) {
+                                                $query
+                                                    ->whereNull('observacion')
+                                                    ->orWhere('observacion', '')
+                                                    ->orWhere('observacion', '!=', 'LEGACY 22/24');
+                                            })
+                                            ->sum('montopago');
+                                @endphp
+                                @if ($saldo_credito != $beneficiary->saldo_credito)
                                     <span class="text-gray-500 text-sm">
                                         <i>
                                             El sistema detecta un saldo aprox. de Bs.
-                                            {{ number_format($beneficiary->total_activado - $beneficiary->payments()->where('prtdtdesc', 'LIKE', '%CAP%')->sum('montopago'), 3) }}
+                                            {{ number_format($beneficiary->total_activado - $beneficiary->payments()->where('prtdtdesc', 'LIKE', 'CAPI%')->where('prtdtdesc', 'NOT LIKE', '%DIFER%')->sum('montopago'), 3) }}
                                         </i>
                                     </span>
                                 @endif
@@ -197,9 +210,7 @@
 
             <div
                 class="bg-gray-100 px-4 py-3 items-center justify-between lg:flex sm:px-6 sm:flex border-t border-gray-200">
-                <x-personal.button variant="success"
-                    iconLeft="fa-solid fa-save"
-                    wire:click="update"
+                <x-personal.button variant="success" iconLeft="fa-solid fa-save" wire:click="update"
                     wire:confirm="¿Está seguro de que desea guardar los cambios?">
                     Aplicar Cambios
                 </x-personal.button>

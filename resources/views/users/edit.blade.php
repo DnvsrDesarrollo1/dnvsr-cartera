@@ -41,7 +41,7 @@
                 </div>
 
                 <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Asignar Proyectos</h3>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Asignar Proyectos (UID: {{ $user->id }})</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 p-2">
                         @foreach ($proyectos as $p)
                             <div

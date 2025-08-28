@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\GenerateBeneficiaryCsvZip;
 use App\Models\Beneficiary;
 use App\Models\Plan;
 use App\Models\Readjustment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Traits\FinanceTrait;
+use Illuminate\Support\Facades\Auth;
 
 class PlanController extends Controller
 {
@@ -167,135 +169,20 @@ class PlanController extends Controller
 
     public function bulkExportXLSX($data)
     {
-        $beneficiaries = Beneficiary::find(json_decode($data, true))->pluck('idepro');
+        $decodedData = json_decode($data, true);
+        $identificationNumbers = array_values($decodedData);
+        $user = Auth::user();
 
-        $plans = Plan::join('beneficiaries', 'beneficiaries.idepro', '=', 'plans.idepro')
-            ->select(
-                'plans.id',
-                'plans.idepro',
-                'plans.fecha_ppg',
-                'plans.prppgnpag',
-                'plans.prppgcapi',
-                'plans.prppginte',
-                'plans.prppgsegu',
-                'plans.prppgotro',
-                'plans.prppgtota',
-                'plans.prppggral',
-                'plans.prppgcarg',
-                'plans.estado',
-                'beneficiaries.nombre',
-                'beneficiaries.ci',
-                'beneficiaries.complemento',
-                'beneficiaries.expedido'
-            )
-            ->whereIn('plans.idepro', $beneficiaries)
-            ->where('plans.estado', '<>', 'INACTIVO')
-            ->orderBy('plans.fecha_ppg', 'asc')
-            ->get();
-
-        $readj = Readjustment::join('beneficiaries', 'beneficiaries.idepro', '=', 'readjustments.idepro')
-            ->select(
-                'readjustments.id',
-                'readjustments.idepro',
-                'readjustments.fecha_ppg',
-                'readjustments.prppgnpag',
-                'readjustments.prppgcapi',
-                'readjustments.prppginte',
-                'readjustments.prppgsegu',
-                'readjustments.prppgotro',
-                'readjustments.prppgtota',
-                'readjustments.prppggral',
-                'readjustments.prppgcarg',
-                'readjustments.estado',
-                'beneficiaries.nombre',
-                'beneficiaries.ci',
-                'beneficiaries.complemento',
-                'beneficiaries.expedido'
-            )
-            ->whereIn('readjustments.idepro', $beneficiaries)
-            ->where('readjustments.estado', '<>', 'INACTIVO')
-            ->orderBy('readjustments.fecha_ppg', 'asc')
-            ->get();
-
-        try {
-            $fileName = 'exportacion_planes_' . uniqid() . '.csv';
-            $headers = [
-                'Content-Type' => 'text/csv',
-                'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
-            ];
-
-            $callback = function () use ($plans, $readj) {
-                $file = fopen('php://output', 'w');
-                fputcsv($file, [
-                    'NOMBRES',
-                    'CI',
-                    'COMPLEMENTO',
-                    'EXPEDIDO',
-                    'ID',
-                    'IDEPRO',
-                    'FECHA PPG',
-                    'NRO CUOTA',
-                    'CAPITAL',
-                    'INTERES',
-                    'INTERES DEVG',
-                    'SEGURO',
-                    'SEGURO DEVG',
-                    'GASTOS ADM/JUD',
-                    'TOTAL CUOTA',
-                    'ESTADO',
-                ]);
-
-                foreach ($plans as $plan) {
-                    fputcsv($file, [
-                        $plan->nombre,
-                        $plan->ci,
-                        $plan->complemento,
-                        $plan->expedido,
-                        $plan->id,
-                        $plan->idepro,
-                        $plan->fecha_ppg,
-                        $plan->prppgnpag,
-                        $plan->prppgcapi,
-                        $plan->prppginte,
-                        $plan->prppggral,
-                        $plan->prppgsegu,
-                        $plan->prppgcarg,
-                        $plan->prppgotro,
-                        $plan->prppgtota,
-                        $plan->estado,
-                    ]);
-                }
-
-                foreach ($readj as $r) {
-                    fputcsv($file, [
-                        $r->nombre,
-                        $r->ci,
-                        $r->complemento,
-                        $r->expedido,
-                        $r->id,
-                        $r->idepro,
-                        $r->fecha_ppg,
-                        $r->prppgnpag,
-                        $r->prppgcapi,
-                        $r->prppginte,
-                        $r->prppggral,
-                        $r->prppgsegu,
-                        $r->prppgcarg,
-                        $r->prppgotro,
-                        $r->prppgtota,
-                        $r->estado,
-                    ]);
-                }
-
-                fclose($file);
-            };
-
-            return response()->stream($callback, 200, $headers);
-        } catch (\Exception $e) {
-            return redirect()->route('beneficiario.index')
-                ->with('error', "La exportación masiva de {$beneficiaries->count()} beneficiarios no fue realizada.")
-                ->with('data', $e->getMessage());
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Debes iniciar sesión para realizar esta acción.');
         }
+
+        // Dispatch the job to the queue
+        GenerateBeneficiaryCsvZip::dispatch($identificationNumbers, $user->id);
+
+        // Redirect back immediately with a success message
+        return back()
+            ->with('success', 'La exportación ha comenzado. Recibirás una notificación cuando el archivo esté listo para descargar.');
     }
 
     public function bulkActivation($data)

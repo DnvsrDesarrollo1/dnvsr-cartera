@@ -60,6 +60,48 @@ class VoucherRegister extends Component
 
     public function save()
     {
+        // Generate temporary backup CSV of current payment plan
+        $timestamp = now()->format('Y-m-d_H-i-s');
+        $tempDir = storage_path('app/temp');
+        $filename = "payment_plan_backup_{$this->numprestamo}_{$timestamp}.csv";
+        $fullPath = "{$tempDir}/{$filename}";
+
+        // Create temp directory if it doesn't exist
+        if (!file_exists($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+
+        // Get current payment plan data
+        $currentPlan = $this->beneficiario->getCurrentPlan('INACTIVO', '!=')->get();
+
+        // Create CSV file with payment plan data
+        $file = fopen($fullPath, 'w');
+        fputcsv($file, ['idepro', 'prppgnpag', 'fecha_ppg', 'prppgcapi', 'prppginte', 'prppggral', 'prppgsegu', 'prppgcarg', 'prppgotro', 'prppgtota', 'estado']);
+
+        foreach ($currentPlan as $payment) {
+            fputcsv($file, [
+                $payment->idepro,
+                $payment->prppgnpag,
+                $payment->fecha_ppg,
+                $payment->prppgcapi,
+                $payment->prppginte,
+                $payment->prppggral,
+                $payment->prppgsegu,
+                $payment->prppgcarg,
+                $payment->prppgotro,
+                $payment->prppgtota,
+                $payment->estado
+            ]);
+        }
+        fclose($file);
+
+        // Schedule file deletion after 30 minutes
+        dispatch(function () use ($fullPath) {
+            if (file_exists($fullPath)) {
+                unlink($fullPath);
+            }
+        })->delay(now()->addMinutes(30));
+
         if ($this->enableDiffFields) {
 
             $helpers = $this->beneficiario->helpers()->where('estado', 'ACTIVO')->get();

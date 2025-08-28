@@ -17,6 +17,15 @@
                     ({{ count($selected) }})
                 </x-personal.button>
             </div>
+            <div class="w-full sm:w-auto">
+                <x-personal.button variant="outline-secondary"
+                    href="{{ route('plan.bulk-xlsx', ['data' => json_encode(collect($selected))]) }}"
+                    iconLeft="fa-solid fa-file-pdf" class="w-full sm:w-auto">
+                    <span class="hidden sm:inline">XLSX</span>
+                    <span class="sm:hidden">Generar XLSX</span>
+                    ({{ count($selected) }})
+                </x-personal.button>
+            </div>
         </div>
     @endif
     <div class="py-2 relative">
@@ -75,7 +84,7 @@
                 class="bg-white shadow-sm rounded-lg absolute z-50 border border-gray-400 w-full px-4 py-2 max-h-[80vh] overflow-y-auto">
 
                 <!-- Grid principal responsivo -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                     <!-- Columna 1 -->
                     <div class="space-y-3">
                         <!-- Estado -->
@@ -86,6 +95,18 @@
                                 <option value="">Todos</option>
                                 @foreach ($filterOptions['estados'] as $estado)
                                     <option value="{{ $estado }}">{{ $estado }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Proyecto -->
+                        <div class="space-y-1">
+                            <label class="text-xs font-medium text-gray-600">Proyecto</label>
+                            <select wire:model.live="filters.proyecto"
+                                class="w-full text-sm border-0 rounded bg-gray-50 focus:ring-1 focus:ring-indigo-200 p-2">
+                                <option value="">Todos</option>
+                                @foreach ($filterOptions['proyectos'] as $proyecto)
+                                    <option value="{{ $proyecto }}">{{ $proyecto }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -230,7 +251,7 @@
                         <td class="px-3 py-2 sm:px-6 sm:py-4">
                             <div x-data="{ editing: false, value: '{{ $beneficiary->nombre }}' }"
                                 @click.away="if(editing) { editing = false; $wire.save('{{ $beneficiary->id }}', 'nombre', value) }">
-                                <div class="flex items-center space-x-2" x-show="!editing">
+                                <div class="flex items-center justify-between space-x-2" x-show="!editing">
                                     <span @click="editing = true; $nextTick(() => $refs.input.focus())"
                                         class="cursor-pointer text-sm text-gray-900 truncate max-w-[100px] sm:max-w-none"
                                         x-text="value" title="{{ $beneficiary->nombre }}"></span>

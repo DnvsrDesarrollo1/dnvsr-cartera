@@ -24,6 +24,7 @@ class BeneficiaryTable extends Component
         'entidad_financiera' => '',
         'departamento' => '',
         'genero' => '',
+        'proyecto' => '',
         'fecha_activacion_desde' => '',
         'fecha_activacion_hasta' => '',
         'monto_activado_min' => '',
@@ -91,6 +92,7 @@ class BeneficiaryTable extends Component
             'entidad_financiera' => '',
             'departamento' => '',
             'genero' => '',
+            'proyecto' => '',
             'fecha_activacion_desde' => '',
             'fecha_activacion_hasta' => '',
             'monto_activado_min' => '',
@@ -134,6 +136,7 @@ class BeneficiaryTable extends Component
             'ci',
             'idepro',
             'estado',
+            'proyecto',
             'entidad_financiera',
             'departamento',
             'fecha_activacion',
@@ -152,6 +155,7 @@ class BeneficiaryTable extends Component
             ->when($this->filters['entidad_financiera'] != '', fn($query) => $query->where('entidad_financiera', $this->filters['entidad_financiera']))
             ->when($this->filters['departamento'] != '', fn($query) => $query->where('departamento', $this->filters['departamento']))
             ->when($this->filters['genero'] != '', fn($query) => $query->where('genero', $this->filters['genero']))
+            ->when($this->filters['proyecto'] != '', fn($query) => $query->where('proyecto', $this->filters['proyecto']))
             ->when($this->filters['fecha_activacion_desde'] != '', fn($query) => $query->whereDate('fecha_activacion', '>=', $this->filters['fecha_activacion_desde']))
             ->when($this->filters['fecha_activacion_hasta'] != '', fn($query) => $query->whereDate('fecha_activacion', '<=', $this->filters['fecha_activacion_hasta']))
             ->when($this->filters['monto_activado_min'] != '', fn($query) => $query->where('monto_activado', '>=', $this->filters['monto_activado_min']))
@@ -171,12 +175,13 @@ class BeneficiaryTable extends Component
             ->paginate($this->perPage);
 
         $filterOptions = Cache::remember('beneficiary_filter_options', now()->addDay(), function () {
-            $allBeneficiaries = Beneficiary::select('estado', 'entidad_financiera', 'departamento', 'genero')
+            $allBeneficiaries = Beneficiary::select('estado', 'proyecto', 'entidad_financiera', 'departamento', 'genero')
                 ->distinct()
                 ->get();
 
             return [
                 'estados' => $allBeneficiaries->pluck('estado')->unique()->filter()->values(),
+                'proyectos' => $allBeneficiaries->pluck('proyecto')->unique()->filter()->values(),
                 'entidades' => $allBeneficiaries->pluck('entidad_financiera')->unique()->filter()->values(),
                 'departamentos' => $allBeneficiaries->pluck('departamento')->unique()->filter()->values(),
                 'generos' => $allBeneficiaries->pluck('genero')->unique()->filter()->values(),
