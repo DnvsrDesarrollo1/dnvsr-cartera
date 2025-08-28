@@ -6,7 +6,7 @@ use Livewire\Component;
 
 class PlansNotification extends Component
 {
-    public $isOpen = false;
+    public $openMora = false;
 
     public $title = '';
 
@@ -19,12 +19,12 @@ class PlansNotification extends Component
 
     public function openModal()
     {
-        $this->isOpen = true;
+        $this->openMora = true;
     }
 
     public function closeModal()
     {
-        $this->isOpen = false;
+        $this->openMora = false;
     }
 
     public function render()

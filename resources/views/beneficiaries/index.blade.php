@@ -5,28 +5,34 @@
                 $criterio = DB::table('beneficiaries')->distinct()->get('estado');
                 $total = DB::table('beneficiaries')->count();
             @endphp
-
-            <div class="flex items-center justify-between bg-gray-50 px-4 py-3 rounded border border-gray-100">
-                <h3 class="text-sm font-medium text-gray-700">Resumen General - Cartera Vigente</h3>
-                <p class="text-sm text-gray-600">Total: <span class="font-semibold">{{ $total }}</span> beneficiarios en el sistema.</p>
-            </div>
-
-            <div class="grid grid-cols-6 md:grid-cols-6 gap-2">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
                 @foreach ($criterio as $c)
                     @php
                         $count = DB::table('beneficiaries')->where('estado', $c->estado)->count();
                         $percentage = ($count / $total) * 100;
+                        $color = match ($c->estado) {
+                            'BLOQUEADO' => 'bg-red-500',
+                            'CANCELADO' => 'bg-orange-500',
+                            'VIGENTE' => 'bg-green-500',
+                            'MOROSO' => 'bg-yellow-500',
+                            default => 'bg-blue-500',
+                        };
                     @endphp
-                    <div class="bg-white border border-gray-100 rounded px-3 py-2">
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-gray-600">{{ $c->estado }}</span>
-                            <span class="text-gray-400 text-xs">{{ number_format($percentage, 1) }}%</span>
+                    <div
+                        class="bg-white border border-gray-100 rounded px-2 sm:px-3 py-1 sm:py-2 hover:shadow-sm transition-shadow">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs sm:text-sm text-gray-600 truncate" title="{{ $c->estado }}">
+                                {{ Str::limit($c->estado, 12) }}
+                            </span>
+                            <span class="text-xs text-gray-400">{{ number_format($percentage, 1) }}%</span>
                         </div>
-                        <div class="mt-2 flex items-center gap-2">
+                        <div class="mt-1 sm:mt-2 flex items-center gap-1 sm:gap-2">
                             <div class="flex-grow bg-gray-100 rounded-full h-1.5">
-                                <div class="bg-blue-500 h-1.5 rounded-full" style="width: {{ $percentage }}%"></div>
+                                <div class="{{ $color }} h-1.5 rounded-full" style="width: {{ $percentage }}%">
+                                </div>
                             </div>
-                            <span class="text-xs font-medium text-gray-700">{{ $count }}</span>
+                            <span
+                                class="text-xs font-medium text-gray-700 whitespace-nowrap">{{ number_format($count) }}</span>
                         </div>
                     </div>
                 @endforeach

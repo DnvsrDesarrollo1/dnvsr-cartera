@@ -116,20 +116,12 @@ class BeneficiaryTable extends Component
 
     public function save($id, $field, $value)
     {
-        $rules = [];
-        if ($field === 'estado') {
-            $rules['value'] = ['required', \Illuminate\Validation\Rule::in($this->statusOptions)];
-        } else {
-            $rules['value'] = 'required|string|max:255';
-        }
-
-        //$this->validate($rules, ['value' => $value]);
-
         Beneficiary::find($id)->update([
             $field => $value
         ]);
 
-        $this->dispatch('notify', 'Guardado!');
+        $this->dispatch('notify', 'Cambios guardados con éxito!');
+        $this->skipRender();
     }
 
     private function getBeneficiaries()
@@ -146,6 +138,7 @@ class BeneficiaryTable extends Component
             'departamento',
             'fecha_activacion',
             'monto_activado',
+            'monto_credito',
             'saldo_credito'
         ])
             ->when($this->search != '', function ($query) {
@@ -177,7 +170,7 @@ class BeneficiaryTable extends Component
         $beneficiaries = $this->getBeneficiaries()
             ->paginate($this->perPage);
 
-        $filterOptions = Cache::remember('beneficiary_filter_options', now()->addMinutes(30), function () {
+        $filterOptions = Cache::remember('beneficiary_filter_options', now()->addDay(), function () {
             $allBeneficiaries = Beneficiary::select('estado', 'entidad_financiera', 'departamento', 'genero')
                 ->distinct()
                 ->get();

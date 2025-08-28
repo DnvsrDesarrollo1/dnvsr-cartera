@@ -1,12 +1,12 @@
 <div x-data="{ openNotification: @entangle('openNotification') }">
-    <div class="relative">
+    <div class="relative inline-block">
         <span wire:poll.3s="loadNotifications"
-            class="absolute top-0 right-0 inline-flex items-center justify-center px-1 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
+            class="absolute -top-2 inline-flex items-center justify-center h-5 text-xs font-bold text-white bg-green-600 rounded-full shadow-lg w-auto px-1" style="right: 0;">
             {{ $unreadCount }}
         </span>
         <button @click="openNotification = true" @keydown.escape.window="openNotification = false"
-            class="text-gray-400 text-lg hover:text-gray-700 focus:outline-none">
-            <i class="fa-solid fa-file-pdf"></i>
+            class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full focus:outline-none transition duration-200 ease-in-out">
+            <i class="fa-solid fa-file-pdf text-xl"></i>
         </button>
     </div>
 
