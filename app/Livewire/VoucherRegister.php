@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Traits\FinanceTrait;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 use Livewire\Component;
 
 class VoucherRegister extends Component
@@ -62,7 +63,12 @@ class VoucherRegister extends Component
     {
         // Generate temporary backup CSV of current payment plan
         $timestamp = now()->format('Y-m-d_H-i-s');
-        $tempDir = storage_path('app/temp');
+        $tempDir = storage_path('app/public/temp/');
+
+        if (!File::isDirectory($tempDir)) {
+            File::makeDirectory($tempDir, 0755, true, true);
+        }
+
         $filename = "payment_plan_backup_{$this->numprestamo}_{$timestamp}.csv";
         $fullPath = "{$tempDir}/{$filename}";
 
@@ -72,7 +78,7 @@ class VoucherRegister extends Component
         }
 
         // Get current payment plan data
-        $currentPlan = $this->beneficiario->getCurrentPlan('INACTIVO', '!=')->get();
+        $currentPlan = $this->beneficiario->getCurrentPlan('INACTIVO', '!=');
 
         // Create CSV file with payment plan data
         $file = fopen($fullPath, 'w');

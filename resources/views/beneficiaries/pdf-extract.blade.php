@@ -274,7 +274,8 @@
                         <td>Cuotas Pendientes por Cancelar:</td>
                         <td>{{$beneficiary->getCurrentPlan('CANCELADO', '!=')->count()}} <b>de</b> {{$beneficiary->getCurrentPlan('INACTIVO', '!=')->count()}}</td>
                         <td></td>
-                        <td></td>
+                        <td>Estado:</td>
+                        <td>{{$beneficiary->estado}}</td>
                     </tr>
                 </tbody>
             </table>
@@ -381,12 +382,12 @@
                             </td>
                             @php
                                 $saldo < 0
-                                    ? ($saldo += $v
+                                    ? ($saldo -= $v
                                         ->payments()
                                         ->where('prtdtdesc', 'NOT LIKE', '%DIF%')
                                         ->where('prtdtdesc', 'LIKE', 'CAPI%')
                                         ->where('prtdtnpag', $v->numpago)
-                                        ->sum('montopago'))
+                                        ->sum('montopago')) * -1
                                     : ($saldo -= $v
                                         ->payments()
                                         ->where('prtdtdesc', 'NOT LIKE', '%DIF%')

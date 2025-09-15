@@ -2,9 +2,10 @@
 
 namespace App\Providers;
 
-use App\Livewire\QueryForm;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
-use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +22,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        /* \URL::forceScheme('http'); */
+        // Log all database queries
+        /* DB::listen(function ($query) {
+            Log::info(
+                $query->sql,
+                [
+                    'bindings' => $query->bindings,
+                    'time' => $query->time . 'ms',
+                    'user_id' => Auth::user()->id ?? 'system',
+                ]
+            );
+        }); */
     }
 }

@@ -15,7 +15,7 @@
             <div class="bg-gray-100 px-4 py-3 border-b border-gray-200">
                 <div class="flex items-center justify-between">
                     <h3 class="text-xl font-semibold text-gray-900">
-                        Registro de Pagos:
+                        Modulo Cajero - Registro de Vouchers:
                     </h3>
                     <button @click="voucherModal = false" class="text-gray-400 hover:text-gray-500">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -88,8 +88,8 @@
                                 @enderror
                             </div>
 
-                            <x-personal.alert clossable='false' type='info'
-                                message='Recuerde validar el SALDO CREDITO antes de registrar cualquier pago.' />
+                            <x-personal.alert clossable='false' type='warning'
+                                message='Recuerde validar el SALDO CREDITO antes de registrar cualquier pago. (saldo actual = {{ number_format($beneficiario->saldo_credito, 2) }})' />
 
                             <div class="border-l-4 border-green-600 pl-4">
 

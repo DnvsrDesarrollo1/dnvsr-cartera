@@ -24,12 +24,12 @@ class ProjectController extends Controller
 
             // 3. Mapeo de colores para cada estado
             $statusColors = [
-                'Vigente' => '#22c55e',
-                'Vencido' => '#eab308',
-                'Ejecucion' => '#ef4444',
                 'Bloqueado' => '#3b82f6',
                 'Cancelado' => '#6366f1',
                 'Default' => '#6b7280',
+                'Ejecucion' => '#ef4444',
+                'Vencido' => '#eab308',
+                'Vigente' => '#22c55e',
             ];
 
             // 4. Preparar la estructura de datos para el gráfico (series)

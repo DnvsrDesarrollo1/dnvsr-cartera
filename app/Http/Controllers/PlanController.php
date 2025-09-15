@@ -228,8 +228,8 @@ class PlanController extends Controller
 
         //// DETERMINAR LA CANTIDAD DE MESES/CUOTAS QUE SE VAN A GENERAR
 
-        //$date1 = date('Y-m-d', strtotime($beneficiary->fecha_extendida));
-        $date1 = now();
+        $date1 = date('Y-m-d', strtotime($beneficiary->fecha_activacion));
+        //$date1 = now();
         $date2 = $finPlazo;
         $d1 = new \DateTime($date2);
         $d2 = new \DateTime($date1);
@@ -241,8 +241,8 @@ class PlanController extends Controller
         //// DETERMINAR LA FECHA DE LA PRIMERA CUOTA
 
         //$startDate = '2024-10-10'; //PARA CONSIDERAR EL MES DESPUES DEL ESPECIFICADO
-        $startDate = now(); // PARA CONSIDERAR EL MES SIGUIENTE A AHORA
-        //$startDate = date('Y-m-d', strtotime($beneficiary->fecha_extendida));
+        //$startDate = now(); // PARA CONSIDERAR EL MES SIGUIENTE A AHORA
+        $startDate = date('Y-m-d', strtotime($beneficiary->fecha_activacion));
 
         if ($interestRate < 0 || $interestRate == -1 || $interestRate == '-1') {
             $interestRate = ($beneficiary->tasa_interes > 0) ? $beneficiary->tasa_interes : 0;

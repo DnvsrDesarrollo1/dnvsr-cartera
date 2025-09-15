@@ -28,11 +28,11 @@
                     foreach ($estados as $estado) {
                         $count = $project_beneficiaries->where('estado', $estado->estado)->count();
                         $color = match (strtolower($estado->estado)) {
-                            'vigente' => '#84cc16',
+                            'vigente' => '#22c55e',
                             'vencido' => '#eab308',
                             'ejecucion' => '#ef4444',
                             'bloqueado' => '#3b82f6',
-                            'cancelado' => '#6366f1',
+                            'cancelado' => '#7dd3fc',
                             default => '#3b82f6',
                         };
                         $chartData[] = [

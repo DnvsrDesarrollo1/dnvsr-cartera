@@ -144,4 +144,11 @@ class UserController extends Controller
 
         return back()->with('success', 'Usuario eliminado correctamente');
     }
+
+    public function logoutAll()
+    {
+        \Illuminate\Support\Facades\DB::table('sessions')->truncate();
+
+        return back();
+    }
 }

@@ -4,9 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Beneficiary;
 use App\Models\User;
-use App\Models\Plan;
-use App\Models\Readjustment;
-use App\Models\Helper;
+use App\Models\Payment;
 use App\Notifications\ExportReadyNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -18,7 +16,7 @@ use Illuminate\Support\Facades\Log;
 use Barryvdh\DomPDF\Facade\Pdf;
 use ZipArchive;
 
-class GenerateBeneficiaryPdfsZip implements ShouldQueue
+class GenerateBeneficiaryExtractPdfsZip implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -46,7 +44,7 @@ class GenerateBeneficiaryPdfsZip implements ShouldQueue
     {
         $user = User::find($this->userId);
         if (!$user) {
-            Log::error('User not found in GenerateBeneficiaryPdfsZip job.', ['userId' => $this->userId]);
+            Log::error('User not found in GenerateBeneficiaryExtractPdfsZip job.', ['userId' => $this->userId]);
             return;
         }
 
@@ -54,7 +52,7 @@ class GenerateBeneficiaryPdfsZip implements ShouldQueue
             $beneficiaries = Beneficiary::find($this->beneficiaryIds);
 
             if ($beneficiaries->isEmpty()) {
-                Log::warning('No beneficiaries found for the given IDs in GenerateBeneficiaryPdfsZip job.', ['ids' => $this->beneficiaryIds]);
+                Log::warning('No beneficiaries found for the given IDs in GenerateBeneficiaryExtractPdfsZip job.', ['ids' => $this->beneficiaryIds]);
                 return;
             }
 
@@ -67,7 +65,6 @@ class GenerateBeneficiaryPdfsZip implements ShouldQueue
 
             // Notificar al usuario que el archivo está listo
             $user->notify(new ExportReadyNotification($zipUrl, count($beneficiaries)));
-
         } catch (\Exception $e) {
             Log::error('Failed to generate beneficiary PDF zip file for user ' . $user->id, [
                 'error' => $e->getMessage(),
@@ -86,13 +83,12 @@ class GenerateBeneficiaryPdfsZip implements ShouldQueue
         }
 
         return $beneficiaries->map(function ($beneficiary) use ($exportPath) {
-            $plans = $this->getActivePlans($beneficiary->idepro);
-            $differs = $this->getActiveDiffers($beneficiary->idepro);
+            $payments = $this->getPayments($beneficiary->idepro);
 
             $cleanName = preg_replace('/[^A-Za-z0-9 \-]/', '_', $beneficiary->nombre);
             $filePath = $exportPath . '/' . $cleanName . '-' . uniqid() . '.pdf';
 
-            PDF::loadView('beneficiaries.pdf', compact('beneficiary', 'plans', 'differs'))->save($filePath);
+            PDF::loadView('beneficiaries.pdf-extract', compact('beneficiary', 'payments'))->save($filePath);
             return $filePath;
         })->toArray();
     }
@@ -126,20 +122,14 @@ class GenerateBeneficiaryPdfsZip implements ShouldQueue
         }
     }
 
-    private function getActivePlans($idepro)
+    private function getPayments($idepro, $type = null)
     {
-        $plans = Plan::where('idepro', $idepro)
-            ->where('estado', '<>', 'INACTIVO')
-            ->orderBy('fecha_ppg', 'asc')
-            ->get();
-        return $plans->count() > 0 ? $plans : Readjustment::where('idepro', $idepro)
-            ->where('estado', '<>', 'INACTIVO')
-            ->orderBy('fecha_ppg', 'asc')
-            ->get();
-    }
+        $query = Payment::where('numprestamo', $idepro)->orderBy('fecha_pago', 'DESC');
 
-    private function getActiveDiffers($idepro)
-    {
-        return Helper::where('idepro', $idepro)->where('estado', 'ACTIVO')->orderBy('indice', 'asc')->get();
+        if ($type) {
+            $query->where('prtdtdesc', 'like', "%$type%");
+        }
+
+        return $query->get();
     }
 }

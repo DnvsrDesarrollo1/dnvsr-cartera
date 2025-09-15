@@ -1,66 +1,89 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SISDACA - Sistema de Administración de Cartera
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Este es el repositorio para el "Sistema de Administración de Cartera - SISDACA", una aplicación web construida con Laravel para la gestión integral de beneficiarios, proyectos, pagos y planes financieros.
 
-## About Laravel
+## Descripción General
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+SISDACA es una herramienta robusta diseñada para facilitar la administración de carteras de beneficiarios. Permite un seguimiento detallado de los pagos, la gestión de planes financieros, y la organización de beneficiarios dentro de diferentes proyectos. El sistema está orientado a optimizar los flujos de trabajo a través de operaciones masivas y una interfaz de usuario clara y reactiva.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Características Principales
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+-   **Gestión de Beneficiarios:**
+    -   Creación, visualización y edición de perfiles de beneficiarios.
+    -   Búsqueda avanzada y filtrado.
+    -   Consulta de datos personales, historial de pagos y planes asociados.
+-   **Gestión de Proyectos:**
+    -   Agrupación de beneficiarios por proyectos para un mejor seguimiento.
+-   **Operaciones Masivas:**
+    -   Importación de Beneficiarios, Pagos, Planes y Vouchers desde archivos CSV.
+    -   Creación y reajuste masivo de planes de pago.
+    -   Exportación de reportes en PDF, Excel y CSV.
+-   **Gestión Financiera:**
+    -   Registro y seguimiento de pagos.
+    -   Creación y ajuste de planes de pago.
+    -   Generación de Vouchers.
+-   **Dashboard Interactivo:**
+    -   Visualización de datos y estadísticas clave a través de gráficos.
 
-## Learning Laravel
+## Stack Tecnológico
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+El sistema está construido sobre un stack moderno de PHP y JavaScript:
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+-   **Backend:** Laravel 11, PHP 8.3
+-   **Frontend:** Livewire, Tailwind CSS, Blade
+-   **Base de Datos:** PostgreSQL 17
+-   **Servidor:** Apache / Nginx
+-   **Librerías Clave:**
+    -   `livewire/livewire`: Para componentes dinámicos.
+    -   `power-components/livewire-powergrid`: Para tablas de datos interactivas.
+    -   `barryvdh/laravel-dompdf`: Para la generación de PDFs.
+    -   `openspout/openspout` y `phpoffice/phpspreadsheet`: Para la manipulación de archivos Excel y CSV.
+    -   `highcharts`: Para la visualización de gráficos.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Instalación y Configuración
 
-## Laravel Sponsors
+Para levantar un entorno de desarrollo local, sigue estos pasos:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+1.  **Clonar el repositorio:**
+    ```bash
+    git clone https://github.com/DnvsrDesarrollo1/dnvsr-cartera.git
+    cd dnvsr-cartera
+    ```
 
-### Premium Partners
+2.  **Instalar dependencias de PHP:**
+    ```bash
+    composer install
+    ```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+3.  **Instalar dependencias de Node.js:**
+    ```bash
+    npm install
+    ```
 
-## Contributing
+4.  **Configurar el entorno:**
+    -   Copia el archivo de ejemplo `.env.example` a `.env`.
+    -   Configura las variables de entorno, especialmente la conexión a la base de datos (`DB_*`) y la URL de la aplicación (`APP_URL`).
+    ```bash
+    cp .env.example .env
+    php artisan key:generate
+    ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+5.  **Ejecutar las migraciones de la base de datos:**
+    ```bash
+    php artisan migrate
+    ```
 
-## Code of Conduct
+6.  **Compilar los assets del frontend:**
+    ```bash
+    npm run dev
+    ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+7.  **Iniciar el servidor de desarrollo:**
+    ```bash
+    php artisan serve
+    ```
 
-## Security Vulnerabilities
+## Repositorio
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+El código fuente está alojado en GitHub y se puede acceder a través del siguiente enlace:
+[https://github.com/DnvsrDesarrollo1/dnvsr-cartera.git](https://github.com/DnvsrDesarrollo1/dnvsr-cartera.git)

@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\GenerateBeneficiaryPdfsZip;
+use App\Jobs\GenerateBeneficiaryExtractPdfsZip;
+use App\Jobs\GenerateBeneficiaryPlansPdfsZip;
 use App\Models\Beneficiary;
 use App\Models\Helper;
 use App\Models\Payment;
@@ -98,11 +99,29 @@ class BeneficiaryController extends Controller
         }
 
         // Dispatch the job to the queue
-        GenerateBeneficiaryPdfsZip::dispatch($identificationNumbers, $user->id);
+        GenerateBeneficiaryPlansPdfsZip::dispatch($identificationNumbers, $user->id);
 
         // Redirect back immediately with a success message
         return back()
-            ->with('success', 'La exportación ha comenzado. Recibirás una notificación cuando el archivo esté listo para descargar.');
+            ->with('success', 'La exportación de planes ha comenzado. Recibirás una notificación cuando el archivo esté listo para descargar.');
+    }
+
+    public function bulkExtractPdf($data)
+    {
+        $decodedData = json_decode($data, true);
+        $identificationNumbers = array_values($decodedData);
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Debes iniciar sesión para realizar esta acción.');
+        }
+
+        // Dispatch the job to the queue
+        GenerateBeneficiaryExtractPdfsZip::dispatch($identificationNumbers, $user->id);
+
+        // Redirect back immediately with a success message
+        return back()
+            ->with('success', 'La exportación de extractos ha comenzado. Recibirás una notificación cuando el archivo esté listo para descargar.');
     }
 
     private function calculatePaymentTotals($idepro)

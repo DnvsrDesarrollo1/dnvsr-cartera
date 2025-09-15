@@ -1,8 +1,19 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ 'Administración de Usuarios' }}
-        </h2>
+        <div class="flex justify-between items-center">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                {{ 'Administración de Usuarios' }}
+            </h2>
+            <div class="flex justify-end">
+                <form action="{{ route('users.logout.all') }}" method="GET" class="ml-auto">
+                    @csrf
+                    <x-personal.button variant="danger" :submit="true" iconLeft="fa-solid fa-right-from-bracket"
+                        class="text-sm" onclick="return confirm('¿Estás seguro de cerrar todas las sesiones activas?')">
+                        Cerrar todas las sesiones ({{ $activeUsers }})
+                    </x-personal.button>
+                </form>
+            </div>
+        </div>
     </x-slot>
 
     <div class="py-6" id="user_administration">

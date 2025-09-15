@@ -68,7 +68,12 @@
                             fontFamily: 'Inter, sans-serif'
                         },
                         backgroundColor: {
-                            linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
+                            linearGradient: {
+                                x1: 0,
+                                y1: 0,
+                                x2: 1,
+                                y2: 1
+                            },
                             stops: [
                                 [0, '#ffffff'],
                                 [1, '#f8fafc']
@@ -109,7 +114,7 @@
                         pie: {
                             allowPointSelect: true,
                             cursor: 'pointer',
-                            colors: ['#3b82f6', '#22c55e', '#eab308', '#ef4444', '#8b5cf6', '#ec4899'],
+                            colors: ['#3b82f6', '#7dd3fc', '#ef4444', '#eab308', '#22c55e'],
                             borderRadius: 4,
                             borderWidth: 1,
                             borderColor: '#ffffff',

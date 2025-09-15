@@ -66,11 +66,27 @@
                             <div class="mb-4">
                                 <label for="estado" class="block text-gray-700 text-sm font-bold">Estado del
                                     Credito:</label>
-                                <input type="text" wire:model="estado" id="estado"
+                                <input type="text" wire:model.live="estado" id="estado"
                                     class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                 @error('estado')
                                     <span class="text-red-500 text-xs">{{ $message }}</span>
                                 @enderror
+
+                                @if ($estado === 'BLOQUEADO')
+                                    <div class="mt-2">
+                                        <label for="cod_fondesif" class="block text-gray-700 text-sm font-bold">Tipo de Bloqueo:</label>
+                                        <select wire:model="cod_fondesif" id="cod_fondesif"
+                                            class="appearance-none border-0 border-b-2 border-gray-300 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                            <option value="">Seleccione una opción</option>
+                                            <option value="INACTIVO">INACTIVO</option>
+                                            <option value="REVERTIDO">REVERTIDO</option>
+                                            <option value="SINIESTRO REPORTADO">SINIESTRO REPORTADO</option>
+                                        </select>
+                                        @error('cod_fondesif')
+                                            <span class="text-red-500 text-xs">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                @endif
                             </div>
                             <div class="mb-4">
                                 <label for="idepro" class="block text-gray-700 text-sm font-bold">Codigo

@@ -3,7 +3,7 @@
         <div class="flex flex-col sm:flex-row justify-end items-center gap-2 mb-2">
             <div class="w-full sm:w-auto">
                 <x-personal.button wire:click="bulkActivation" iconLeft="fa-solid fa-bolt" class="w-full sm:w-auto">
-                    <span class="hidden sm:inline">Activar</span>
+                    <span class="hidden sm:inline">Activación</span>
                     <span class="sm:hidden">Activar Seleccionados</span>
                     ({{ count($selected) }})
                 </x-personal.button>
@@ -12,7 +12,16 @@
                 <x-personal.button variant="outline-secondary"
                     href="{{ route('beneficiario.bulk-pdf', ['data' => json_encode(collect($selected))]) }}"
                     iconLeft="fa-solid fa-file-pdf" class="w-full sm:w-auto">
-                    <span class="hidden sm:inline">PDF</span>
+                    <span class="hidden sm:inline">PDF Planes</span>
+                    <span class="sm:hidden">Generar PDF</span>
+                    ({{ count($selected) }})
+                </x-personal.button>
+            </div>
+            <div class="w-full sm:w-auto">
+                <x-personal.button variant="outline-secondary"
+                    href="{{ route('beneficiario.bulk-pdf-extract', ['data' => json_encode(collect($selected))]) }}"
+                    iconLeft="fa-solid fa-file-pdf" class="w-full sm:w-auto">
+                    <span class="hidden sm:inline">PDF Extractos</span>
                     <span class="sm:hidden">Generar PDF</span>
                     ({{ count($selected) }})
                 </x-personal.button>
@@ -21,7 +30,7 @@
                 <x-personal.button variant="outline-secondary"
                     href="{{ route('plan.bulk-xlsx', ['data' => json_encode(collect($selected))]) }}"
                     iconLeft="fa-solid fa-file-pdf" class="w-full sm:w-auto">
-                    <span class="hidden sm:inline">XLSX</span>
+                    <span class="hidden sm:inline">XLSX Planes</span>
                     <span class="sm:hidden">Generar XLSX</span>
                     ({{ count($selected) }})
                 </x-personal.button>

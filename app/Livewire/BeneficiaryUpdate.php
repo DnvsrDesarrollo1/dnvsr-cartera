@@ -8,7 +8,7 @@ use Livewire\Component;
 class BeneficiaryUpdate extends Component
 {
     public $beneficiary;
-    public $nombre, $ci, $complemento, $expedido, $estado, $idepro, $fecha_nacimiento, $total_activado, $monto_activado,
+    public $nombre, $ci, $complemento, $expedido, $estado, $idepro, $cod_fondesif, $fecha_nacimiento, $total_activado, $monto_activado,
         $gastos_judiciales, $saldo_credito, $monto_recuperado, $fecha_activacion, $plazo_credito, $tasa_interes,
         $departamento, $seguro;
     public $cuota;
@@ -22,6 +22,7 @@ class BeneficiaryUpdate extends Component
         'expedido' => 'required|string|max:10',
         'estado' => 'required|string|max:50',
         'idepro' => 'required|string|max:50',
+        'cod_fondesif' => '',
         'fecha_nacimiento' => 'required|date',
         'total_activado' => 'required|numeric',
         'monto_activado' => 'required|numeric',
@@ -94,6 +95,7 @@ class BeneficiaryUpdate extends Component
             'expedido' => $this->expedido,
             'estado' => $this->estado,
             'idepro' => $this->idepro,
+            'cod_fondesif' => $this->cod_fondesif,
             'fecha_nacimiento' => $this->fecha_nacimiento,
             'monto_activado' => $this->monto_activado,
             'gastos_judiciales' => $this->gastos_judiciales,

@@ -39,6 +39,7 @@ Route::middleware([
     Route::get('beneficiario/{cedula}/pdf-extract', [\App\Http\Controllers\BeneficiaryController::class, 'pdfExtract'])->name('beneficiario.pdf-extract');
     Route::get('beneficiario/{beneficiary}/editar', [\App\Http\Controllers\BeneficiaryController::class, 'edit'])->name('beneficiario.edit');
     Route::get('beneficiario/{data}/pdf-masivo', [\App\Http\Controllers\BeneficiaryController::class, 'bulkPdf'])->name('beneficiario.bulk-pdf');
+    Route::get('beneficiario/{data}/pdf-masivo-extract', [\App\Http\Controllers\BeneficiaryController::class, 'bulkExtractPdf'])->name('beneficiario.bulk-pdf-extract');
     Route::post('beneficiario', [\App\Http\Controllers\BeneficiaryController::class, 'store'])->name('beneficiario.store');
     Route::put('beneficiario/{beneficiary}', [\App\Http\Controllers\BeneficiaryController::class, 'update'])->name('beneficiario.update');
     Route::delete('beneficiario/{beneficiary}', [\App\Http\Controllers\BeneficiaryController::class, 'destroy'])->name('beneficiario.destroy');
@@ -91,5 +92,6 @@ Route::middleware([
         Route::get('usuarios/{user}/editar', [App\Http\Controllers\UserController::class, 'edit'])->name('users.edit');
         Route::put('usuarios/{user}', [App\Http\Controllers\UserController::class, 'update'])->name('users.update');
         Route::delete('usuarios/{user}', [App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy');
+        Route::get('usuarios/logout/all', [App\Http\Controllers\UserController::class, 'logoutAll'])->name('users.logout.all');
     });
 });
