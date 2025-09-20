@@ -544,7 +544,7 @@ class SettleBeneficiary extends Component
 
     private function calcularDiasMora(Beneficiary $beneficiary)
     {
-        $listaPlan = $beneficiary->getCurrentPlan('CANCELADO', '=')->last() ?? null;
+        $listaPlan = $beneficiary->getCurrentPlan('CANCELADO', '!=')->first() ?? null;
 
         if ($listaPlan == null) {
             return 0;

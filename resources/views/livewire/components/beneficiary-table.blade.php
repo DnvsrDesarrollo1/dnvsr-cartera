@@ -202,12 +202,12 @@
     </div>
 
     <div class="overflow-x-auto relative mt-2" wire:loading.class.delay="opacity-50"
-        wire:target="search,perPage,sortBy,filters,resetFilters">
+        wire:target="search,selectAll,perPage,sortBy,filters,resetFilters">
         <table class="min-w-full">
             <thead class="rounded-md overflow-hidden">
                 <tr class="divide-x-2 divide-white">
                     <th scope="col" class="p-2 sm:p-4 sticky top-0 border-r-2 border-gray-200 bg-gray-200">
-                        <input type="checkbox" wire:model.live.debounce.300ms="selectAll"
+                        <input type="checkbox" wire:model.live="selectAll"
                             class="rounded border-gray-300 text-indigo-500 focus:ring-indigo-200">
                     </th>
                     @foreach (['nombre' => 'Nombre', 'ci' => 'CI/IDEPRO', 'estado' => 'Estado', 'monto_credito' => 'Monto Crédito (k)', 'saldo_credito' => 'Saldo Crédito (k)'] as $field => $label)
@@ -253,8 +253,7 @@
                     <tr wire:key="beneficiary-row-{{ $beneficiary->id }}"
                         class="bg-white hover:bg-gray-100 transition-colors duration-200 divide-x-2 divide-gray-200">
                         <td class="p-2 sm:p-4">
-                            <input type="checkbox" wire:model.live.debounce.300ms="selected"
-                                value="{{ $beneficiary->id }}"
+                            <input type="checkbox" wire:model.live="selected" value="{{ $beneficiary->id }}"
                                 class="w-4 h-4 rounded border-gray-300 text-indigo-500 focus:ring-indigo-200">
                         </td>
                         <td class="px-3 py-2 sm:px-6 sm:py-4">
@@ -394,6 +393,7 @@
     <div class="mt-4">
         {{ $beneficiaries->links() }}
     </div>
+
     <script>
         document.addEventListener('livewire:initialized', () => {
             Livewire.on('notify', (message) => {

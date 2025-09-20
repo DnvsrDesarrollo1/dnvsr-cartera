@@ -14,7 +14,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        if ($this->app->environment('local')) {
+            $this->app->register(TelescopeServiceProvider::class);
+        }
     }
 
     /**
@@ -22,16 +24,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Log all database queries
-        /* DB::listen(function ($query) {
-            Log::info(
-                $query->sql,
-                [
-                    'bindings' => $query->bindings,
-                    'time' => $query->time . 'ms',
-                    'user_id' => Auth::user()->id ?? 'system',
-                ]
-            );
-        }); */
+        //
     }
 }

@@ -2,19 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Models\Beneficiary;
-use Illuminate\Support\Facades\Mail;
-
-/* Route::get('/test-mail', function () {
-    try {
-        Mail::raw('Este es un correo de prueba para verificar la configuración de Brevo.', function ($message) {
-            $message->to('kevin.altamirano@aevivienda.gob.bo')
-                    ->subject('Prueba de Correo - Sistema de Cartera');
-        });
-        return 'Correo de prueba enviado exitosamente. Revisa tu bandeja de entrada.';
-    } catch (\Exception $e) {
-        return 'Error al enviar el correo: ' . $e->getMessage();
-    }
-}); */
 
 Route::get('/', function () {
     $beneficiarios = Beneficiary::count();

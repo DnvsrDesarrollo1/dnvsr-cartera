@@ -87,7 +87,7 @@
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse ($beneficiary->vouchers()->orderBy('fecha_pago')->get() as $v)
+                            @forelse ($beneficiary->vouchers()->orderBy('fecha_pago', 'desc')->get() as $v)
                                 <tr class="border-b-2 px-3 py-4 text-sm p-2 h-auto">
                                     <td class="px-4 py-4 text-sm font-medium text-gray-700 whitespace-nowrap">
                                         {{ $v->numpago }}
@@ -99,10 +99,10 @@
                                     <td>{{ $v->descripcion }}</td>
                                     <td>{{ 'Bs. ' . number_format($v->montopago, 2) }}</td>
                                     <td class="h-auto p-2">
-                                        <div class="flex flex-col space-y-2">
+                                        <div class="flex flex-col space-y-1">
                                             @forelse ($v->payments as $p)
                                                 <div
-                                                    class="flex justify-between items-center bg-gray-100 p-2 rounded-lg shadow-sm">
+                                                    class="flex justify-between items-center bg-gray-200 p-2 rounded-lg shadow-sm">
                                                     <span class="text-xs text-gray-700">
                                                         {{ $p->prtdtdesc }}
                                                     </span>

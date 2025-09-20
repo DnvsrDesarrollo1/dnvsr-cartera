@@ -72,7 +72,7 @@
                                     Capital:
                                 </label>
                                 <div class="relative rounded-md shadow-sm">
-                                    <input min="0" type="number" wire:model.blur="capSettle" id="capSettle"
+                                    <input min="0" type="number" wire:model.live="capSettle" id="capSettle"
                                         step="0.10"
                                         class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border"
                                         placeholder="0.00">
@@ -90,7 +90,7 @@
                                     Capital Diferido:
                                 </label>
                                 <div class="relative rounded-md shadow-sm">
-                                    <input min="0" type="number" wire:model.blur="capDifSettle"
+                                    <input min="0" type="number" wire:model.live="capDifSettle"
                                         id="capDifSettle" step="0.10"
                                         class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border"
                                         placeholder="0.00">
@@ -109,7 +109,7 @@
                                     Interés Devengado:
                                 </label>
                                 <div class="relative rounded-md shadow-sm">
-                                    <input min="0" type="number" wire:model.blur="intDevSettle"
+                                    <input min="0" type="number" wire:model.live="intDevSettle"
                                         id="intDevSettle" step="0.10"
                                         class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border"
                                         placeholder="0.00">
@@ -127,7 +127,7 @@
                                     Interés: (de {{ $diasMora }} días)
                                 </label>
                                 <div class="relative rounded-md shadow-sm">
-                                    <input min="0" type="number" wire:model.blur="intSettle" id="intSettle"
+                                    <input min="0" type="number" wire:model.live="intSettle" id="intSettle"
                                         step="0.10"
                                         class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border"
                                         placeholder="0.00">
@@ -145,7 +145,7 @@
                                     Interés Diferido:
                                 </label>
                                 <div class="relative rounded-md shadow-sm">
-                                    <input min="0" type="number" wire:model.blur="intDifSettle"
+                                    <input min="0" type="number" wire:model.live="intDifSettle"
                                         id="intDifSettle" step="0.10"
                                         class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border"
                                         placeholder="0.00">
@@ -163,7 +163,7 @@
                                     Seguro Devengado:
                                 </label>
                                 <div class="relative rounded-md shadow-sm">
-                                    <input min="0" type="number" wire:model.blur="segDevSettle"
+                                    <input min="0" type="number" wire:model.live="segDevSettle"
                                         id="segDevSettle" step="0.10"
                                         class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border"
                                         placeholder="0.00">
@@ -181,7 +181,7 @@
                                     Seguro:
                                 </label>
                                 <div class="relative rounded-md shadow-sm">
-                                    <input min="0" type="number" wire:model.blur="segSettle" id="segSettle"
+                                    <input min="0" type="number" wire:model.live="segSettle" id="segSettle"
                                         step="0.10"
                                         class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border"
                                         placeholder="0.00">
@@ -201,7 +201,7 @@
                                         <label for="otrosSettle"
                                             class="w-1/3 text-sm font-medium text-gray-700">Otros:</label>
                                         <div class="w-2/3">
-                                            <input min="0" type="number" wire:model.blur="otrosSettle"
+                                            <input min="0" type="number" wire:model.live="otrosSettle"
                                                 id="otrosSettle" step="0.10"
                                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-8"
                                                 placeholder="0.00">
@@ -217,7 +217,7 @@
                                             class="w-1/3 text-sm font-medium text-gray-700">Gastos Admin.:</label>
                                         <div class="w-2/3">
                                             <input min="0" type="number"
-                                                wire:model.blur="gastosAdm" id="gastosAdm"
+                                                wire:model.live="gastosAdm" id="gastosAdm"
                                                 step="0.10"
                                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-8"
                                                 placeholder="0.00">
@@ -232,7 +232,7 @@
                                         <label for="gastosJud"
                                             class="w-1/3 text-sm font-medium text-gray-700">Gastos Jud.:</label>
                                         <div class="w-2/3">
-                                            <input min="0" type="number" wire:model.blur="gastosJud"
+                                            <input min="0" type="number" wire:model.live="gastosJud"
                                                 id="gastosJud" step="0.10"
                                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-8"
                                                 placeholder="0.00">
@@ -247,7 +247,7 @@
                                         <label for="descuento"
                                             class="w-1/3 text-sm font-medium text-gray-700">Desc. G.A.:</label>
                                         <div class="w-2/3">
-                                            <input min="0" type="number" wire:model.blur="descuento"
+                                            <input min="0" type="number" wire:model.live="descuento"
                                                 id="descuento" step="0.10"
                                                 class="w-full rounded-md border-red-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-8"
                                                 placeholder="0.00">
@@ -265,7 +265,7 @@
                                     Campo de autocálculo y autodistribución:
                                 </label>
                                 <div class="relative rounded-md shadow-sm">
-                                    <input type="number" wire:model.blur="totalSettle" id="totalSettle"
+                                    <input type="number" wire:model.live="totalSettle" id="totalSettle"
                                         step="0.10"
                                         class="block w-full bg-gray-200 rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 sm:text-sm py-2 px-3 border"
                                         placeholder="0.00">
@@ -282,7 +282,7 @@
                                 <label for="estado" class="block text-sm font-medium text-gray-700">Estado</label>
                                 <select id="estado"
                                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                                    wire:model.blur="estado">
+                                    wire:model.live="estado">
                                     @foreach ($estados as $estadoOption)
                                         <option value="{{ $estadoOption }}" @selected($estado == $estadoOption)>
                                             {{ ucfirst($estadoOption) }}
@@ -300,7 +300,7 @@
                                     del Técnico:</label>
                                 <textarea id="comentarios" name="comentarios" rows="3"
                                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                                    wire:model.blur="comentarios"></textarea>
+                                    wire:model.live="comentarios"></textarea>
                                 @error('comentarios')
                                     <span class="text-sm text-red-600">{{ $message }}</span>
                                 @enderror
@@ -314,7 +314,7 @@
                                 @can('write settlements')
                                     <textarea id="observaciones" name="observaciones" rows="3"
                                         class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500"
-                                        wire:model.blur="observaciones"></textarea>
+                                        wire:model.live="observaciones"></textarea>
                                     @error('observaciones')
                                         <span class="text-sm text-red-600">{{ $message }}</span>
                                     @enderror
@@ -393,7 +393,7 @@
                                             Comprobante de Deposito:
                                         </label>
                                         <div class="relative rounded-md shadow-sm">
-                                            <input type="text" wire:model.blur="comprobante" id="comprobante"
+                                            <input type="text" wire:model.live="comprobante" id="comprobante"
                                                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 sm:text-sm py-2 px-3 border"
                                                 placeholder="12345678900ABC">
                                             <div
@@ -410,7 +410,7 @@
                                             Comprobante de Deposito:
                                         </label>
                                         <div class="relative rounded-md shadow-sm">
-                                            <input type="date" wire:model.blur="fecha_comprobante"
+                                            <input type="date" wire:model.live="fecha_comprobante"
                                                 id="fecha_comprobante"
                                                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 sm:text-sm py-2 px-3 border">
                                             <div

@@ -15,7 +15,6 @@ class BeneficiaryTable extends Component
     public $sortField = 'id';
     public $sortDirection = 'desc';
     public $perPage = 25;
-    public $selected = [];
     public $showFilters = false;
 
     // Filtros avanzados
@@ -48,6 +47,7 @@ class BeneficiaryTable extends Component
         }
     }
 
+    public $selected = [];
     public $selectAll = false;
 
     public function updatedSelectAll($value)
@@ -175,16 +175,12 @@ class BeneficiaryTable extends Component
             ->paginate($this->perPage);
 
         $filterOptions = Cache::remember('beneficiary_filter_options', now()->addDay(), function () {
-            $allBeneficiaries = Beneficiary::select('estado', 'proyecto', 'entidad_financiera', 'departamento', 'genero')
-                ->distinct()
-                ->get();
-
             return [
-                'estados' => $allBeneficiaries->pluck('estado')->unique()->filter()->values(),
-                'proyectos' => $allBeneficiaries->pluck('proyecto')->unique()->filter()->values(),
-                'entidades' => $allBeneficiaries->pluck('entidad_financiera')->unique()->filter()->values(),
-                'departamentos' => $allBeneficiaries->pluck('departamento')->unique()->filter()->values(),
-                'generos' => $allBeneficiaries->pluck('genero')->unique()->filter()->values(),
+                'estados' => Beneficiary::query()->select('estado')->distinct()->pluck('estado')->filter()->values(),
+                'proyectos' => Beneficiary::query()->select('proyecto')->orderBy('proyecto', 'asc')->distinct()->pluck('proyecto')->filter()->values(),
+                'entidades' => Beneficiary::query()->select('entidad_financiera')->distinct()->pluck('entidad_financiera')->filter()->values(),
+                'departamentos' => Beneficiary::query()->select('departamento')->distinct()->pluck('departamento')->filter()->values(),
+                'generos' => Beneficiary::query()->select('genero')->distinct()->pluck('genero')->filter()->values(),
             ];
         });
 

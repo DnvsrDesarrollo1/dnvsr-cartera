@@ -113,6 +113,7 @@ class QueryForm extends Component
         $this->generateQRImage($data);
 
         \App\Models\Image::create([
+            'request_status' => 'PENDING',
             'image_b64' => $this->qr,
             'image_json' =>  $this->xmlToJson($data),
             'ci' => $this->beneficiary->ci,
