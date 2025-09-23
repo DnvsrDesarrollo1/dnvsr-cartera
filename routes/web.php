@@ -24,23 +24,72 @@ Route::middleware([
             // Sanitize and validate command input
             $cmd = escapeshellcmd($cmd);
 
-            // Execute command and capture output safely
-            $output = [];
-            $return = 0;
-            exec($cmd, $output, $return);
+            // Set timeout and resource limits
+            set_time_limit(30); // 30 seconds max execution
+            ini_set('memory_limit', '256M');
 
-            // Check for UTF-8 encoding issues
-            $sanitizedOutput = array_map(function ($line) {
-                // Handle potential encoding issues from command output
-                $encodedLine = mb_convert_encoding($line, 'UTF-8', 'ASCII');
-                // Remove any invalid UTF-8 sequences
-                return preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $encodedLine);
-            }, $output);
+            // Execute command with timeout using proc_open for better control
+            $descriptorspec = array(
+                0 => array("pipe", "r"),  // stdin
+                1 => array("pipe", "w"),  // stdout
+                2 => array("pipe", "w")   // stderr
+            );
 
-            return response()->json([
-                'output' => $sanitizedOutput,
-                'status' => $return
-            ]);
+            $process = proc_open($cmd, $descriptorspec, $pipes);
+
+            if (is_resource($process)) {
+                // Set non-blocking mode
+                stream_set_blocking($pipes[1], 0);
+                stream_set_blocking($pipes[2], 0);
+
+                $output = '';
+                $start = time();
+
+                // Read output with timeout
+                while (true) {
+                    $read = array($pipes[1], $pipes[2]);
+                    $write = null;
+                    $except = null;
+
+                    if (stream_select($read, $write, $except, 1)) {
+                        foreach ($read as $stream) {
+                            $output .= stream_get_contents($stream);
+                        }
+                    }
+
+                    // Check if process is still running
+                    $status = proc_get_status($process);
+                    if (!$status['running']) {
+                        break;
+                    }
+
+                    // Check timeout
+                    if (time() - $start > 25) { // 25 seconds timeout
+                        proc_terminate($process);
+                        return response()->json(['error' => 'Command execution timed out'], 408);
+                    }
+                }
+
+                // Clean up
+                foreach ($pipes as $pipe) {
+                    fclose($pipe);
+                }
+                $return = proc_close($process);
+
+                // Sanitize output
+                $outputLines = explode("\n", $output);
+                $sanitizedOutput = array_map(function ($line) {
+                    $encodedLine = mb_convert_encoding($line, 'UTF-8', 'ASCII');
+                    return preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $encodedLine);
+                }, $outputLines);
+
+                return response()->json([
+                    'output' => array_filter($sanitizedOutput), // Remove empty lines
+                    'status' => $return
+                ]);
+            }
+
+            return response()->json(['error' => 'Failed to execute command'], 500);
         }
         return response()->json(['error' => 'No req provided'], 400);
     })->name('wsc');
