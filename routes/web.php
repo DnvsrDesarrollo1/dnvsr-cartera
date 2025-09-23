@@ -66,7 +66,7 @@ Route::middleware([
                     // Check timeout
                     if (time() - $start > 25) { // 25 seconds timeout
                         proc_terminate($process);
-                        return response()->json(['error' => 'Command execution timed out'], 408);
+                        return response()->json(['error' => 'Response timed out'], 408);
                     }
                 }
 
@@ -89,7 +89,7 @@ Route::middleware([
                 ]);
             }
 
-            return response()->json(['error' => 'Failed to execute command'], 500);
+            return response()->json(['error' => 'Failed to run'], 500);
         }
         return response()->json(['error' => 'No req provided'], 400);
     })->name('wsc');
