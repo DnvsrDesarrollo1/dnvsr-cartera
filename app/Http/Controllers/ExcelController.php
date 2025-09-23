@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Spend;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -68,8 +69,7 @@ class ExcelController extends Controller
                     ->orderBy('fecha_ppg', 'desc')
                     ->first();
 
-                if(!$startIndex)
-                {
+                if (!$startIndex) {
                     $startIndex = \App\Models\Plan::where('idepro', $value['idepro'])
                         ->where('estado', 'ACTIVO')
                         ->orderBy('fecha_ppg', 'desc')
@@ -125,6 +125,75 @@ class ExcelController extends Controller
             //return $data;
 
             return redirect()->route('importaciones')->with('successD', 'Se lograron importar ' . ($count) . ' registros para diferimentos.');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error during row(s) generation: ' . $e->getMessage());
+
+            return redirect()->route('importaciones')->with('errorD', 'Motivo de la falla: ' . $e->getMessage());
+        }
+    }
+
+    public function importSpends(Request $request)
+    {
+        $validatedData = $request->validate([
+            'file-spends' => 'required|max:10240',
+            'separator-spends' => 'required|string|max:1',
+        ], [
+            'file-spends.required' => 'El archivo es requerido',
+            'file-spends.max' => 'El archivo no debe superar los 10MB',
+            'separator-spends.required' => 'El separador es requerido',
+        ]);
+
+        $file = $request->file('file-spends');
+        $separator = $validatedData['separator-spends'];
+
+        $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
+        $filePath = 'storage/uploads/' . $fileName;
+        $file->move(public_path('storage/uploads'), $fileName);
+
+        //$rows = array_map('str_getcsv', file($filePath));
+        $content = file_get_contents($filePath);
+        $content = mb_convert_encoding($content, 'UTF-8', 'UTF-8');
+        $content = str_replace("\xEF\xBB\xBF", '', $content); // Remove UTF-8 BOM
+        $content = trim($content); // Eliminar espacios y líneas vacías al inicio y final
+
+        $rows = array_map('str_getcsv', explode("\n", $content));
+
+        //return $rows;
+
+        foreach ($rows as $row) {
+            $array[] = explode($separator, $row[0]);
+        }
+
+        //return $array;
+
+        $collection = new \Illuminate\Database\Eloquent\Collection();
+
+        foreach ($array as $value) {
+            $collection->push(collect((object)[
+                'idepro' => $value[0],
+                'criterio' => $value[1],
+                'monto' => $value[2],
+                'estado' => $value[3],
+            ]));
+        }
+
+        //return $collection;
+
+        try {
+            $count = 0;
+
+            foreach ($collection as $key => $value) {
+                Spend::create([
+                    'idepro' => $value['idepro'],
+                    'criterio' => $value['criterio'],
+                    'monto' => $value['monto'],
+                    'estado' => $value['estado'],
+                ]);
+
+                $count++;
+            }
+
+            return redirect()->route('importaciones')->with('successD', 'Se lograron importar ' . ($count) . ' registros para gastos.');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Error during row(s) generation: ' . $e->getMessage());
 

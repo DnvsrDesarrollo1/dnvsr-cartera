@@ -190,7 +190,8 @@
                 <h1>PLAN DE PAGOS</h1>
                 <hr />
                 <p style="text-align: center; font-size: 8px; padding: 0; margin: 0;">
-                    <b>CANALES HABILITADOS:</b> BANCO SOL <b>|</b> SINTESIS MIS-CUENTAS (APP MOVIL) <b>|</b> COOP. SAN MARTIN DE PORRES <b>|</b> BANCO PYME ECOFUTURO <b>|</b> CRECER IFD <b>|</b> DIACONIA
+                    <b>CANALES HABILITADOS:</b> BANCO SOL <b>|</b> SINTESIS MIS-CUENTAS (APP MOVIL) <b>|</b> COOP. SAN
+                    MARTIN DE PORRES <b>|</b> BANCO PYME ECOFUTURO <b>|</b> CRECER IFD <b>|</b> DIACONIA
                 </p>
                 <hr />
             </header>
@@ -324,8 +325,19 @@
                                 $saldo -= $plan->prppgcapi;
                             @endphp
                             <tr>
-                                <td style="@if ($plan->estado == 'CANCELADO') color: green; @endif">
-                                    {{ $loop->index + 1 }}
+                                <td>
+                                    @can('write plans')
+                                        <a
+                                            style="text-decoration: none; font-weight: 600; @if ($plan->estado == 'CANCELADO') color: green; @else color: black @endif"
+                                            title="Click para cambiar estado a CANCELADO/ACTIVO"
+                                            href="{{ route('beneficiario.pdf.switch-status', [$beneficiary->ci, $plan->prppgnpag]) }}">
+                                            {{ $plan->prppgnpag }}
+                                        </a>
+                                    @else
+                                        <span style="font-weight: 600; @if ($plan->estado == 'CANCELADO') color: green; @else color: black @endif">
+                                            {{ $plan->prppgnpag }}
+                                        </span>
+                                    @endcan
                                 </td>
                                 <td>{{ date('d/m/Y', strtotime($plan->fecha_ppg)) }}</td>
                                 <td>{{ number_format($plan->prppgcapi, 2) }}</td>

@@ -59,7 +59,10 @@
                                                         value="{{ $permission->name }}"
                                                         class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                                         {{ $user->hasPermissionTo($permission->name) ? 'checked' : '' }}>
-                                                    <span class="text-xs text-gray-600">{{ $permission->name }}</span>
+                                                    <span
+                                                        class="text-xs text-gray-600">
+                                                        {{ str_replace(['read', 'write', 'plans', 'beneficiaries', 'vouchers', 'payments', 'settlements', 'users', ' '],
+                                                        ['R/', 'W/', 'PLN', 'BNF', 'VCH', 'PYM', 'STL', 'USR', ''], strtolower($permission->name)) }}</span>
                                                 </label>
                                             @endforeach
                                         </div>
