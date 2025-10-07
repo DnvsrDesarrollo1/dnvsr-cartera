@@ -93,6 +93,8 @@ class GenerateBeneficiaryPlansPdfsZip implements ShouldQueue
             $filePath = $exportPath . '/' . $cleanName . '-' . uniqid() . '.pdf';
 
             PDF::loadView('beneficiaries.pdf', compact('beneficiary', 'plans', 'differs'))->save($filePath);
+            
+
             return $filePath;
         })->toArray();
     }
