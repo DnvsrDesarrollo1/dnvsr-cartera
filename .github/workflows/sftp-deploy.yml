@@ -1,0 +1,22 @@
+    name: Deploy to SFTP
+
+    on:
+      push:
+        branches:
+          - main # Or your desired branch
+
+    jobs:
+      deploy:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout code
+            uses: actions/checkout@v3
+
+          - name: SFTP Upload
+            uses: wangyucode/sftp-upload-action@v2.0.4
+            with:
+              host: 192.168.10.16
+              username: frontendapi
+              password: FrontApi2025* # Or use ssh_private_key
+              remoteDir: /public
+              localDir: . # Or the specific directory to upload
