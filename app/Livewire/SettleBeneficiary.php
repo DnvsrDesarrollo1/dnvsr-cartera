@@ -5,23 +5,25 @@ namespace App\Livewire;
 use App\Models\Beneficiary;
 use App\Models\Settlement;
 use App\Traits\FinanceTrait;
-use Livewire\Component;
-use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class SettleBeneficiary extends Component
 {
-    use WithFileUploads, FinanceTrait;
+    use FinanceTrait, WithFileUploads;
 
     public $anexos = [];
+
     public $beneficiary;
+
     public $settlement;
 
     public $estados = [
         'pendiente',
         'aprobado',
-        'ejecutado'
+        'ejecutado',
     ];
 
     protected $rules = [
@@ -29,42 +31,62 @@ class SettleBeneficiary extends Component
     ];
 
     public $settleModal = false;
-    public $capSettle,
-        $capDifSettle,
-        $intSettle,
-        $intDifSettle,
-        $intDevSettle,
-        $segSettle,
-        $segDevSettle,
-        $gastosAdm,
-        $gastosJud,
-        $otrosSettle,
-        $totalSettle = '',
-        $numtramite,
-        $comentarios,
-        $observaciones,
-        $plan_de_pagos,
-        $estado,
-        $descuento,
-        $diasMora;
 
-    public $comprobante = '', $fecha_comprobante;
+    public $capSettle;
+
+    public $capDifSettle;
+
+    public $intSettle;
+
+    public $intDifSettle;
+
+    public $intDevSettle;
+
+    public $segSettle;
+
+    public $segDevSettle;
+
+    public $gastosAdm;
+
+    public $gastosJud;
+
+    public $otrosSettle;
+
+    public $totalSettle = '';
+
+    public $numtramite;
+
+    public $comentarios;
+
+    public $observaciones;
+
+    public $plan_de_pagos;
+
+    public $estado;
+
+    public $descuento;
+
+    public $diasMora;
+
+    public $comprobante = '';
+
+    public $fecha_comprobante;
 
     public function render()
     {
         // Ensure totalSettle is numeric before calculations
         if (is_numeric($this->totalSettle) && $this->totalSettle !== '') {
             // Cast all values to float to ensure proper calculation
-            $this->capSettle = (float)$this->totalSettle - (
-                (float)($this->capDifSettle ?? 0) +
-                (float)($this->intSettle ?? 0) +
-                (float)($this->intDifSettle ?? 0) +
-                (float)($this->intDevSettle ?? 0) +
-                (float)($this->segSettle ?? 0) +
-                (float)($this->segDevSettle ?? 0) +
-                (float)($this->gastosAdm ?? 0) +
-                (float)($this->gastosJud ?? 0) +
-                (float)($this->otrosSettle ?? 0)
+            $this->capSettle = (float) $this->totalSettle - (
+                (float) ($this->capDifSettle ?? 0) +
+                (float) ($this->intSettle ?? 0) +
+                (float) ($this->intDifSettle ?? 0) +
+                (float) ($this->intDevSettle ?? 0) +
+                (float) ($this->segSettle ?? 0) +
+                (float) ($this->segDevSettle ?? 0) +
+                (float) ($this->gastosAdm ?? 0) +
+                (float) ($this->gastosJud ?? 0) +
+                (float) ($this->otrosSettle ?? 0)
             );
 
             // Round to 2 decimal places for currency
@@ -78,7 +100,7 @@ class SettleBeneficiary extends Component
     {
         try {
             $this->beneficiary = $beneficiary;
-            $this->settlement = $beneficiary->settlement ?? new Settlement();
+            $this->settlement = $beneficiary->settlement ?? new Settlement;
 
             // Safely decode anexos with error handling
             try {
@@ -97,64 +119,64 @@ class SettleBeneficiary extends Component
 
             // Initialize settlement values with proper null checks and type casting
             $this->capSettle = round($this->settlement->id ?
-                (float)$this->settlement->capital_final :
-                (float)$this->beneficiary->saldo_credito, 2);
+                (float) $this->settlement->capital_final :
+                (float) $this->beneficiary->saldo_credito, 2);
 
             $this->capDifSettle = round($this->settlement->id ?
-                (float)$this->settlement->capital_diferido :
-                (float)($this->beneficiary->helpers()->where('estado', 'ACTIVO')->sum('capital') ?? 0), 2);
+                (float) $this->settlement->capital_diferido :
+                (float) ($this->beneficiary->helpers()->where('estado', 'ACTIVO')->sum('capital') ?? 0), 2);
 
             $this->intSettle = $this->settlement->id ?
-                (float)$this->settlement->interes :
+                (float) $this->settlement->interes :
                 $this->calcularInteresAcumulado(
-                    (float)$this->beneficiary->saldo_credito,
-                    (int)$this->diasMora,
-                    (float)($this->beneficiary->tasa_interes / 100)
+                    (float) $this->beneficiary->saldo_credito,
+                    (int) $this->diasMora,
+                    (float) ($this->beneficiary->tasa_interes / 100)
                 );
 
             $this->intDifSettle = round($this->settlement->id ?
-                (float)$this->settlement->interes_diferido :
-                (float)($this->beneficiary->helpers()->where('estado', 'ACTIVO')->sum('interes') ?? 0), 2);
+                (float) $this->settlement->interes_diferido :
+                (float) ($this->beneficiary->helpers()->where('estado', 'ACTIVO')->sum('interes') ?? 0), 2);
 
             $this->intDevSettle = round($this->settlement->id ?
-                (float)$this->settlement->interes_devengado :
-                (float)($plan->sum('prppggral') ?? 0), 2);
+                (float) $this->settlement->interes_devengado :
+                (float) ($plan->sum('prppggral') ?? 0), 2);
 
             $this->segSettle = round($this->settlement->id ?
-                (float)$this->settlement->seguro :
-                (float)($plan->where('fecha_ppg', '<=', now())->sum('prppgsegu') ?? 0), 2);
+                (float) $this->settlement->seguro :
+                (float) ($plan->where('fecha_ppg', '<=', now())->sum('prppgsegu') ?? 0), 2);
 
             $this->segDevSettle = round($this->settlement->id ?
-                (float)$this->settlement->seguro_devengado :
-                (float)($plan->sum('prppgcarg') ?? 0), 2);
+                (float) $this->settlement->seguro_devengado :
+                (float) ($plan->sum('prppgcarg') ?? 0), 2);
 
             $this->gastosAdm = round($this->settlement->id ?
-                (float)$this->settlement->gastos_administrativos :
-                (float)($this->beneficiary->spends()->where('criterio', 'LIKE', 'ADMIN')->sum('monto') ?? 0), 2);
+                (float) $this->settlement->gastos_administrativos :
+                (float) ($this->beneficiary->spends()->where('criterio', 'LIKE', '%ADMIN%')->sum('monto') ?? 0), 2);
 
             $this->gastosJud = round($this->settlement->id ?
-                (float)$this->settlement->gastos_judiciales :
-                (float)($this->beneficiary->spends()->where('criterio', 'LIKE', 'JUDIC')->sum('monto') ?? 0), 2);
+                (float) $this->settlement->gastos_judiciales :
+                (float) ($this->beneficiary->spends()->where('criterio', 'LIKE', '%JUDIC%')->sum('monto') ?? 0), 2);
 
             $this->otrosSettle = round($this->settlement->id ?
-                (float)$this->settlement->otros :
-                (float)($plan->sum('prppgotro') ?? 0), 2);
+                (float) $this->settlement->otros :
+                (float) ($plan->sum('prppgotro') ?? 0), 2);
 
             $this->descuento = round($this->settlement->id ?
-                (float)$this->settlement->descuento : 0, 2);
+                (float) $this->settlement->descuento : 0, 2);
 
             $this->estado = $this->settlement->id ?
-                (string)$this->settlement->estado : 'pendiente';
+                (string) $this->settlement->estado : 'pendiente';
 
             $this->comentarios = $this->settlement->id ?
-                (string)$this->settlement->comentarios : '';
+                (string) $this->settlement->comentarios : '';
 
             $this->observaciones = $this->settlement->id ?
-                (string)$this->settlement->observaciones : '';
+                (string) $this->settlement->observaciones : '';
         } catch (\Exception $e) {
             // Reset to default values on error
             $this->resetProperties();
-            throw new \Exception('Error mounting SettleBeneficiary component: ' . $e->getMessage());
+            throw new \Exception('Error mounting SettleBeneficiary component: '.$e->getMessage());
         }
     }
 
@@ -227,7 +249,7 @@ class SettleBeneficiary extends Component
                 null,
                 'CAPITAL',
                 $this->capSettle,
-                'VENTANILLA: ' . Auth::user()->name,
+                'LIQUIDACION POR: '.Auth::user()->name,
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'DEPOSITO DE LIQUIDACION'
@@ -243,7 +265,7 @@ class SettleBeneficiary extends Component
                 null,
                 'CAPITAL DIFERIDO',
                 $this->capDifSettle,
-                'VENTANILLA: ' . Auth::user()->name,
+                'LIQUIDACION POR: '.Auth::user()->name,
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'DEPOSITO DE LIQUIDACION'
@@ -259,7 +281,7 @@ class SettleBeneficiary extends Component
                 null,
                 'INTERES',
                 $this->intSettle,
-                'VENTANILLA: ' . Auth::user()->name,
+                'LIQUIDACION POR: '.Auth::user()->name,
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'DEPOSITO DE LIQUIDACION'
@@ -275,7 +297,7 @@ class SettleBeneficiary extends Component
                 null,
                 'INTERES DIFERIDO',
                 $this->intDifSettle,
-                'VENTANILLA: ' . Auth::user()->name,
+                'LIQUIDACION POR: '.Auth::user()->name,
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'DEPOSITO DE LIQUIDACION'
@@ -291,7 +313,7 @@ class SettleBeneficiary extends Component
                 null,
                 'INTERES DEVENGADO',
                 $this->intDevSettle,
-                'VENTANILLA: ' . Auth::user()->name,
+                'LIQUIDACION POR: '.Auth::user()->name,
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'DEPOSITO DE LIQUIDACION'
@@ -305,9 +327,9 @@ class SettleBeneficiary extends Component
                 37,
                 $this->fecha_comprobante,
                 null,
-                'SEGURO',
+                'SEGURO DESGRAVAMEN',
                 $this->segSettle,
-                'VENTANILLA: ' . Auth::user()->name,
+                'LIQUIDACION POR: '.Auth::user()->name,
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'DEPOSITO DE LIQUIDACION'
@@ -321,9 +343,9 @@ class SettleBeneficiary extends Component
                 37,
                 $this->fecha_comprobante,
                 null,
-                'SEGURO DEVENGADO',
+                'SEGURO DESGRAVAMEN DEVENGADO',
                 $this->segDevSettle,
-                'VENTANILLA: ' . Auth::user()->name,
+                'LIQUIDACION POR: '.Auth::user()->name,
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'DEPOSITO DE LIQUIDACION'
@@ -339,7 +361,7 @@ class SettleBeneficiary extends Component
                 null,
                 'OTROS',
                 $this->otrosSettle,
-                'VENTANILLA: ' . Auth::user()->name,
+                'LIQUIDACION POR: '.Auth::user()->name,
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'DEPOSITO DE LIQUIDACION'
@@ -355,7 +377,7 @@ class SettleBeneficiary extends Component
                 null,
                 'GASTOS ADMINISTRATIVOS',
                 $this->gastosAdm,
-                'VENTANILLA: ' . Auth::user()->name,
+                'LIQUIDACION POR: '.Auth::user()->name,
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'DEPOSITO DE LIQUIDACION'
@@ -371,7 +393,7 @@ class SettleBeneficiary extends Component
                 null,
                 'GASTOS JUDICIALES',
                 $this->gastosJud,
-                'VENTANILLA: ' . Auth::user()->name,
+                'LIQUIDACION POR: '.Auth::user()->name,
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'DEPOSITO DE LIQUIDACION'
@@ -387,7 +409,7 @@ class SettleBeneficiary extends Component
                 null,
                 'DESCUENTO AL GASTO ADMINISTRATIVO',
                 $this->descuento,
-                'VENTANILLA: ' . Auth::user()->name,
+                'LIQUIDACION POR: '.Auth::user()->name,
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'DEPOSITO DE LIQUIDACION'
@@ -420,7 +442,7 @@ class SettleBeneficiary extends Component
 
             foreach ($this->beneficiary->earns as $e) {
                 $e->update([
-                    'estado' => 'CANCELADO'
+                    'estado' => 'CANCELADO',
                 ]);
             }
 
@@ -478,7 +500,7 @@ class SettleBeneficiary extends Component
             foreach ($this->beneficiary->getCurrentPlan() as $p) {
                 $p->update([
                     'estado' => 'CANCELADO',
-                    'prppgmpag' => 'L'
+                    'prppgmpag' => 'L',
                 ]);
             }
         }
@@ -493,6 +515,7 @@ class SettleBeneficiary extends Component
     public function delete()
     {
         $this->settlement->delete();
+
         //reload whole page
         return redirect()->back();
     }
@@ -539,6 +562,7 @@ class SettleBeneficiary extends Component
         }
 
         $interesAcumulado = ($capitalInicial * $dias * $tasaInteres) / 360;
+
         return round($interesAcumulado, 2);
     }
 

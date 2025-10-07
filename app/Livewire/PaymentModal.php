@@ -10,54 +10,60 @@ class PaymentModal extends Component
     public $paymentModal = false;
 
     public Beneficiary $beneficiary;
+
     public $title = '';
 
     public function delete(string $numtramite)
     {
-        $voucher = \App\Models\Voucher::where('numtramite', $numtramite)->first();
-        if ($voucher) {
-            $payments = \App\Models\Payment::where('numtramite', $numtramite)->get();
-            if ($payments->count() > 0) {
+        try {
+            $voucher = \App\Models\Voucher::where('numtramite', $numtramite)->first();
+            if ($voucher) {
+                $payments = \App\Models\Payment::where('numtramite', $numtramite)->where('prtdtnpag', $voucher->numpago)->get();
 
-                $regCap = \App\Models\Payment::where('numtramite', $numtramite)
-                    ->where('prtdtdesc', 'LIKE', 'CAPI%')
-                    ->sum('montopago');
-                $regAmrt = \App\Models\Payment::where('numtramite', $numtramite)
-                    ->where('prtdtdesc', 'LIKE', '%AMT%')
-                    ->sum('montopago');
+                if ($payments->count() > 0) {
 
-                $regAmtz = \App\Models\Payment::where('numtramite', $numtramite)
-                    ->where('prtdtdesc', 'LIKE', '%AMR%')
-                    ->sum('montopago');
+                    $regCap = \App\Models\Payment::where('numtramite', $numtramite)
+                        ->where('prtdtdesc', 'LIKE', 'CAPI%')
+                        ->sum('montopago');
 
-                $monto = $regCap + $regAmrt + $regAmtz;
+                    $regAmrt = \App\Models\Payment::where('numtramite', $numtramite)
+                        ->where('prtdtdesc', 'LIKE', '%AMT%')
+                        ->sum('montopago');
 
-                $cuotaParaReactivar = $this->beneficiary->plans()->where('prppgnpag', $voucher->numpago)->first()
-                    ?? $this->beneficiary->readjustments()->where('prppgnpag', $voucher->numpago)->first();
+                    $regAmtz = \App\Models\Payment::where('numtramite', $numtramite)
+                        ->where('prtdtdesc', 'LIKE', '%AMR%')
+                        ->sum('montopago');
 
-                // ELIMINACION
+                    $monto = $regCap + $regAmrt + $regAmtz;
 
-                $voucher->delete();
+                    $cuotaParaReactivar = $this->beneficiary->plans()->where('prppgnpag', $voucher->numpago)->first()
+                        ?? $this->beneficiary->readjustments()->where('prppgnpag', $voucher->numpago)->first();
 
-                foreach ($payments as $payment) {
-                    $payment->delete();
-                }
+                    // ELIMINACION
 
-                // RESTAURACION
+                    $voucher->delete();
 
-                $this->beneficiary->update([
-                    'estado' => 'VIGENTE',
-                    'saldo_credito' => $this->beneficiary->saldo_credito + $monto,
-                ]);
+                    foreach ($payments as $payment) {
+                        $payment->delete();
+                    }
 
-                if ($cuotaParaReactivar->estado == 'CANCELADO') {
-                    $cuotaParaReactivar->update([
-                        'estado' => ($cuotaParaReactivar->fecha_ppg < now() ? 'VENCIDO' : 'ACTIVO')
+                    // RESTAURACION
+
+                    $this->beneficiary->update([
+                        'saldo_credito' => $this->beneficiary->saldo_credito + $monto,
                     ]);
-                }
 
-                session()->flash('success', "Voucher $numtramite eliminado con éxito.");
+                    if ($cuotaParaReactivar->estado == 'CANCELADO') {
+                        $cuotaParaReactivar->update([
+                            'estado' => ($cuotaParaReactivar->fecha_ppg < now() ? 'VENCIDO' : 'ACTIVO'),
+                        ]);
+                    }
+
+                    session()->flash('success', "Voucher $numtramite eliminado con éxito.");
+                }
             }
+        } catch (\Exception $e) {
+            session()->flash('error', "Error al eliminar el voucher $numtramite: ".$e->getMessage());
         }
     }
 
@@ -69,19 +75,23 @@ class PaymentModal extends Component
 
     public function render()
     {
-        return view('livewire.payment-modal');
+        $vouchers = $this->beneficiary->vouchers()
+            ->where(function ($query) {
+                $query->whereNull('obs_pago')
+                    ->orWhere('obs_pago', '')
+                    ->orWhere('obs_pago', '!=', 'LEGACY 22/24');
+            })->orderBy('numpago', 'DESC')->get();
+
+        return view('livewire.payment-modal', compact('vouchers'));
     }
 
     public function placeholder()
     {
         return <<< 'HTML'
-                        <div class="flex justify-center items-center h-32">
-                            <svg class="animate-spin h-10 w-10 text-gray-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            <span class="ml-3 text-gray-700">Cargando Vouchers y Glosas...</span>
-                        </div>
-                    HTML;
+            <div class="flex items-center justify-center p-4">
+                <div class="animate-pulse h-6 w-6 bg-blue-500 rounded-full"></div>
+                <span class="ml-3 text-gray-600 text-sm font-light">Cargando</span>
+            </div>
+        HTML;
     }
 }

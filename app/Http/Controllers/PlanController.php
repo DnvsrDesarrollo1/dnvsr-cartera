@@ -6,10 +6,10 @@ use App\Jobs\GenerateBeneficiaryCsvZip;
 use App\Models\Beneficiary;
 use App\Models\Plan;
 use App\Models\Readjustment;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Traits\FinanceTrait;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class PlanController extends Controller
 {
@@ -29,7 +29,7 @@ class PlanController extends Controller
         $lBeneficiarios = Beneficiary::whereIn('idepro', $lVencidos)->where('estado', '!=', 'BLOQUEADO')->orderBy('proyecto')->get();
         $lProyectos = Beneficiary::whereIn('idepro', $lVencidos)->orderBy('proyecto')->distinct('proyecto')->get(['proyecto', 'departamento']);
         $todosProyectos = Beneficiary::whereIn('proyecto', $lProyectos->pluck('proyecto'))->orderBy('proyecto')->distinct('proyecto')->get(['proyecto', 'departamento']);
-        $lProyectos = $lBeneficiarios->groupBy('proyecto')->map(function ($group, $proyecto) use ($todosProyectos) {
+        $lProyectos = $lBeneficiarios->groupBy('proyecto')->map(function ($group, $proyecto) {
             $totalBeneficiarios = Beneficiary::where('proyecto', $proyecto)->count();
             $morosos = $group->count();
             $porcentajeMora = $totalBeneficiarios > 0 ? ($morosos / $totalBeneficiarios) * 100 : 0;
@@ -46,6 +46,7 @@ class PlanController extends Controller
         $lProyectos = $lProyectos->sortBy('departamento');
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('plans.mora-pdf', compact('lProyectos'));
+
         return $pdf->stream('mora-pdf');
     }
 
@@ -173,7 +174,7 @@ class PlanController extends Controller
         $identificationNumbers = array_values($decodedData);
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('login')->with('error', 'Debes iniciar sesión para realizar esta acción.');
         }
 
@@ -188,8 +189,8 @@ class PlanController extends Controller
     public function bulkActivation($data)
     {
         $decodedData = json_decode($data, true);
-        $interestRate = (float)$decodedData['interes'] ?? -1;
-        $secureRate = (float)$decodedData['seguro'] ?? -1;
+        $interestRate = (float) $decodedData['interes'] ?? -1;
+        $secureRate = (float) $decodedData['seguro'] ?? -1;
         $identificationNumbers = array_diff(array_values($decodedData), [$interestRate]);
 
         //return $interestRate . ' ' . $secureRate . ' ' . json_encode($identificationNumbers);
@@ -209,7 +210,7 @@ class PlanController extends Controller
                 ->with('success', "La activación masiva-automática de {$beneficiaries->count()} beneficiarios fue realizada");
         } catch (\Exception $e) {
             return back()
-                ->with('error', "La activación masiva-automática de {$beneficiaries->count()} beneficiarios no fue realizada ->" . $e->getMessage());
+                ->with('error', "La activación masiva-automática de {$beneficiaries->count()} beneficiarios no fue realizada ->".$e->getMessage());
         }
     }
 
@@ -223,13 +224,14 @@ class PlanController extends Controller
         $finPlazo = date(
             'Y-m-d',
             //strtotime($beneficiary->fecha_activacion . ' + 20 years'));
-            strtotime($beneficiary->fecha_activacion . ' + ' . $beneficiary->plazo_credito . ' months')
+            strtotime($beneficiary->fecha_activacion.' + '.$beneficiary->plazo_credito.' months')
         );
 
         //// DETERMINAR LA CANTIDAD DE MESES/CUOTAS QUE SE VAN A GENERAR
 
-        $date1 = date('Y-m-d', strtotime($beneficiary->fecha_activacion));
+        $date1 = date('Y-m-d', strtotime($beneficiary->fecha_extendida ?? $beneficiary->fecha_activacion));
         //$date1 = now();
+        //$date1 = '2025-08-15';
         $date2 = $finPlazo;
         $d1 = new \DateTime($date2);
         $d2 = new \DateTime($date1);
@@ -240,9 +242,9 @@ class PlanController extends Controller
 
         //// DETERMINAR LA FECHA DE LA PRIMERA CUOTA
 
-        //$startDate = '2024-10-10'; //PARA CONSIDERAR EL MES DESPUES DEL ESPECIFICADO
+        //$startDate = '2025-08-15'; //PARA CONSIDERAR EL MES DESPUES DEL ESPECIFICADO
         //$startDate = now(); // PARA CONSIDERAR EL MES SIGUIENTE A AHORA
-        $startDate = date('Y-m-d', strtotime($beneficiary->fecha_activacion));
+        $startDate = date('Y-m-d', strtotime($beneficiary->fecha_extendida ?? $beneficiary->fecha_activacion));
 
         if ($interestRate < 0 || $interestRate == -1 || $interestRate == '-1') {
             $interestRate = ($beneficiary->tasa_interes > 0) ? $beneficiary->tasa_interes : 0;
@@ -275,7 +277,7 @@ class PlanController extends Controller
         $relatedModels = [
             //'helpers',
             'plans',
-            'readjustments'
+            'readjustments',
         ];
 
         foreach ($relatedModels as $relation) {

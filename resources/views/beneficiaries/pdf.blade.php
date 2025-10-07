@@ -330,7 +330,7 @@
                                         <a
                                             style="text-decoration: none; font-weight: 600; @if ($plan->estado == 'CANCELADO') color: green; @else color: black @endif"
                                             title="Click para cambiar estado a CANCELADO/ACTIVO"
-                                            href="{{ route('beneficiario.pdf.switch-status', [$beneficiary->ci, $plan->prppgnpag]) }}">
+                                            href="{{ route('beneficiario.pdf.switch-status', [$beneficiary->ci, $plan]) }}">
                                             {{ $plan->prppgnpag }}
                                         </a>
                                     @else

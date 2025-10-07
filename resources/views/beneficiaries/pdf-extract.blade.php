@@ -252,10 +252,7 @@
                         </td>
                         <td>
                             Bs.
-                            {{ number_format(
-                                \App\Models\Earn::where('idepro', $beneficiary->idepro)->sum('interes') ?? 0,
-                                2,
-                            ) }}
+                            {{ number_format(\App\Models\Earn::where('idepro', $beneficiary->idepro)->sum('interes') ?? 0, 2) }}
                             /
                             Bs.
                             {{ number_format(\App\Models\Earn::where('idepro', $beneficiary->idepro)->sum('seguro') ?? 0, 2) }}
@@ -272,10 +269,11 @@
                     </tr>
                     <tr>
                         <td>Cuotas Pendientes por Cancelar:</td>
-                        <td>{{$beneficiary->getCurrentPlan('CANCELADO', '!=')->count()}} <b>de</b> {{$beneficiary->getCurrentPlan('INACTIVO', '!=')->count()}}</td>
+                        <td>{{ $beneficiary->getCurrentPlan('CANCELADO', '!=')->count() }} <b>de</b>
+                            {{ $beneficiary->getCurrentPlan('INACTIVO', '!=')->count() }}</td>
                         <td></td>
                         <td>Estado:</td>
-                        <td>{{$beneficiary->estado}}</td>
+                        <td>{{ $beneficiary->estado }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -362,11 +360,7 @@
                                     $v->payments()->where('prtdtnpag', $v->numpago)->where('prtdtdesc', 'LIKE', 'CAPI%')->where('prtdtdesc', 'NOT LIKE', '%DIFER%')->sum('montopago') +
                                         $v->payments()->where('prtdtnpag', $v->numpago)->where('prtdtdesc', 'LIKE', 'AMR%')->sum('montopago'),
                                     2,
-                                ) .
-                                    ($cd >
-                                0
-                                    ? ' + ' . $cd
-                                    : '') }}
+                                ) . ($cd > 0 ? ' + ' . $cd : '') }}
                             </td>
                             <td style="text-align: center; padding: 4px; border-bottom: 1px solid #a5a4a47a;">
                                 {{ number_format($v->payments()->where('prtdtnpag', $v->numpago)->where('prtdtdesc', 'LIKE', 'INTE%')->sum('montopago'), 2) }}
@@ -383,11 +377,11 @@
                             @php
                                 $saldo < 0
                                     ? ($saldo -= $v
-                                        ->payments()
-                                        ->where('prtdtdesc', 'NOT LIKE', '%DIF%')
-                                        ->where('prtdtdesc', 'LIKE', 'CAPI%')
-                                        ->where('prtdtnpag', $v->numpago)
-                                        ->sum('montopago')) * -1
+                                            ->payments()
+                                            ->where('prtdtdesc', 'NOT LIKE', '%DIF%')
+                                            ->where('prtdtdesc', 'LIKE', 'CAPI%')
+                                            ->where('prtdtnpag', $v->numpago)
+                                            ->sum('montopago')) * -1
                                     : ($saldo -= $v
                                         ->payments()
                                         ->where('prtdtdesc', 'NOT LIKE', '%DIF%')

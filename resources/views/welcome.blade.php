@@ -56,10 +56,10 @@
                     <div class="bg-white overflow-hidden shadow rounded-lg">
                         <div class="px-4 py-5 sm:p-6">
                             <dt class="text-sm font-medium text-gray-500 truncate">
-                                Beneficiarios aproximados hasta ahora
+                                Beneficiarios en SISDACA
                             </dt>
                             <dd class="mt-1 text-3xl font-semibold text-blue-600">
-                                {{ number_format($beneficiarios) }}
+                                {{ number_format($beneficiarios->count()) }}
                             </dd>
                         </div>
                     </div>
@@ -67,10 +67,10 @@
                     <div class="bg-white overflow-hidden shadow rounded-lg">
                         <div class="px-4 py-5 sm:p-6">
                             <dt class="text-sm font-medium text-gray-500 truncate">
-                                Recaudaciones registradas al Mes
+                                Monto en creditos para Vivienda Social
                             </dt>
                             <dd class="mt-1 text-3xl font-semibold text-green-600">
-                                {{ number_format($beneficiarios + rand(-100, -10)) }}
+                                Bs. {{ number_format($beneficiarios->sum('monto_credito')) }}
                             </dd>
                         </div>
                     </div>
@@ -83,7 +83,7 @@
                         <div>
                             <a href="{{ url('/proyecto') }}"
                                 class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                Pagina Principal
+                                Ingresar al Sistema
                             </a>
                         </div>
                     </div>

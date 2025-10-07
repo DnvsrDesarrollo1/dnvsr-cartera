@@ -193,11 +193,11 @@ class ExcelController extends Controller
                 $count++;
             }
 
-            return redirect()->route('importaciones')->with('successD', 'Se lograron importar ' . ($count) . ' registros para gastos.');
+            return redirect()->route('importaciones')->with('successS', 'Se lograron importar ' . ($count) . ' registros para gastos.');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Error during row(s) generation: ' . $e->getMessage());
 
-            return redirect()->route('importaciones')->with('errorD', 'Motivo de la falla: ' . $e->getMessage());
+            return redirect()->route('importaciones')->with('errorS', 'Motivo de la falla: ' . $e->getMessage());
         }
     }
 

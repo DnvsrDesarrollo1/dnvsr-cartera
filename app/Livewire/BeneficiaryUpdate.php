@@ -8,9 +8,43 @@ use Livewire\Component;
 class BeneficiaryUpdate extends Component
 {
     public $beneficiary;
-    public $nombre, $ci, $complemento, $expedido, $estado, $idepro, $cod_fondesif, $fecha_nacimiento, $total_activado, $monto_activado,
-        $gastos_judiciales, $saldo_credito, $monto_recuperado, $fecha_activacion, $plazo_credito, $tasa_interes,
-        $departamento, $seguro;
+
+    public $nombre;
+
+    public $ci;
+
+    public $complemento;
+
+    public $expedido;
+
+    public $estado;
+
+    public $idepro;
+
+    public $cod_fondesif;
+
+    public $fecha_nacimiento;
+
+    public $monto_credito;
+    public $total_activado;
+    public $monto_activado;
+
+    public $gastos_judiciales;
+
+    public $saldo_credito;
+
+    public $monto_recuperado;
+
+    public $fecha_activacion;
+
+    public $plazo_credito;
+
+    public $tasa_interes;
+
+    public $departamento;
+
+    public $seguro;
+
     public $cuota;
 
     public $benModal = false;
@@ -26,6 +60,7 @@ class BeneficiaryUpdate extends Component
         'fecha_nacimiento' => 'required|date',
         'total_activado' => 'required|numeric',
         'monto_activado' => 'required|numeric',
+        'monto_credito' => 'required|numeric',
         'gastos_judiciales' => 'required|numeric',
         'saldo_credito' => 'required|numeric',
         'monto_recuperado' => 'required|numeric',
@@ -44,7 +79,7 @@ class BeneficiaryUpdate extends Component
         if ($this->seguro == 0) {
             $this->seguro = ($this->beneficiary->hasPlan())
                 ?
-                ($this->beneficiary->getCurrentPlan('INACTIVO', '!=')->first()->prppgsegu  > 0 ?: 0.0001 / $beneficiary->saldo_credito) * 100 : 0;
+                ($this->beneficiary->getCurrentPlan('INACTIVO', '!=')->first()->prppgsegu > 0 ?: 0.0001 / $beneficiary->saldo_credito) * 100 : 0;
         }
         $this->seguro = number_format($this->seguro, 3);
 
@@ -55,7 +90,7 @@ class BeneficiaryUpdate extends Component
     {
         $this->validate();
 
-        if ($this->idepro != $this->beneficiary->idepro){
+        if ($this->idepro != $this->beneficiary->idepro) {
 
             foreach ($this->beneficiary->getCurrentPlan('INACTIVO', '!=') as $p) {
                 $p->update([
@@ -97,7 +132,9 @@ class BeneficiaryUpdate extends Component
             'idepro' => $this->idepro,
             'cod_fondesif' => $this->cod_fondesif,
             'fecha_nacimiento' => $this->fecha_nacimiento,
+            'monto_credito' => $this->monto_credito,
             'monto_activado' => $this->monto_activado,
+            'total_activado' => $this->total_activado,
             'gastos_judiciales' => $this->gastos_judiciales,
             'saldo_credito' => $this->saldo_credito,
             'monto_recuperado' => $this->monto_recuperado,
@@ -117,7 +154,6 @@ class BeneficiaryUpdate extends Component
 
         return redirect()->route('beneficiario.show', ['cedula' => $this->beneficiary->ci]);
     }
-
 
     public function render()
     {

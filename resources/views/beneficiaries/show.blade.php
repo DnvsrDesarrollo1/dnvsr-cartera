@@ -1,6 +1,6 @@
 <x-app-layout>
-    <div class="mt-4">
-        <div class="w-full px-4 grid sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-2">
+    <div class="w-full mt-4">
+        <div class="px-4 grid sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-2">
             <div class="bg-white shadow-lg rounded-lg p-6 mb-4 h-fit border border-gray-300" id=$"profile_preview">
                 <div class="flex items-center justify-between border-b pb-4">
                     <div class="flex items-center space-x-4">
