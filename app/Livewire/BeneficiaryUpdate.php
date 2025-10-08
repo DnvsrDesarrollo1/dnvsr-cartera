@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Beneficiary;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
 class BeneficiaryUpdate extends Component
@@ -153,6 +154,87 @@ class BeneficiaryUpdate extends Component
         );
 
         return redirect()->route('beneficiario.show', ['cedula' => $this->beneficiary->ci]);
+    }
+
+    public function delete()
+    {
+        $idepro = $this->beneficiary->idepro;
+
+        // Backup and delete plans
+        $plans = $this->beneficiary->getCurrentPlan('INACTIVO', '!=');
+        $this->exportToCsv($plans, "plans_{$idepro}.csv");
+        foreach ($plans as $plan) {
+            $plan->delete();
+        }
+
+        // Backup and delete spends
+        $spends = $this->beneficiary->spends()->get();
+        $this->exportToCsv($spends, "spends_{$idepro}.csv");
+        foreach ($spends as $spend) {
+            $spend->delete();
+        }
+
+        // Backup and delete helpers
+        $helpers = $this->beneficiary->helpers()->get();
+        $this->exportToCsv($helpers, "helpers_{$idepro}.csv");
+        foreach ($helpers as $helper) {
+            $helper->delete();
+        }
+
+        // Backup and delete earns
+        $earns = $this->beneficiary->earns()->get();
+        $this->exportToCsv($earns, "earns_{$idepro}.csv");
+        foreach ($earns as $earn) {
+            $earn->delete();
+        }
+
+        // Backup and delete vouchers (payments will be cascade deleted)
+        $vouchers = $this->beneficiary->vouchers()->get();
+        $this->exportToCsv($vouchers, "vouchers_{$idepro}.csv");
+        foreach ($vouchers as $voucher) {
+            $voucher->delete();
+        }
+
+        // Backup and delete beneficiary
+        $beneficiaryData = collect([$this->beneficiary]);
+        $this->exportToCsv($beneficiaryData, "beneficiary_{$idepro}.csv");
+        $this->beneficiary->delete();
+
+        Log::info("[". now() ."] Usuario: " . \Illuminate\Support\Facades\Auth::user()->name . " - a eliminado a {$idepro}.");
+
+        return redirect()->route('beneficiario.index');
+    }
+
+    /**
+     * Export a collection to a CSV file in storage/app/exports
+     */
+    private function exportToCsv($collection, string $filename): void
+    {
+        if ($collection->isEmpty()) {
+            return;
+        }
+
+        $headers = array_keys($collection->first()->toArray());
+        $rows = $collection->map(fn ($item) => $item->toArray());
+
+        // Build CSV content
+        $handle = fopen('php://temp', 'r+');
+        fputcsv($handle, $headers);
+        foreach ($rows as $row) {
+            fputcsv($handle, $row);
+        }
+        rewind($handle);
+        $csv = stream_get_contents($handle);
+        fclose($handle);
+
+        // Ensure directory exists
+        $dir = storage_path('app/public/temp/');
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+
+        // Save file
+        file_put_contents("{$dir}/{$filename}", $csv);
     }
 
     public function render()

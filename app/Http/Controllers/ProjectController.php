@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Beneficiary;
 use App\Models\Project;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -112,5 +113,11 @@ class ProjectController extends Controller
         $project->delete();
 
         return redirect()->route('proyecto.index')->with('success', 'Project deleted successfully.');
+    }
+
+    public function fichaProyecto($proyecto){
+        $projectStatistics = Beneficiary::where('proyecto', $proyecto)->get();
+        $pdf = Pdf::loadView('projects.ficha-proyecto', compact('projectStatistics'));
+        return $pdf->stream("ficha-proyecto_{$proyecto}_" . uniqid() . '.pdf');
     }
 }

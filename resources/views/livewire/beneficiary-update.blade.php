@@ -251,8 +251,9 @@
                     wire:confirm="¿Está seguro de que desea guardar los cambios?">
                     Aplicar Cambios
                 </x-personal.button>
-                <x-personal.button @click="benModal = false" variant="danger" iconLeft="fa-solid fa-xmark">
-                    Cerrar
+                <x-personal.button variant="danger" iconLeft="fa fa-user-slash" wire:click="delete"
+                    wire:confirm.prompt="Esta acción no puede ser revertida!\n\nSe eliminarán todos los datos del beneficiario, incluyendo planes, gastos, ingresos, vouchers y pagos.\n\nEscriba BORRAR para proceder:|BORRAR">
+                    Dar de Baja
                 </x-personal.button>
             </div>
         </div>

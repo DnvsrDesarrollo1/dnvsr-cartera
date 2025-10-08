@@ -140,6 +140,7 @@ Route::middleware([
     Route::post('proyecto', [\App\Http\Controllers\ProjectController::class, 'store'])->name('proyecto.store');
     Route::put('proyecto/{codigo}', [\App\Http\Controllers\ProjectController::class, 'update'])->name('proyecto.update');
     Route::delete('proyecto/{codigo}', [\App\Http\Controllers\ProjectController::class, 'destroy'])->name('proyecto.destroy');
+    Route::get('proyecto/{codigo}/ficha', [\App\Http\Controllers\ProjectController::class, 'fichaProyecto'])->name('proyecto.ficha');
 
     // Liquidaciones
     Route::get('liquidacion/{settlement}', [\App\Http\Controllers\SettlementController::class, 'pdf'])->name('liquidacion.pdf');
