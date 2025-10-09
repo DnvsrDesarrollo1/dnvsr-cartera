@@ -220,7 +220,7 @@ class GenerateBeneficiaryCsvZip implements ShouldQueue
         }
         $zip->close();
 
-        return $zipPath;
+        return '/storage/exports/' . $zipName;
     }
 
     private function cleanupPDFs($files)

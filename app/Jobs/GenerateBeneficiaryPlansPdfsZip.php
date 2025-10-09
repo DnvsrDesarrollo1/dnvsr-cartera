@@ -61,7 +61,7 @@ class GenerateBeneficiaryPlansPdfsZip implements ShouldQueue
             $this->cleanupPDFs($pdfFiles);
 
             $zipUrl = ($zipPath);
-            Log::info("ZIP file created for user {$user->id} at: {$zipUrl}");
+            Log::info("ZIP file created for user {$user->id} at: {$zipUrl} : Check it out.");
 
             // Notificar al usuario que el archivo está listo
             $user->notify(new ExportReadyNotification($zipUrl, count($beneficiaries)));
@@ -71,8 +71,6 @@ class GenerateBeneficiaryPlansPdfsZip implements ShouldQueue
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            // Opcional: Notificar al usuario sobre el fallo
-            // $user->notify(new ExportFailedNotification());
         }
     }
 
