@@ -159,7 +159,7 @@ class SettleBeneficiary extends Component
                 (float) ($this->beneficiary->spends()->where('criterio', 'LIKE', '%JUDIC%')->sum('monto') ?? 0), 2);
 
             $this->otrosSettle = round($this->settlement->id ?
-                (float) $this->settlement->gastos_judiciales :
+                (float) $this->settlement->otros :
                 (float) ($this->beneficiary->spends()->where('criterio', 'LIKE', '%NOTAR%')->sum('monto') ?? 0), 2);
 
             $this->descuento = round($this->settlement->id ?
