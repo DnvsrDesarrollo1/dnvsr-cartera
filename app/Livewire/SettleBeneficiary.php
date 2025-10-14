@@ -159,8 +159,8 @@ class SettleBeneficiary extends Component
                 (float) ($this->beneficiary->spends()->where('criterio', 'LIKE', '%JUDIC%')->sum('monto') ?? 0), 2);
 
             $this->otrosSettle = round($this->settlement->id ?
-                (float) $this->settlement->otros :
-                (float) ($plan->sum('prppgotro') ?? 0), 2);
+                (float) $this->settlement->gastos_judiciales :
+                (float) ($this->beneficiary->spends()->where('criterio', 'LIKE', '%NOTAR%')->sum('monto') ?? 0), 2);
 
             $this->descuento = round($this->settlement->id ?
                 (float) $this->settlement->descuento : 0, 2);
@@ -416,7 +416,7 @@ class SettleBeneficiary extends Component
             );
 
             $this->createVoucher(
-                null,
+                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? 'PAGO CONTADO: ' : 'LIQUIDACION TOTAL: '.Auth::user()->name,
                 'PAGO DE LIQUIDACION',
                 $this->fecha_comprobante,
                 null,
@@ -575,26 +575,5 @@ class SettleBeneficiary extends Component
         }
 
         return round(\Carbon\Carbon::parse($listaPlan->fecha_ppg)->diffInDays(now()), 0);
-
-        /* $arrayComparativo = array();
-
-        foreach ($listaPlan as $key => $value) {
-            $pago = $beneficiary->vouchers->where('numpago', $value->prppgnpag)->first();
-
-            $arrayComparativo[] = array(
-                (string)$value->prppgnpag,
-                (string)$value->fecha_ppg,
-                $pago ? (string)$pago->fecha_pago : (string)now()->format('Y-m-d'),
-                $pago ? \Carbon\Carbon::parse($value->fecha_ppg)->diffInDays($pago->fecha_pago) : \Carbon\Carbon::parse($value->fecha_ppg)->diffInDays(now())
-            );
-
-            if ($arrayComparativo[$key][3] < 0) {
-                unset($arrayComparativo[$key]);
-            }
-        }
-
-        //dd($arrayComparativo);
-
-        return floor(collect($arrayComparativo)->max(3) + collect($arrayComparativo)->min(3)); */
     }
 }

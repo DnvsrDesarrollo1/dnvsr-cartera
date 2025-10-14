@@ -345,44 +345,29 @@
                                 {{ $v->numtramite }}</td>
                             <td style="text-align: center; padding: 4px; border-bottom: 1px solid #a5a4a47a;">
                                 @php
-                                    $cd = $v
-                                        ->payments()
-                                        ->where('prtdtnpag', $v->numpago)
-                                        ->where('prtdtdesc', 'LIKE', '%DIFER%')
-                                        ->sum('montopago');
+                                    $cd = $paymentsByVoucher[$v->numtramite][$v->numpago]['capital_diferido'];
+                                    $capital =
+                                        $paymentsByVoucher[$v->numtramite][$v->numpago]['capital'] +
+                                        $paymentsByVoucher[$v->numtramite][$v->numpago]['amortizacion'];
                                 @endphp
-                                {{ number_format(
-                                    $v->payments()->where('prtdtnpag', $v->numpago)->where('prtdtdesc', 'LIKE', 'CAPI%')->where('prtdtdesc', 'NOT LIKE', '%DIFER%')->sum('montopago') +
-                                        $v->payments()->where('prtdtnpag', $v->numpago)->where('prtdtdesc', 'LIKE', 'AMR%')->sum('montopago'),
-                                    2,
-                                ) . ($cd > 0 ? ' + ' . $cd : '') }}
+                                {{ number_format($capital, 2) . ($cd > 0 ? ' + ' . $cd : '') }}
                             </td>
                             <td style="text-align: center; padding: 4px; border-bottom: 1px solid #a5a4a47a;">
-                                {{ number_format($v->payments()->where('prtdtnpag', $v->numpago)->where('prtdtdesc', 'LIKE', 'INTE%')->sum('montopago'), 2) }}
+                                {{ number_format($paymentsByVoucher[$v->numtramite][$v->numpago]['intereses'], 2) }}
                             </td>
                             <td style="text-align: center; padding: 4px; border-bottom: 1px solid #a5a4a47a;">
-                                {{ number_format($v->payments()->where('prtdtnpag', $v->numpago)->where('prtdtdesc', 'LIKE', 'SEGU%')->sum('montopago'), 2) }}
+                                {{ number_format($paymentsByVoucher[$v->numtramite][$v->numpago]['seguros'], 2) }}
                             </td>
                             <td style="text-align: center; padding: 4px; border-bottom: 1px solid #a5a4a47a;">
-                                {{ number_format($v->payments()->where('prtdtnpag', $v->numpago)->where('prtdtdesc', 'LIKE', 'OTR%')->sum('montopago'), 2) }}
+                                {{ number_format($paymentsByVoucher[$v->numtramite][$v->numpago]['otros'], 2) }}
                             </td>
                             <td style="text-align: center; padding: 4px; border-bottom: 1px solid #a5a4a47a;">
                                 {{ number_format($v->montopago, 2) }}
                             </td>
                             @php
                                 $saldo < 0
-                                    ? ($saldo -= $v
-                                            ->payments()
-                                            ->where('prtdtdesc', 'NOT LIKE', '%DIF%')
-                                            ->where('prtdtdesc', 'LIKE', 'CAPI%')
-                                            ->where('prtdtnpag', $v->numpago)
-                                            ->sum('montopago')) * -1
-                                    : ($saldo -= $v
-                                        ->payments()
-                                        ->where('prtdtdesc', 'NOT LIKE', '%DIF%')
-                                        ->where('prtdtdesc', 'LIKE', 'CAPI%')
-                                        ->where('prtdtnpag', $v->numpago)
-                                        ->sum('montopago'));
+                                    ? ($saldo -= $paymentsByVoucher[$v->numtramite][$v->numpago]['capital']) * -1
+                                    : ($saldo -= $paymentsByVoucher[$v->numtramite][$v->numpago]['capital']);
                             @endphp
                             <td
                                 style="text-align: center; font-weight: 800;padding: 4px; border-bottom: 1px solid #a5a4a49d;">
@@ -406,19 +391,14 @@
                             Capital Pagado:
                         </td>
                         <td style="text-align: right; padding: 8px; font-weight: bold;">
-                            {{ number_format(
-                                $beneficiary->payments()->where('prtdtdesc', 'LIKE', 'CAPI%')->where(function ($query) {
-                                        $query->whereNull('observacion')->orWhere('observacion', '')->orWhere('observacion', '!=', 'LEGACY 22/24');
-                                    })->sum('montopago'),
-                                2,
-                            ) }}
+                            {{ number_format($capitalPagado, 2) }}
                         </td>
                     </tr>
                     <tr>
                         <td colspan="10" style="text-align: right; padding: 8px; font-weight: bold;">Saldo Credito:
                         </td>
                         <td style="text-align: right; padding: 8px; font-weight: bold;">
-                            {{ number_format(($beneficiary->saldo_credito == 0 ? 0 : $saldo) + $beneficiary->helpers->where('estado', 'ACTIVO')->sum('capital') ?? 0, 2) }}
+                            {{ number_format(($beneficiary->saldo_credito == 0 ? 0 : $saldo) + $montoDiferimientos ?? 0, 2) }}
                         </td>
                     </tr>
                     <tr>
@@ -426,7 +406,7 @@
                             Diferimientos:
                         </td>
                         <td style="text-align: right; padding: 8px; font-weight: bold;">
-                            {{ number_format($beneficiary->helpers->where('estado', 'ACTIVO')->sum('capital') ?? 0, 2) }}
+                            {{ number_format($montoDiferimientos ?? 0, 2) }}
                         </td>
                     </tr>
                     <tr style="border-top: 3px black solid">
@@ -494,44 +474,47 @@
                 <tbody>
                     @forelse ($legacy as $l)
                         <tr>
-                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #eee;">
+                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #a5a4a47a;">
                                 {{ $loop->iteration }}</td>
                             <td
-                                style="text-align: center; padding: 4px; border-bottom: 1px solid #eee; font-size: 9px;">
+                                style="text-align: center; padding: 4px; border-bottom: 1px solid #a5a4a47a; font-size: 9px;">
                                 {{ \Carbon\Carbon::parse($l->fecha_pago)->format('d/m/Y') }} <br />
                                 {{ \Carbon\Carbon::parse($l->hora_pago)->format('H:i') }}
                             </td>
-                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #eee;">
+                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #a5a4a47a;">
                                 {{ $l->numpago }}</td>
-                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #eee;">
+                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #a5a4a47a;">
                                 {{ $l->numtramite }}</td>
-                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #eee;">
-                                {{ number_format(
-                                    $l->payments()->where('prtdtnpag', $l->numpago)->where('prtdtdesc', 'LIKE', 'CAPI%')->sum('montopago') +
-                                        $l->payments()->where('prtdtnpag', $l->numpago)->where('prtdtdesc', 'LIKE', 'AMR%')->sum('montopago'),
-                                    2,
-                                ) }}
+                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #a5a4a47a;">
+                                @php
+                                    $cd = $paymentsByLegacyVoucher[$l->numtramite][$l->numpago]['capital_diferido'];
+                                    $capital =
+                                        $paymentsByLegacyVoucher[$l->numtramite][$l->numpago]['capital'] +
+                                        $paymentsByLegacyVoucher[$l->numtramite][$l->numpago]['amortizacion'];
+                                @endphp
+                                {{ number_format($capital, 2) . ($cd > 0 ? ' + ' . $cd : '') }}
                             </td>
-                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #eee;">
-                                {{ number_format($l->payments()->where('prtdtnpag', $l->numpago)->where('prtdtdesc', 'LIKE', 'INTE%')->sum('montopago'), 2) }}
+                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #a5a4a47a;">
+                                {{ number_format($paymentsByLegacyVoucher[$l->numtramite][$l->numpago]['intereses'], 2) }}
                             </td>
-                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #eee;">
-                                {{ number_format($l->payments()->where('prtdtnpag', $l->numpago)->where('prtdtdesc', 'LIKE', 'SEGU%')->sum('montopago'), 2) }}
+                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #a5a4a47a;">
+                                {{ number_format($paymentsByLegacyVoucher[$l->numtramite][$l->numpago]['seguros'], 2) }}
                             </td>
-                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #eee;">
-                                {{ number_format($l->payments()->where('prtdtnpag', $l->numpago)->where('prtdtdesc', 'LIKE', 'OTR%')->sum('montopago'), 2) }}
+                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #a5a4a47a;">
+                                {{ number_format($paymentsByLegacyVoucher[$l->numtramite][$l->numpago]['otros'], 2) }}
                             </td>
-                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #eee;">
+                            <td style="text-align: center; padding: 4px; border-bottom: 1px solid #a5a4a47a;">
                                 {{ number_format($l->montopago, 2) }}
                             </td>
                             <td
-                                style="text-align: center; padding: 4px; border-bottom: 1px solid #eee; font-size: 8px;">
+                                style="text-align: center; padding: 4px; border-bottom: 1px solid #a5a4a47a; font-size: 8px;">
                                 {{ $l->obs_pago }}
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="10" style="text-align: center; padding: 10px;">No hay pagos registrados</td>
+                            <td colspan="10" style="text-align: center; padding: 10px;">No hay pagos legacy
+                                registrados</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -559,9 +542,13 @@
         </div>
 
         <div class="footer">
-            <p>Este es un documento generado automáticamente y no requiere firma. <span style="color: #cecece; font-size: 8px;">{{ Auth::user()->id }}</span></p>
+            <p>Este es un documento generado automáticamente y no requiere firma. <span
+                    style="color: #cecece; font-size: 8px;">{{ Auth::user()->id }}</span></p>
         </div>
     </div>
+
+    {{ print_r($paymentsByVoucher) }}
+
 </body>
 
 </html>

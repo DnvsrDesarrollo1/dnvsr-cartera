@@ -32,8 +32,12 @@ trait FinanceTrait
 
     private function calcularPagoMensual(float $valorPresente, float $tasaInteres, int $numPeriodos): float
     {
+        if ($valorPresente == 0) {
+            return 0;
+        }
+
         if ($tasaInteres == 0) {
-            return round($valorPresente / $numPeriodos, 2);
+            return round($valorPresente / $numPeriodos, 4);
         }
 
         $tasaInteres = ($tasaInteres / 100) / 12;
@@ -58,11 +62,20 @@ trait FinanceTrait
 
     private function calcularPagoInteres(float $saldoInicial, float $tasaInteres): float
     {
-        return round($saldoInicial * (($tasaInteres / 100) / 12), 2);
+        if ($saldoInicial == 0)
+        {
+            return 0;
+        }
+        return round($saldoInicial * (($tasaInteres / 100) / 12), 4);
     }
 
     private function calcularPagoSeguro(float $saldoInicial, float $tasaSeguro): float
     {
+        if ($saldoInicial == 0)
+        {
+            return 0;
+        }
+
         return round($saldoInicial * $tasaSeguro, 4);
     }
 
@@ -97,7 +110,7 @@ trait FinanceTrait
 
         foreach ($planVigente as $key => $value) {
 
-            $abonoCapital = round($abonoCapital, 2);
+            $abonoCapital = round($abonoCapital, 4);
 
             $saldoInicial -= ($abonoCapital);
 
@@ -109,10 +122,10 @@ trait FinanceTrait
             }
 
             $value->update([
-                'prppgcapi' => round($abonoCapital, 2),
-                'prppginte' => round($abonoInteres, 2),
-                'prppgsegu' => round($abonoSeguro, 2),
-                'prppgtota' => round($abonoCapital + $abonoInteres + $abonoSeguro + $value->prppgcarg + $value->prppggral + $value->prppgotro, 2),
+                'prppgcapi' => round($abonoCapital, 4),
+                'prppginte' => round($abonoInteres, 4),
+                'prppgsegu' => round($abonoSeguro, 4),
+                'prppgtota' => round($abonoCapital + $abonoInteres + $abonoSeguro + $value->prppgcarg + $value->prppggral + $value->prppgotro, 4),
                 'prppgahor' => $saldoInicial,
                 'estado' => 'ACTIVO',
                 'user_id' => \Illuminate\Support\Facades\Auth::user()->id ?? 1,

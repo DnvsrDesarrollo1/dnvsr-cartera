@@ -40,7 +40,9 @@
 
                 <div class="flex items-center my-2">
                     <span class="text-sm text-gray-600">
-                        CI: {{ $beneficiary->ci }} {{ $beneficiary->complemento }} {{ $beneficiary->expedido }} | COD.CREDITO: <span class="font-medium">{{ $beneficiary->idepro }}</span>
+                        CI: {{ $beneficiary->ci }} {{ $beneficiary->complemento }} {{ $beneficiary->expedido }} |
+                        COD.CREDITO: <span class="font-medium">{{ $beneficiary->idepro }}
+                            ({{ $beneficiary->entidad_financiera }})</span>
                     </span>
                 </div>
                 <hr>
@@ -242,7 +244,7 @@
                                         spacing: [20, 20, 15, 20]
                                     },
                                     title: {
-                                        text: null,//'Evolución Mensual de Cumplimiento de Pagos',
+                                        text: null, //'Evolución Mensual de Cumplimiento de Pagos',
                                         align: 'left',
                                         /* style: {
                                             fontSize: '18px',

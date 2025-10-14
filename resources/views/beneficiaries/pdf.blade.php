@@ -486,7 +486,8 @@
                                 <b>{{ $beneficiary->nombre }}</b><br>
                                 C.I. {{ $beneficiary->ci }} {{ $beneficiary->complemento }}
                                 {{ $beneficiary->expedido }}<br>
-                                DEUDOR
+                                DEUDOR<br>
+                                <span style="color: #cecece; font-size: 8px">{{ Auth::user()->id }}</span>
                             </div>
                         </td>
                     </tr>

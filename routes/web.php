@@ -107,6 +107,7 @@ Route::middleware([
     })->name('beneficiario.pdf.switch-status');
 
     Route::get('beneficiario/{cedula}/pdf-extract', [\App\Http\Controllers\BeneficiaryController::class, 'pdfExtract'])->name('beneficiario.pdf-extract');
+    Route::get('beneficiario/{cedula}/pdf-extract-boosted', [\App\Http\Controllers\BeneficiaryController::class, 'pdfExtractBoosted'])->name('beneficiario.pdf-extract-boosted');
     Route::get('beneficiario/{beneficiary}/editar', [\App\Http\Controllers\BeneficiaryController::class, 'edit'])->name('beneficiario.edit');
     Route::get('beneficiario/{data}/pdf-masivo', [\App\Http\Controllers\BeneficiaryController::class, 'bulkPdf'])->name('beneficiario.bulk-pdf');
     Route::get('beneficiario/{data}/pdf-masivo-extract', [\App\Http\Controllers\BeneficiaryController::class, 'bulkExtractPdf'])->name('beneficiario.bulk-pdf-extract');
