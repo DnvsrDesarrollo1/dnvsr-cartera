@@ -14,13 +14,8 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-white">
                         <tr>
-                            <th scope="col"
-                            class="py-2 px-3 text-left text-xs font-semibold text-gray-600 uppercase">
+                            <th scope="col" class="py-2 px-3 text-left text-xs font-semibold text-gray-600 uppercase">
                                 Departamento
-                            </th>
-                            <th scope="col"
-                                class="py-2 px-3 text-center text-xs font-semibold text-gray-600 uppercase">
-
                             </th>
                             @foreach ($allStatuses as $status)
                                 <th scope="col"
@@ -39,9 +34,6 @@
                             <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="py-2 px-3 text-sm font-medium text-gray-900">
                                     {{ $department }}
-                                </td>
-                                <td class="py-2 px-3 text-sm font-medium text-gray-900">
-                                    <livewire:projects.list-by-departament :departament="$department" />
                                 </td>
                                 @foreach ($allStatuses as $status)
                                     <td class="py-2 px-3 text-sm text-gray-500 text-center">

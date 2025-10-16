@@ -3,8 +3,8 @@
 PROJECT_DIR="/var/www/nodejs/frontendapi/public"
 LOG_FILE="/var/www/nodejs/frontendapi/public/storage/logs/sisdaca-updater.log"
 BRANCH="main"
-USER="root"
-GIT_RESET="true"
+USER="frontendapi"
+GIT_RESET="false"
 
 log_message() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG_FILE"
