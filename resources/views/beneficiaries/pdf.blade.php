@@ -161,7 +161,7 @@
     </style>
 </head>
 
-@if ($beneficiary->estado == 'BLOQUEADOx' || $beneficiary->estado == 'CANCELADOx')
+@if (!$beneficiary || $beneficiary->estado == 'BLOQUEADOx' || $beneficiary->estado == 'CANCELADOx')
     <h1>Estado de credito inválido, informacion no disponible</h1>
 @else
 
@@ -169,7 +169,7 @@
         @php
             $saldo = $plans->sum('prppgcapi');
             $tasa = 1;
-            if ($beneficiary->insurance()->exists()) {
+            if ($beneficiary && $beneficiary->insurance()->exists()) {
                 $tasa = $beneficiary->insurance->tasa_seguro;
             } else {
                 $tasa = $plans->first() ? ($plans->first()->prppgsegu / $plans->sum('prppgcapi')) * 100 : 1;
@@ -264,12 +264,14 @@
                             <td>
                                 Bs.
                                 {{ number_format(
-                                    \App\Models\Earn::where('idepro', $beneficiary->idepro)->where('estado', 'ACTIVO')->sum('interes') ?? 0,
+                                    $beneficiary
+                                        ? \App\Models\Earn::where('idepro', $beneficiary->idepro)->where('estado', 'ACTIVO')->sum('interes') ?? 0
+                                        : 0,
                                     2,
                                 ) }}
                                 /
                                 Bs.
-                                {{ number_format(\App\Models\Earn::where('idepro', $beneficiary->idepro)->where('estado', 'ACTIVO')->sum('seguro') ?? 0, 2) }}
+                                {{ number_format($beneficiary ? \App\Models\Earn::where('idepro', $beneficiary->idepro)->where('estado', 'ACTIVO')->sum('seguro') ?? 0 : 0, 2) }}
                                 <br>
                                 {{ $differs->count() ?? 0 }} / Bs.
                                 {{ number_format($differs->sum('capital') ?? 0, 2) }} /
@@ -327,14 +329,14 @@
                             <tr>
                                 <td>
                                     @can('write plans')
-                                        <a
-                                            style="text-decoration: none; font-weight: 600; @if ($plan->estado == 'CANCELADO') color: green; @else color: black @endif"
+                                        <a style="text-decoration: none; font-weight: 600; @if ($plan->estado == 'CANCELADO') color: green; @else color: black @endif"
                                             title="Click para cambiar estado a CANCELADO/ACTIVO"
                                             href="{{ route('beneficiario.pdf.switch-status', [$beneficiary->ci, $plan]) }}">
                                             {{ $plan->prppgnpag }}
                                         </a>
                                     @else
-                                        <span style="font-weight: 600; @if ($plan->estado == 'CANCELADO') color: green; @else color: black @endif">
+                                        <span
+                                            style="font-weight: 600; @if ($plan->estado == 'CANCELADO') color: green; @else color: black @endif">
                                             {{ $plan->prppgnpag }}
                                         </span>
                                     @endcan
@@ -487,7 +489,7 @@
                                 C.I. {{ $beneficiary->ci }} {{ $beneficiary->complemento }}
                                 {{ $beneficiary->expedido }}<br>
                                 DEUDOR<br>
-                                <span style="color: #cecece; font-size: 8px">{{ Auth::user()->id }}</span>
+                                <span style="color: #cecece; font-size: 8px"></span>
                             </div>
                         </td>
                     </tr>

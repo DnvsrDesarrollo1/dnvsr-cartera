@@ -45,7 +45,7 @@ class ExportReadyNotification extends Notification implements ShouldQueue
     {
         return [
             'title' => '¡Exportación completada!',
-            'message' => "Tu archivo ZIP con {$this->count} archivos está listo para ser descargado.",
+            'message' => "Tu exportación está lista para ser descargada.",
             'action_url' => $this->zipUrl,
             'icon' => 'fas fa-file-archive',
         ];

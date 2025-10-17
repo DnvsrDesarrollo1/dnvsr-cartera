@@ -6,6 +6,7 @@ use App\Models\Beneficiary;
 use App\Models\Settlement;
 use App\Traits\FinanceTrait;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -524,12 +525,17 @@ class SettleBeneficiary extends Component
     {
         $paths = $this->settlement->anexos ? json_decode($this->settlement->anexos, true) : [];
 
+        $exportPath = storage_path('app/public/settlements');
+
+        if (! File::isDirectory($exportPath)) {
+            File::makeDirectory($exportPath, 0755, true, true);
+        }
+
         if ($this->anexos) {
             foreach ($this->anexos as $anexo) {
                 if (is_object($anexo) && method_exists($anexo, 'storeAs')) {
-                    // Es un archivo nuevo subido, almacenar con su nombre original
                     $originalName = $anexo->getClientOriginalName();
-                    $paths[] = $anexo->storeAs('settlements', $originalName);
+                    $paths[] = $anexo->store('settlements', 'public');
                 } elseif (is_string($anexo)) {
                     // Es un path existente
                     $paths[] = $anexo;

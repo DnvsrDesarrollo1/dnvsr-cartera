@@ -547,8 +547,6 @@
         </div>
     </div>
 
-    {{ print_r($paymentsByVoucher) }}
-
 </body>
 
 </html>
