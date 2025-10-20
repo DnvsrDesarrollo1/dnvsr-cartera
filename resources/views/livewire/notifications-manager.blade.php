@@ -1,8 +1,7 @@
 <div x-data="{ openNotification: @entangle('openNotification') }">
     <div class="relative inline-block">
         <span wire:poll.3s="loadNotifications"
-            class="absolute -top-2 inline-flex items-center justify-center h-5 text-xs font-bold text-white bg-green-600 rounded-full shadow-lg w-auto px-1"
-            style="right: 0;">
+            class="absolute -top-2 inline-flex items-center justify-center h-5 text-xs font-bold text-white bg-green-600 rounded-full shadow-lg w-auto px-1" style="right: 0;">
             {{ $unreadCount }}
         </span>
         <button @click="openNotification = true" @keydown.escape.window="openNotification = false"
@@ -54,8 +53,7 @@
                             @if (is_null($notification->read_at))
                                 <div class="flex items-center">
                                     @if (isset($notification->data['action_url']))
-                                        <a href="{{ asset('storage/exports/' . $notification->data['action_url']) }}"
-                                            title="Descargar archivo"
+                                        <a href="{{ $notification->data['action_url'] }}" title="Descargar archivo"
                                             class="mr-2 text-blue-600 hover:text-blue-800 p-2 bg-blue-200 rounded">
                                             <i class="fa-solid fa-download"></i>
                                         </a>

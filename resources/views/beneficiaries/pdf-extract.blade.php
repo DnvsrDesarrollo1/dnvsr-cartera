@@ -211,17 +211,10 @@
                     </tr>
                     <tr>
                         <td>Codigo Prestamo:</td>
-                        <td>{{ $beneficiary->idepro }}</td>
+                        <td>{{ $beneficiary->ci }} / {{ $beneficiary->idepro }}</td>
                         <td></td>
                         <td>Monto Migrado:</td>
                         <td>Bs. {{ number_format($beneficiary->total_activado, 2) }}</td>
-                    </tr>
-                    <tr>
-                        <td>CI:</td>
-                        <td>{{ $beneficiary->ci }}</td>
-                        <td></td>
-                        <td>Monto Restructuración</td>
-                        <td>Bs. {{ number_format($beneficiary->monto_activado, 2) }}</td>
                     </tr>
                     <tr>
                         <td>Nombres:</td>
@@ -566,8 +559,7 @@
         </div>
 
         <div class="footer">
-            <p>Este es un documento generado automáticamente y no requiere firma. <span
-                    style="color: #cecece; font-size: 8px;"></span></p>
+            <p>Este es un documento generado automáticamente y no requiere firma. <span style="color: #cecece; font-size: 8px;">{{ Auth::user()->id }}</span></p>
         </div>
     </div>
 </body>

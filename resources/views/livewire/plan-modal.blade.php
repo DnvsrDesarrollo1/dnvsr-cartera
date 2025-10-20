@@ -76,7 +76,7 @@
                                                         <g id="SVGRepo_tracerCarrier" stroke-linecap="round"
                                                             stroke-linejoin="round"></g>
                                                         <g id="SVGRepo_iconCarrier">
-                                                            <circle cx="8" cy="8" r="8" fill="#14B0FF">
+                                                            <circle cx="8" cy="8" r="8" fill="#a7c957">
                                                             </circle>
                                                         </g>
                                                     </svg>

@@ -111,7 +111,7 @@ class GenerateBeneficiaryPlansPdfsZip implements ShouldQueue
         }
         $zip->close();
 
-        return $zipName;
+        return '/storage/exports/' . $zipName;
     }
 
     private function cleanupPDFs($files)
