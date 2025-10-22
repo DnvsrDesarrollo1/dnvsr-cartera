@@ -138,8 +138,8 @@
                                             ->orderBy('fecha_ppg')
                                             ->get();
                                         if ($vencs->count() > 0) {
-                                            $fechaInicio = \Carbon\Carbon::parse($vencs->first()->fecha_ppg);
-                                            $diff = $fechaInicio->diffInDays(now());
+                                            $fechaInicio = \Carbon\Carbon::parse($vencs->first()->fecha_ppg)->startOfDay();
+                                            $diff = $fechaInicio->diffInDays(now()->startOfDay());
                                             echo "<p class=\"text-sm text-red-500\">Dias de Mora: <b>" .
                                                 number_format(max(0, $diff), 0) .
                                                 '</b></p>';
@@ -604,6 +604,9 @@
                                             <input type="date" id="fecha_inicio" name="fecha_inicio"
                                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                                                 required value="<?php echo date('Y-m-d'); ?>" title="Fecha actual por defecto">
+                                        </div>
+                                        <div class="mt-4">
+                                            <span>Gastos adicionales: {{ $beneficiary->spends()->sum('monto') }}</span>
                                         </div>
                                     </div>
                                 </div>

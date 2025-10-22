@@ -117,6 +117,7 @@ Route::middleware([
 
     // Planes - Rutas específicas primero
     Route::get('plan/mora-pdf', [App\Http\Controllers\PlanController::class, 'pdfMora'])->name('plan.mora-pdf');
+    Route::get('plan/mora-pdf/{proyecto}', [App\Http\Controllers\PlanController::class, 'pdfMoraProyecto'])->name('plan.mora-pdf-proyecto');
     Route::get('plan/{data}/ajuste-masivo', [App\Http\Controllers\PlanController::class, 'bulkAdjust'])->name('plan.bulk-adjust');
     Route::get('plan/{data}/activacion-masivo', [App\Http\Controllers\PlanController::class, 'bulkActivation'])->name('plan.bulk-activation');
     Route::get('plan/{data}/xlsx-masivo', [App\Http\Controllers\PlanController::class, 'bulkExportXLSX'])->name('plan.bulk-xlsx');

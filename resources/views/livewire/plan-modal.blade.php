@@ -46,6 +46,8 @@
                                     </th>
                                     <th class="px-2 py-4 text-sm font-medium text-gray-500 whitespace-nowrap">Seguro
                                         Devengado</th>
+                                    <th class="px-2 py-4 text-sm font-medium text-gray-500 whitespace-nowrap">Seguro
+                                        Gastos/Otros</th>
                                     <th class="px-2 py-4 text-sm font-medium text-gray-500 whitespace-nowrap">Total a
                                         Pagar</th>
                                     <th></th>
@@ -155,6 +157,8 @@
                                         <td class="px-2 py-2 text-xs text-gray-700 text-center whitespace-nowrap">
                                             {{ number_format($p->prppgcarg, 2) }}</td>
                                         <td class="px-2 py-2 text-xs text-gray-700 text-center whitespace-nowrap">
+                                            {{ number_format($p->prppgotro, 2) }}</td>
+                                        <td class="px-2 py-2 text-xs text-gray-700 text-center whitespace-nowrap">
                                             {{ number_format($p->prppgtota, 2) }}</td>
                                         <td class="px-2 py-2 text-gray-700 text-center text-sm">
                                             @if ($p->estado == 'CANCELADO')
@@ -204,6 +208,8 @@
                                 class="font-semibold text-gray-900">{{ number_format($plans->sum('prppgsegu'), 2) }}</span></span>
                         <span class="font-medium p-2 border-2 border-gray-700 rounded-md">Seguro Devengado: <span
                                 class="font-semibold text-gray-900">{{ number_format($plans->sum('prppgcarg'), 2) }}</span></span>
+                                <span class="font-medium p-2 border-2 border-gray-700 rounded-md">Gastos / Otros: <span
+                                class="font-semibold text-gray-900">{{ number_format($plans->sum('prppgotro'), 2) }}</span></span>
                         <span class="font-medium p-2 border-2 border-gray-700 rounded-md">Total: <span
                                 class="font-semibold text-gray-900">{{ number_format($plans->sum('prppgtota'), 2) }}</span></span>
                     </div>

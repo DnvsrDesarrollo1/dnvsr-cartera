@@ -68,7 +68,8 @@
                         &copy; {{ date('Y') }} {{ config('app.name', 'Laravel') }}
                     </p>
                     <p class="text-sm text-gray-400 dark:text-gray-100">
-                        (release) | v. {{ trim(shell_exec('git describe --tags --always --dirty')) }}.
+                        (release) | v.
+                        {{ trim(shell_exec('git -C ' . base_path() . ' describe --tags --always --dirty')) }}.
                     </p>
                     <p class="text-sm text-gray-800 font-bold dark:text-gray-100">
                         Agencia Estatal de Vivienda - Direccion Nacional de Vivienda Social Residual.

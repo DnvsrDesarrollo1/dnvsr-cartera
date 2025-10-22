@@ -46,37 +46,19 @@
                                 <td class="py-3 px-6 text-left whitespace-nowrap italic">
                                     {{ $loop->index + 1 }})</td>
                                 <td class="py-3 px-6 text-left">{{ $d->nro_cuota }}</td>
-                                <td class="py-3 px-6 text-right">{{ number_format($d->saldo_inicial, 2, '.', ',') }}
+                                <td class="py-3 px-6 text-right">{{ number_format($d->saldo_inicial, 2) }}
                                 </td>
-                                <td class="py-3 px-6 text-right">{{ number_format($d->amortizacion, 2, '.', ',') }}</td>
-                                <td class="py-3 px-6 text-right">{{ number_format($d->abono_capital, 2, '.', ',') }}
+                                <td class="py-3 px-6 text-right">{{ number_format($d->amortizacion, 2) }}</td>
+                                <td class="py-3 px-6 text-right">{{ number_format($d->abono_capital, 2) }}
                                 </td>
-                                <td class="py-3 px-6 text-right">{{ number_format($d->interes, 2, '.', ',') }}</td>
-                                <td class="py-3 px-6 text-right">{{ number_format($d->seguro, 2, '.', ',') }}</td>
-                                <td class="py-3 px-6 text-right">
-                                    @if ($d->gastos_judiciales > 0)
-                                        {{ number_format($d->gastos_judiciales, 2, '.', ',') }}
-                                    @else
-                                        -
-                                    @endif
-                                </td>
-                                <td class="py-3 px-6 text-right">
-                                    @if ($d->interes_devengado > 0)
-                                        {{ number_format($d->interes_devengado, 2, '.', ',') }}
-                                    @else
-                                        -
-                                    @endif
-                                </td>
-                                <td class="py-3 px-6 text-right">
-                                    @if ($d->seguro_devengado > 0)
-                                        {{ number_format($d->seguro_devengado, 2, '.', ',') }}
-                                    @else
-                                        -
-                                    @endif
-                                </td>
+                                <td class="py-3 px-6 text-right">{{ number_format($d->interes, 2) }}</td>
+                                <td class="py-3 px-6 text-right">{{ number_format($d->seguro, 2) }}</td>
+                                <td class="py-3 px-6 text-right">{{ number_format($d->gastos_judiciales ?? 0, 2) }}</td>
+                                <td class="py-3 px-6 text-right">{{ number_format($d->interes_devengado ?? 0, 2) }}</td>
+                                <td class="py-3 px-6 text-right">{{ number_format($d->seguro_devengado ?? 0, 2) }}</td>
                                 <td class="py-3 px-6 text-right font-medium">
-                                    {{ number_format($d->total_cuota, 2, '.', ',') }}</td>
-                                <td class="py-3 px-6 text-right">{{ number_format($d->saldo_final, 2, '.', ',') }}</td>
+                                    {{ number_format($d->total_cuota, 2) }}</td>
+                                <td class="py-3 px-6 text-right">{{ number_format($d->saldo_final, 2) }}</td>
                                 <td class="py-3 px-6 text-center">{{ $d->vencimiento }}</td>
                             </tr>
                         @endforeach
@@ -93,49 +75,49 @@
                             <td class="py-3 px-6 text-right">
                                 <h3 class="text-sm">Total del Credito:</h3>
                                 <p class="text-green-500 text-sm">
-                                    {{ number_format($data->sum('amortizacion'), 2, '.', ',') }}
+                                    {{ number_format($data->sum('amortizacion'), 2) }}
                                 </p>
                             </td>
                             <td class="py-3 px-6 text-right">
                                 <h3 class="text-sm">Pago a Capital:</h3>
                                 <p class="text-green-500 text-sm">
-                                    {{ number_format($data->sum('abono_capital'), 2, '.', ',') }}
+                                    {{ number_format($data->sum('abono_capital'), 2) }}
                                 </p>
                             </td>
                             <td class="py-3 px-6 text-right">
                                 <h3 class="text-sm">Pago a Interes:</h3>
                                 <p class="text-green-500 text-sm">
-                                    {{ number_format($data->sum('interes'), 2, '.', ',') }}
+                                    {{ number_format($data->sum('interes'), 2) }}
                                 </p>
                             </td>
                             <td class="py-3 px-6 text-right">
                                 <h3 class="text-sm">Pago al Seguro:</h3>
                                 <p class="text-green-500 text-sm">
-                                    {{ number_format($data->sum('seguro'), 2, '.', ',') }}
+                                    {{ number_format($data->sum('seguro'), 2) }}
                                 </p>
                             </td>
                             <td class="py-3 px-6 text-right">
                                 <h3 class="text-sm">Gastos Judiciales:</h3>
                                 <p class="text-green-500 text-sm">
-                                    {{ number_format($data->sum('gastos_judiciales'), 2, '.', ',') }}
+                                    {{ number_format($data->sum('gastos_judiciales'), 2) }}
                                 </p>
                             </td>
                             <td class="py-3 px-6 text-right">
                                 <h3 class="text-sm">Interes Devengado:</h3>
                                 <p class="text-green-500 text-sm">
-                                    {{ number_format($data->sum('interes_devengado'), 2, '.', ',') }}
+                                    {{ number_format($data->sum('interes_devengado'), 2) }}
                                 </p>
                             </td>
                             <td class="py-3 px-6 text-right">
                                 <h3 class="text-sm">Seguro Devengado:</h3>
                                 <p class="text-green-500 text-sm">
-                                    {{ number_format($data->sum('seguro_devengado'), 2, '.', ',') }}
+                                    {{ number_format($data->sum('seguro_devengado'), 2) }}
                                 </p>
                             </td>
                             <td class="py-3 px-6 text-right">
                                 <h3 class="text-sm">Pago en Cuotas:</h3>
                                 <p class="text-green-500 text-sm">
-                                    {{ number_format($data->sum('total_cuota'), 2, '.', ',') }}
+                                    {{ number_format($data->sum('total_cuota'), 2) }}
                                 </p>
                             </td>
                             <td colspan="2"></td>
@@ -195,8 +177,8 @@
                                 <tr class="border-b border-gray-200 hover:bg-gray-100">
                                     <td class="py-3 px-6 text-left whitespace-nowrap">{{ $loop->index + 1 }}</td>
                                     <td class="py-3 px-6 text-left">{{ $d->nro_cuota }}</td>
-                                    <td class="py-3 px-6 text-right">{{ number_format($d->capital, 2, '.', ',') }}</td>
-                                    <td class="py-3 px-6 text-right">{{ number_format($d->interes, 2, '.', ',') }}</td>
+                                    <td class="py-3 px-6 text-right">{{ number_format($d->capital, 2) }}</td>
+                                    <td class="py-3 px-6 text-right">{{ number_format($d->interes, 2) }}</td>
                                     <td class="py-3 px-6 text-center">{{ $d->vencimiento }}</td>
                                 </tr>
                             @endforeach

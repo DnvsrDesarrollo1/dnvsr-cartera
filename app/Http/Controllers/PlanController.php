@@ -17,8 +17,8 @@ class PlanController extends Controller
 
     public function index()
     {
-        //$plans = Plan::paginate(500);
-        //return view('plans.index', compact('plans'));
+        // $plans = Plan::paginate(500);
+        // return view('plans.index', compact('plans'));
     }
 
     public function create() {}
@@ -50,6 +50,90 @@ class PlanController extends Controller
         return $pdf->stream('mora-pdf');
     }
 
+    public function pdfMoraProyecto($proyecto)
+    {
+        // 1) Obtener todos los beneficiarios del proyecto solicitado
+        $beneficiariosProyecto = Beneficiary::where('proyecto', $proyecto)->get();
+
+        // 2) Contar según estado
+        $estados = $beneficiariosProyecto->groupBy('estado')
+            ->map(fn ($grp) => $grp->count())
+            ->sortKeys()
+            ->toArray();
+
+        // 3) Construir el reporte
+        $reporte = collect();
+
+        // Encabezado del proyecto
+        $reporte->push([
+            'Nombre del Proyecto' => $proyecto,
+            'Número de Beneficiarios' => $beneficiariosProyecto->count(),
+            'CI' => '',
+            'IDEPRO' => '',
+            'Estado' => '',
+            'Dias Mora' => '',
+            'Cuotas Vencidas' => '',
+        ]);
+
+        // Resumen por estado
+        foreach ($estados as $est => $cant) {
+            $reporte->push([
+                'Nombre del Proyecto' => '',
+                'Número de Beneficiarios' => "Estado: {$est} = {$cant}",
+                'CI' => '',
+                'IDEPRO' => '',
+                'Estado' => '',
+                'Dias Mora' => '',
+                'Cuotas Vencidas' => '',
+            ]);
+        }
+
+        // Separador visual
+        $reporte->push([
+            'Nombre del Proyecto' => '',
+            'Número de Beneficiarios' => '',
+            'CI' => '',
+            'IDEPRO' => '',
+            'Estado' => '',
+            'Dias Mora' => '',
+            'Cuotas Vencidas' => '',
+        ]);
+
+        // Detalle de cada beneficiario
+        $beneficiarios = Beneficiary::where('proyecto', $proyecto)
+            ->orderBy('nombre')
+            ->get(['nombre', 'ci', 'idepro', 'estado']);
+
+        foreach ($beneficiarios as $beneficiario) {
+
+            $vencidoPlan = $beneficiario->getCurrentPlan('VENCIDO', '=')->first();
+            $cantidadVencido = $beneficiario->getCurrentPlan('VENCIDO', '=')->count();
+
+            $mora = 0;
+
+            if ($vencidoPlan && $vencidoPlan->fecha_ppg) {
+                $fechaVenc = \Carbon\Carbon::parse($vencidoPlan->fecha_ppg)->startOfDay();
+                $hoy = now()->startOfDay();
+                $dias = $fechaVenc->diffInDays($hoy, false);
+                $mora = $dias > 0 ? $dias : ($dias < 0 ? ($dias * -1) : 'Hoy');
+            }
+
+            $reporte->push([
+                'Nombre del Proyecto' => '',
+                'Número de Beneficiarios' => $beneficiario->nombre,
+                'CI' => $beneficiario->ci,
+                'IDEPRO' => $beneficiario->idepro,
+                'Estado' => $beneficiario->estado,
+                'Dias Mora' => $mora,
+                'Cuotas Vencidas' => $cantidadVencido,
+            ]);
+        }
+
+        // 4) Exportar a Excel (usando Maatwebsite/Laravel-Excel)
+        return (new \Rap2hpoutre\FastExcel\FastExcel($reporte))
+            ->download("reporte_{$proyecto}.xlsx");
+    }
+
     public function store(Request $request)
     {
         $validatedData = $request->validate([
@@ -64,11 +148,11 @@ class PlanController extends Controller
 
         $data = $this->generarPlan(
             $validatedData['capital_inicial'],
-            \App\Models\Spend::where('idepro', $request->input('idepro'))->where('estado', 'ACTIVO')->first()->monto ?? 0,
+            \App\Models\Spend::where('idepro', $request->input('idepro'))->where('estado', 'ACTIVO')->sum('monto') ?? 0,
             $validatedData['meses'],
             $validatedData['taza_interes'],
             $request->input('seguro'),
-            $request->input('correlativo'),
+            $request->input('correlativo') ?? 'off',
             $request->input('plazo_credito'),
             $validatedData['fecha_inicio'],
             \App\Models\Earn::where('idepro', $request->input('idepro'))->sum('interes') ?? 0,
@@ -90,7 +174,7 @@ class PlanController extends Controller
         }
         $beneficiary = Beneficiary::where('idepro', $request->input('idepro'))->first();
 
-        $userId = \Illuminate\Support\Facades\Auth::user()->id ?? 1;
+        $userId = Auth::user()->id ?? 1;
 
         $data = $this->generatePlanData($request);
         $diferimento = $this->generateDiferimentoIfNeeded($request, $data);
@@ -134,11 +218,11 @@ class PlanController extends Controller
 
         $data = $this->generarPlan(
             $validatedData['capital_inicial'],
-            Beneficiary::where('idepro', $beneficiary)->first()->spends()->where('estado', 'ACTIVO')->sum('monto') ?? 0,
+            \App\Models\Spend::where('idepro', $request->input('idepro'))->where('estado', 'ACTIVO')->sum('monto') ?? 0,
             $validatedData['meses'],
             $validatedData['taza_interes'],
             $request->input('seguro'),
-            $request->input('correlativo'),
+            $request->input('correlativo') ?? 'off',
             $request->input('plazo_credito'),
             $validatedData['fecha_inicio'],
             \App\Models\Earn::where('idepro', $request->input('idepro'))->sum('interes') ?? 0,
@@ -189,15 +273,16 @@ class PlanController extends Controller
     public function bulkActivation($data)
     {
         $decodedData = json_decode($data, true);
-        $interestRate = (float) $decodedData['interes'] ?? -1;
-        $secureRate = (float) $decodedData['seguro'] ?? -1;
+        // return $decodedData;
+        $interestRate = -1;
+        $secureRate = -1;
         $identificationNumbers = array_diff(array_values($decodedData), [$interestRate]);
 
-        //return $interestRate . ' ' . $secureRate . ' ' . json_encode($identificationNumbers);
+        // return $interestRate . ' ' . $secureRate . ' ' . json_encode($identificationNumbers);
 
         $beneficiaries = Beneficiary::find($identificationNumbers)
             ->where('estado', '<>', 'CANCELADO');
-        //->where('estado', '<>', 'BLOQUEADO');
+        // ->where('estado', '<>', 'BLOQUEADO');
 
         try {
             DB::transaction(function () use ($beneficiaries, $interestRate, $secureRate) {
@@ -206,10 +291,10 @@ class PlanController extends Controller
                 }
             });
 
-            return back()
+            return redirect()->route('beneficiario.index')
                 ->with('success', "La activación masiva-automática de {$beneficiaries->count()} beneficiarios fue realizada");
         } catch (\Exception $e) {
-            return back()
+            return redirect()->route('beneficiario.index')
                 ->with('error', "La activación masiva-automática de {$beneficiaries->count()} beneficiarios no fue realizada ->".$e->getMessage());
         }
     }
@@ -223,15 +308,15 @@ class PlanController extends Controller
 
         $finPlazo = date(
             'Y-m-d',
-            //strtotime($beneficiary->fecha_activacion . ' + 20 years'));
+            // strtotime($beneficiary->fecha_activacion . ' + 20 years'));
             strtotime($beneficiary->fecha_activacion.' + '.$beneficiary->plazo_credito.' months')
         );
 
-        //// DETERMINAR LA CANTIDAD DE MESES/CUOTAS QUE SE VAN A GENERAR
+        // // DETERMINAR LA CANTIDAD DE MESES/CUOTAS QUE SE VAN A GENERAR
 
         $date1 = date('Y-m-d', strtotime($beneficiary->fecha_extendida ?? $beneficiary->fecha_activacion));
-        //$date1 = now();
-        //$date1 = '2025-08-15';
+        // $date1 = now();
+        // $date1 = '2025-08-15';
         $date2 = $finPlazo;
         $d1 = new \DateTime($date2);
         $d2 = new \DateTime($date1);
@@ -240,10 +325,10 @@ class PlanController extends Controller
 
         $sequential = $beneficiary->plans()->exists() ? 'on' : null;
 
-        //// DETERMINAR LA FECHA DE LA PRIMERA CUOTA
+        // // DETERMINAR LA FECHA DE LA PRIMERA CUOTA
 
-        //$startDate = '2025-08-15'; //PARA CONSIDERAR EL MES DESPUES DEL ESPECIFICADO
-        //$startDate = now(); // PARA CONSIDERAR EL MES SIGUIENTE A AHORA
+        // $startDate = '2025-08-15'; //PARA CONSIDERAR EL MES DESPUES DEL ESPECIFICADO
+        // $startDate = now(); // PARA CONSIDERAR EL MES SIGUIENTE A AHORA
         $startDate = date('Y-m-d', strtotime($beneficiary->fecha_extendida ?? $beneficiary->fecha_activacion));
 
         if ($interestRate < 0 || $interestRate == -1 || $interestRate == '-1') {
@@ -251,13 +336,13 @@ class PlanController extends Controller
         }
 
         if ($secureRate < 0 || $secureRate == -1 || $secureRate == '-1') {
-            $secureRate = ($beneficiary->insurance && $beneficiary->insurance->exists()) ? $beneficiary->insurance->tasa_seguro : 0;
+            $secureRate = ($beneficiary->insurance && $beneficiary->insurance->exists()) ? $beneficiary->insurance->tasa_seguro : 0.04;
         }
 
         $planData = $this->generarPlan(
             (float) $initialCapital,
             \App\Models\Spend::where('idepro', $beneficiary->idepro)->where('estado', 'ACTIVO')->sum('monto') ?? 0,
-            //$beneficiary->plazo_credito,
+            // $beneficiary->plazo_credito,
             $months,
             $interestRate,
             $secureRate,
@@ -275,7 +360,7 @@ class PlanController extends Controller
     public function deactivateRelatedRecords(Beneficiary $beneficiary)
     {
         $relatedModels = [
-            //'helpers',
+            // 'helpers',
             'plans',
             'readjustments',
         ];
@@ -300,7 +385,7 @@ class PlanController extends Controller
                 'prppgcarg' => ($item->seguro_devengado),
                 'prppgtota' => ($item->total_cuota),
                 'estado' => 'ACTIVO',
-                'user_id' => \Illuminate\Support\Facades\Auth::user()->id ?? 1,
+                'user_id' => Auth::user()->id ?? 1,
             ];
         })->toArray();
 
@@ -334,16 +419,17 @@ class PlanController extends Controller
         $initialCapital = $beneficiary->total_activado - ($beneficiary->payments()->sum('montopago') ?? 0);
         $months = $beneficiary->plazo_credito;
         $interestRate = 0;
+        $secureRate = 0.04;
         $sequential = $beneficiary->plans()->exists() ? 'on' : null;
 
         $startDate = now();
 
         $planData = $this->generarPlan(
             $initialCapital,
-            $beneficiary->gastos_judiciales,
+            \App\Models\Spend::where('idepro', $beneficiary->idepro)->where('estado', 'ACTIVO')->sum('monto') ?? 0,
             $months,
             $interestRate,
-            null,
+            $secureRate,
             $sequential,
             $beneficiary->plazo_credito,
             $startDate,
@@ -368,7 +454,7 @@ class PlanController extends Controller
                 'prppgotro' => round($item->gastos_judiciales, 2),
                 'prppgtota' => round($item->total_cuota, 2),
                 'estado' => 'ACTIVO',
-                'user_id' => \Illuminate\Support\Facades\Auth::user()->id ?? 1,
+                'user_id' => Auth::user()->id ?? 1,
             ];
         })->toArray();
 

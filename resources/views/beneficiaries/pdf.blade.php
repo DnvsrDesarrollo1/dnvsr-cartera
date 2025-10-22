@@ -487,7 +487,7 @@
                                 C.I. {{ $beneficiary->ci }} {{ $beneficiary->complemento }}
                                 {{ $beneficiary->expedido }}<br>
                                 DEUDOR<br>
-                                <span style="color: #cecece; font-size: 8px">{{ Auth::user()->id }}</span>
+                                <span style="color: #cecece; font-size: 8px"></span>
                             </div>
                         </td>
                     </tr>

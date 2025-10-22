@@ -8,7 +8,9 @@ abstract class Controller
 {
     private function dividirConRedondeo($total, $partes)
     {
-        if ($partes <= 0) return []; // Validación básica
+        if ($partes <= 0) {
+            return [];
+        } // Validación básica
 
         // Convertir el total a centavos (trabajar en enteros)
         $totalCentavos = round($total * 100);
@@ -26,6 +28,7 @@ abstract class Controller
             }
             $resultados[] = $centavos / 100; // Convertir a dólares
         }
+
         return $resultados;
     }
 
@@ -34,162 +37,133 @@ abstract class Controller
         $numerador = pow(1 + $tasaInteres, $numPeriodos) * $tasaInteres;
         $denominador = pow(1 + $tasaInteres, $numPeriodos) - 1;
         $pago = $valorPresente * ($numerador / $denominador);
+
         return $pago;
     }
 
-    public function generarPlan($capital_inicial, $gastos_judiciales = 0, $meses, $taza_interes, $seguro = 0.040, $correlativo, $plazo_credito, $fecha_inicio, $i_diff = 0, $s_diff = 0)
-    {
-        $c = $capital_inicial;
-        $n = $meses;
-        $i = ($taza_interes / 100) / 12;
-        $s = $seguro / 100;
+    public function generarPlan(
+        float $capital_inicial,
+        float $gastos_judiciales,
+        int $meses,
+        float $taza_interes,
+        float $seguro,
+        $correlativo = 'off',
+        int $plazo_credito,
+        string $fecha_inicio,
+        float $i_diff = 0,
+        float $s_diff = 0
+    ): \Illuminate\Database\Eloquent\Collection {
+        // Normalizar tasa de interés y seguro a mensual
+        $tasaMensual = $taza_interes / 100 / 12;
+        $seguroMensual = $seguro / 100;
 
-        $id = bcdiv($i_diff, $n, 6);
-        $sd = bcdiv($s_diff, '12', 6);
+        // Distribuir diferimientos
+        $interesDiffPorCuota = $meses > 0 ? bcdiv($i_diff, $meses, 6) : 0;
+        $seguroDiffPorCuota = bcdiv($s_diff, '12', 6);
 
+        // Calcular cuota de gastos judiciales
         $gj = 0;
-
         if ($gastos_judiciales > 0) {
-            $gj = ($gastos_judiciales / ($meses));
-            if ($gastos_judiciales > 0 and $gastos_judiciales <= 100) {
-                $gj = ($gastos_judiciales / (5));
-            }
-
-            if ($gastos_judiciales > 100 and $gastos_judiciales <= 300) {
-                $gj = ($gastos_judiciales / (12));
+            if ($gastos_judiciales <= 100) {
+                $gj = $gastos_judiciales / 5;
+            } elseif ($gastos_judiciales <= 300) {
+                $gj = $gastos_judiciales / 12;
+            } else {
+                $gj = $gastos_judiciales / $meses;
             }
         }
 
-        $a = $c / $meses;
+        // Calcular cuota fija (amortización)
+        $cuota = $taza_interes > 0
+            ? $this->calcularPago($capital_inicial, $tasaMensual, $meses)
+            : $capital_inicial / $meses;
 
-        if ($taza_interes > 0) {
-            $a = $this->calcularPago($c, $i, $n);
-        }
-
-        $saldo_inicial = $c;
-
-        $nuevo_plan = [];
-
-        $abono_capital = 0;
-        $saldo_final = 0;
-
-        $ix = 1;
-        $ms = 1;
-
+        // Ajustar índice inicial y cantidad de cuotas si es correlativo
+        $indiceInicial = 1;
+        $totalCuotas = $meses;
         if ($correlativo === 'on') {
-            $ix = ($plazo_credito - $n) + 1;
-            $n = $plazo_credito;
-            if ($n == $plazo_credito) {
-                $ix = 1;
+            $indiceInicial = ($plazo_credito - $meses) + 1;
+            $totalCuotas = $plazo_credito;
+            if ($indiceInicial < 1) {
+                $indiceInicial = 1;
             }
         }
 
-        $gjx = 0;
+        // Fecha de inicio siempre día 15
+        $fechaBase = \Carbon\Carbon::parse($fecha_inicio)->copy()->day(15);
 
-        $fecha_inicio = \Carbon\Carbon::parse($fecha_inicio);
+        $plan = [];
+        $saldo = $capital_inicial;
+        $acumGj = 0;
+        $acumCap = 0;
 
-        $fecha_inicio = $fecha_inicio->format('Y-m-15');
+        for ($i = $indiceInicial; $i <= $totalCuotas; $i++) {
+            $acumGj += $gj;
 
-        /* if ($fecha_inicio->day >= 15) {
-            $fecha_inicio = $fecha_inicio->format('Y-m-15');
-        } */
+            $interes = $saldo * $tasaMensual;
+            $abono = $cuota - $interes;
+            $saldoFin = $saldo - $abono;
+            $seguroCuota = ($saldo + $interes) * $seguroMensual;
 
-        $totalGenerado = 0;
+            $acumCap += $abono;
 
-        for ($ix; $ix <= $n; $ix++) {
-            $gjx += $gj;
-            $interes = $saldo_inicial * $i;
-            $abono_capital = $a - $interes;
-            $saldo_final = $saldo_inicial - $abono_capital;
-            $seguro = ($saldo_inicial + $interes) * $s;
-
-            $totalGenerado += $abono_capital;
-
-            $fecha_vencimiento = $this->obtenerFechaVencimiento($fecha_inicio, $ms);
-
-            if ($ix == 1) {
-                $fecha_vencimiento = date('Y-m-d', strtotime($fecha_inicio . '+ ' . $ms . ' month'));
-            }
-
-            if ($ix >= $meses) {
-
+            // Última cuota: ajustar errores de redondeo
+            if ($i === $totalCuotas || $i === $indiceInicial + $meses - 1) {
                 if ($taza_interes > 0) {
-                    $abono_capital += $saldo_final;
+                    $abono += $saldoFin;
                 } else {
                     $interes = 0;
-                    $a += $saldo_final;
+                    $cuota += $saldoFin;
                 }
-
-                if ($totalGenerado != $capital_inicial) {
-                    $a += ($totalGenerado - $capital_inicial);
+                // Ajustar cuota si el capital acumulado no cuadra
+                if (! bccomp($acumCap, $capital_inicial, 2)) {
+                    $delta = $capital_inicial - $acumCap;
+                    $cuota += $delta;
+                    $abono += $delta;
                 }
-
-                $nuevo_plan[] = [
-                    $ix,
-                    $saldo_inicial,
-                    $a,
-                    $abono_capital,
-                    $interes,
-                    $seguro,
-                    $gj,
-                    $a + $seguro + $gj + $id + $sd,
-                    $saldo_final,
-                    $fecha_vencimiento,
-                    $id,
-                    $sd
-                ];
-
-                break;
+                $saldoFin = 0;
             }
 
-            $nuevo_plan[] = [
-                $ix,
-                $saldo_inicial,
-                $a,
-                $abono_capital,
-                $interes,
-                $seguro,
-                $gj,
-                $a + $seguro + $gj + $id + $sd,
-                $saldo_final,
-                $fecha_vencimiento,
-                $id,
-                $sd
+            $fechaVen = $i === $indiceInicial
+                ? $fechaBase->copy()->addMonth()->format('Y-m-d')
+                : $this->obtenerFechaVencimiento($fechaBase, $i - $indiceInicial + 1);
+
+            $plan[] = [
+                'nro_cuota' => $i,
+                'saldo_inicial' => round($saldo, 4),
+                'amortizacion' => round($cuota, 4),
+                'abono_capital' => round($abono, 4),
+                'interes' => round($interes, 4),
+                'seguro' => round($seguroCuota, 4),
+                'gastos_judiciales' => $acumGj >= $gastos_judiciales ? 0 : round($gj, 4),
+                'total_cuota' => round($cuota + $seguroCuota + ($acumGj >= $gastos_judiciales ? 0 : $gj) + $interesDiffPorCuota + ($i > 12 ? 0 : $seguroDiffPorCuota), 4),
+                'saldo_final' => round($saldoFin, 4),
+                'vencimiento' => $fechaVen,
+                'interes_devengado' => round($interesDiffPorCuota, 4),
+                'seguro_devengado' => round($i > 12 ? 0 : $seguroDiffPorCuota, 4),
             ];
 
-            $saldo_inicial = $saldo_final;
+            $saldo = $saldoFin;
 
-            $ms++;
-
-            if ($gjx >= ($gastos_judiciales)) {
+            // Gastos judiciales ya cubiertos
+            if ($acumGj >= $gastos_judiciales) {
                 $gj = 0;
             }
 
-            if ($ix == 12) {
-                $sd = 0;
+            // Seguro diferido solo 12 meses
+            if ($i === 12) {
+                $seguroDiffPorCuota = 0;
+            }
+
+            // Saldo cero => terminamos
+            if ($saldo <= 0.01) {
+                break;
             }
         }
 
-        $data = new \Illuminate\Database\Eloquent\Collection();
-
-        foreach ($nuevo_plan as $n) {
-            $data->push((object)[
-                'nro_cuota' => $n[0],
-                'saldo_inicial' => $n[1],
-                'amortizacion' => ($n[2]),
-                'abono_capital' => ($n[3]),
-                'interes' => ($n[4]),
-                'seguro' => ($n[5]),
-                'gastos_judiciales' => ($n[6]),
-                'total_cuota' => ($n[7]),
-                'saldo_final' => ($n[8]),
-                'vencimiento' => ($n[9]),
-                'interes_devengado' => ($n[10]),
-                'seguro_devengado' => ($n[11]),
-            ]);
-        }
-
-        return $data;
+        return new \Illuminate\Database\Eloquent\Collection(
+            array_map(fn ($row) => (object) $row, $plan)
+        );
     }
 
     public function generarDiferimento($cuotasDiferibles, $diffCapital, $diffInteres, $indiceInicial, $fechaInicial)
@@ -197,29 +171,30 @@ abstract class Controller
         $cap = bcdiv($diffCapital, $cuotasDiferibles, 8);
         $int = bcdiv($diffInteres, $cuotasDiferibles, 8);
 
-        $data = new \Illuminate\Database\Eloquent\Collection();
+        $data = new \Illuminate\Database\Eloquent\Collection;
 
         for ($i = 1; $i <= $cuotasDiferibles; $i++) {
-            $data->push((object)[
+            $data->push((object) [
                 'nro_cuota' => $i + $indiceInicial,
                 'capital' => $cap,
                 'interes' => $int,
-                'vencimiento' => date('Y/m/15', strtotime($fechaInicial . '+ ' . $i . 'month')),
-                'estado' => 'ACTIVO'
+                'vencimiento' => date('Y/m/15', strtotime($fechaInicial.'+ '.$i.'month')),
+                'estado' => 'ACTIVO',
             ]);
         }
+
         return $data;
     }
 
-    function obtenerFechaVencimiento($fecha_inicio, $ms)
+    public function obtenerFechaVencimiento($fecha_inicio, $ms)
     {
-        $fecha = date('Y-m-16', strtotime($fecha_inicio . '+' . $ms . ' month'));
+        $fecha = date('Y-m-16', strtotime($fecha_inicio.'+'.$ms.' month'));
         $diaSemana = date('w', strtotime($fecha));
 
         if ($diaSemana == 6) {
-            $fecha = date('Y-m-d', strtotime($fecha . '+2 days'));
+            $fecha = date('Y-m-d', strtotime($fecha.'+2 days'));
         } elseif ($diaSemana == 0) {
-            $fecha = date('Y-m-d', strtotime($fecha . '+1 day'));
+            $fecha = date('Y-m-d', strtotime($fecha.'+1 day'));
         }
 
         return $fecha;
@@ -252,6 +227,7 @@ abstract class Controller
                 $data->last()->vencimiento
             );
         }
+
         return collect();
     }
 
@@ -260,7 +236,7 @@ abstract class Controller
         $models = [
             //\App\Models\Helper::class,
             \App\Models\Plan::class,
-            \App\Models\Readjustment::class
+            \App\Models\Readjustment::class,
         ];
 
         $cuotaPagada = collect();
@@ -319,8 +295,8 @@ abstract class Controller
     public function downloadPlanCollection($cuotas, $fileTitle)
     {
         // Generate CSV
-        $fileName = $fileTitle . '_' . uniqid() . '.csv';
-        $filePath = storage_path('app/public/exports/' . $fileName);
+        $fileName = $fileTitle.'_'.uniqid().'.csv';
+        $filePath = storage_path('app/public/exports/'.$fileName);
 
         $file = fopen($filePath, 'w');
         fputcsv($file, [
@@ -337,7 +313,7 @@ abstract class Controller
             'prppgahor',
             'prppgmpag',
             'estado',
-            'user_id'
+            'user_id',
         ]); // Adjust headers as needed
 
         foreach ($cuotas as $cuota) {
@@ -355,12 +331,12 @@ abstract class Controller
                 $cuota->prppgahor,
                 $cuota->prppgmpag,
                 $cuota->estado,
-                $cuota->user_id
+                $cuota->user_id,
             ]);
         }
 
         fclose($file);
 
-        return asset('storage/exports/' . basename($filePath));
+        return asset('storage/exports/'.basename($filePath));
     }
 }

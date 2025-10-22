@@ -559,7 +559,8 @@
         </div>
 
         <div class="footer">
-            <p>Este es un documento generado automáticamente y no requiere firma. <span style="color: #cecece; font-size: 8px;">{{ Auth::user()->id }}</span></p>
+            <p>Este es un documento generado automáticamente y no requiere firma. <span
+                    style="color: #cecece; font-size: 8px;"></span></p>
         </div>
     </div>
 </body>

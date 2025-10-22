@@ -2,7 +2,9 @@
     @if ($selected)
         <div class="flex flex-col sm:flex-row justify-end items-center gap-2 mb-2">
             <div class="w-full sm:w-auto">
-                <x-personal.button wire:click="bulkActivation" iconLeft="fa-solid fa-bolt" class="w-full sm:w-auto">
+                <x-personal.button iconLeft="fa-solid fa-bolt"
+                    class="w-full sm:w-auto"
+                    href="{{ route('plan.bulk-activation', ['data' => json_encode(collect($selected))]) }}">
                     <span class="hidden sm:inline">Activación</span>
                     <span class="sm:hidden">Activar Seleccionados</span>
                     ({{ count($selected) }})
