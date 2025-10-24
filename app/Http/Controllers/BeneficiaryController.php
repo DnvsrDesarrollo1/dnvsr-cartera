@@ -82,47 +82,10 @@ class BeneficiaryController extends Controller
     public function pdfExtract($cedula)
     {
         $beneficiary = Beneficiary::where('ci', $cedula)->firstOrFail();
-        $payments = $this->getPayments($beneficiary->idepro);
-
-        $noLegacy = $beneficiary->vouchers()
-            ->where(function ($query) {
-                $query->whereNull('obs_pago')
-                    ->orWhere('obs_pago', '')
-                    ->orWhere('obs_pago', '!=', 'LEGACY 22/24');
-            })->orderBy('numpago', 'ASC')->get();
-
-        $legacy = $beneficiary->vouchers()->where('obs_pago', 'LEGACY 22/24')->orderBy('fecha_pago')->orderBy('numpago')->get();
-
-        $devengadoInt = \App\Models\Earn::where('idepro', $beneficiary->idepro)->sum('interes');
-        $devengadoSeg = \App\Models\Earn::where('idepro', $beneficiary->idepro)->sum('seguro');
-
-        $diferidoCap = $beneficiary->helpers()->sum('capital');
-        $diferidoInt = $beneficiary->helpers()->sum('interes');
-
-        $gastos = \App\Models\Spend::where('idepro', $beneficiary->idepro)->where('estado', 'ACTIVO')->sum('monto');
-
-        $pdf = PDF::loadView('beneficiaries.pdf-extract', compact('beneficiary',
-            'payments',
-            'noLegacy',
-            'legacy',
-            'devengadoInt',
-            'devengadoSeg',
-            'diferidoCap',
-            'diferidoInt',
-            'gastos'));
-
-        return $pdf->stream("beneficiario_{$cedula}_extracto_".uniqid().'.pdf');
-    }
-
-    public function pdfExtractBoosted($cedula)
-    {
-        $beneficiary = Beneficiary::where('ci', $cedula)->firstOrFail();
 
         // Precargamos las relaciones para evitar consultas N+1
         $noLegacy = $beneficiary->vouchers()
-            /* ->with(['payments' => function ($query) {
-                $query->select('prtdtnpag', 'prtdtdesc', 'montopago', 'numtramite', 'numprestamo');
-            }]) */
+            ->with('payments')
             ->where(function ($query) {
                 $query->whereNull('obs_pago')
                     ->orWhere('obs_pago', '')
@@ -130,13 +93,13 @@ class BeneficiaryController extends Controller
             })->orderBy('numpago', 'ASC')->get();
 
         $legacy = $beneficiary->vouchers()
-            /* ->with(['payments' => function ($query) {
-                $query->select('prtdtnpag', 'prtdtdesc', 'montopago', 'numtramite', 'numprestamo');
-            }]) */
+            ->with('payments')
             ->where('obs_pago', 'LEGACY 22/24')
             ->orderBy('fecha_pago')
             ->orderBy('numpago')
             ->get();
+
+        //return $noLegacy;
 
         // Precalculamos los totales para evitar consultas repetitivas
         $devengadoInt = \App\Models\Earn::where('idepro', $beneficiary->idepro)->sum('interes');
@@ -148,43 +111,56 @@ class BeneficiaryController extends Controller
         // Precalculamos los pagos por tipo para cada voucher
         $paymentsByVoucher = [];
         foreach ($noLegacy as $voucher) {
-            $payments = $voucher->payments()->where('prtdtnpag', $voucher->numpago)->get();
+
+            // Usamos la relación ya cargada con eager loading
+            $payments = $voucher->payments->filter(fn ($p) => $p->prtdtnpag === $voucher->numpago);
+
+            // Avoid LIKE in eager-loaded collections; map once and filter in memory
             $paymentsByVoucher[$voucher->numtramite][$voucher->numpago] = [
-                'capital' => $payments->where('prtdtdesc', 'LIKE', 'CAPI%')
-                    ->where('prtdtdesc', 'NOT LIKE', '%DIFER%')
+                'capital' => $payments->filter(fn ($p) => str_starts_with($p->prtdtdesc, 'CAPITAL'))
                     ->sum('montopago'),
-                'capital_diferido' => $payments->where('prtdtdesc', 'LIKE', '%DIFER%')
+                'capital_diferido' => $payments->filter(fn ($p) => str_contains($p->prtdtdesc, 'DIFER'))
                     ->sum('montopago'),
-                'amortizacion' => $payments->where('prtdtdesc', 'LIKE', 'AMR%')
+                'amortizacion' => $payments->filter(fn ($p) => str_starts_with($p->prtdtdesc, 'AMR'))
                     ->sum('montopago'),
-                'intereses' => $payments->where('prtdtdesc', 'LIKE', 'INTE%')
+                'intereses' => $payments->filter(fn ($p) => str_starts_with($p->prtdtdesc, 'INTE'))
                     ->sum('montopago'),
-                'seguros' => $payments->where('prtdtdesc', 'LIKE', 'SEGU%')
+                'seguros' => $payments->filter(fn ($p) => str_starts_with($p->prtdtdesc, 'SEGU'))
                     ->sum('montopago'),
-                'otros' => $payments->where('prtdtdesc', 'LIKE', 'OTR%')
+                'otros' => $payments->filter(fn ($p) => str_starts_with($p->prtdtdesc, 'OTR'))
                     ->sum('montopago'),
             ];
+
+            $payments = null;
+
+            //echo $payments.'<br/>';
         }
+
+        //return $paymentsByVoucher;
 
         // Hacemos lo mismo para los pagos legacy
         $paymentsByLegacyVoucher = [];
         foreach ($legacy as $voucher) {
-            $payments = $voucher->payments()->where('prtdtnpag', $voucher->numpago)->get();
+
+            $payments = $voucher->payments->filter(fn ($p) => $p->prtdtnpag === $voucher->numpago);
+
+            // Avoid LIKE in eager-loaded collections; map once and filter in memory
             $paymentsByLegacyVoucher[$voucher->numtramite][$voucher->numpago] = [
-                'capital' => $payments->where('prtdtdesc', 'LIKE', 'CAPI%')
-                    ->where('prtdtdesc', 'NOT LIKE', '%DIFER%')
+                'capital' => $payments->filter(fn ($p) => str_starts_with($p->prtdtdesc, 'CAPITAL'))
                     ->sum('montopago'),
-                'capital_diferido' => $payments->where('prtdtdesc', 'LIKE', '%DIFER%')
+                'capital_diferido' => $payments->filter(fn ($p) => str_contains($p->prtdtdesc, 'DIFER'))
                     ->sum('montopago'),
-                'amortizacion' => $payments->where('prtdtdesc', 'LIKE', 'AMR%')
+                'amortizacion' => $payments->filter(fn ($p) => str_starts_with($p->prtdtdesc, 'AMR'))
                     ->sum('montopago'),
-                'intereses' => $payments->where('prtdtdesc', 'LIKE', 'INTE%')
+                'intereses' => $payments->filter(fn ($p) => str_starts_with($p->prtdtdesc, 'INTE'))
                     ->sum('montopago'),
-                'seguros' => $payments->where('prtdtdesc', 'LIKE', 'SEGU%')
+                'seguros' => $payments->filter(fn ($p) => str_starts_with($p->prtdtdesc, 'SEGU'))
                     ->sum('montopago'),
-                'otros' => $payments->where('prtdtdesc', 'LIKE', 'OTR%')
+                'otros' => $payments->filter(fn ($p) => str_starts_with($p->prtdtdesc, 'OTR'))
                     ->sum('montopago'),
             ];
+
+            $payments = null;
         }
 
         // Calculamos el total de capital pagado una sola vez
@@ -200,7 +176,7 @@ class BeneficiaryController extends Controller
         // Calculamos el monto en diferimientos una sola vez
         $montoDiferimientos = $beneficiary->helpers->where('estado', 'ACTIVO')->sum('capital');
 
-        $pdf = PDF::loadView('beneficiaries.pdf-extract-boosted', compact(
+        $pdf = PDF::loadView('beneficiaries.pdf-extract', compact(
             'beneficiary',
             'noLegacy',
             'legacy',

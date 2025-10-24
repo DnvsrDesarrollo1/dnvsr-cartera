@@ -47,7 +47,7 @@ abstract class Controller
         int $meses,
         float $taza_interes,
         float $seguro,
-        $correlativo = 'off',
+        $correlativo,
         int $plazo_credito,
         string $fecha_inicio,
         float $i_diff = 0,
@@ -59,7 +59,7 @@ abstract class Controller
 
         // Distribuir diferimientos
         $interesDiffPorCuota = $meses > 0 ? bcdiv($i_diff, $meses, 6) : 0;
-        $seguroDiffPorCuota = bcdiv($s_diff, '12', 6);
+        $seguroDiffPorCuota = bcdiv($s_diff, '12', 4);
 
         // Calcular cuota de gastos judiciales
         $gj = 0;
@@ -159,11 +159,24 @@ abstract class Controller
             if ($saldo <= 0.01) {
                 break;
             }
+
+        }
+
+        // Comparar capital planificado con capital inicial
+        $capitalPlanificado = array_sum(array_column($plan, 'abono_capital'));
+        $diferenciaCapital = $capital_inicial - $capitalPlanificado;
+
+        // Ajustar última cuota con la diferencia
+        if (abs($diferenciaCapital) > 0.001) {
+            $ultimoIndice = count($plan) - 1;
+            $plan[$ultimoIndice]['abono_capital'] += $diferenciaCapital;
+            $plan[$ultimoIndice]['total_cuota'] += $diferenciaCapital;
         }
 
         return new \Illuminate\Database\Eloquent\Collection(
             array_map(fn ($row) => (object) $row, $plan)
         );
+
     }
 
     public function generarDiferimento($cuotasDiferibles, $diffCapital, $diffInteres, $indiceInicial, $fechaInicial)

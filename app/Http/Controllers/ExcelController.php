@@ -7,8 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class ExcelController extends Controller
 {
@@ -26,8 +26,8 @@ class ExcelController extends Controller
         $file = $request->file('file-differiments');
         $separator = $validatedData['separator-differiments'];
 
-        $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
-        $filePath = 'storage/uploads/' . $fileName;
+        $fileName = uniqid().'.'.$file->getClientOriginalExtension();
+        $filePath = 'storage/uploads/'.$fileName;
         $file->move(public_path('storage/uploads'), $fileName);
 
         //$rows = array_map('str_getcsv', file($filePath));
@@ -46,10 +46,10 @@ class ExcelController extends Controller
 
         //return $array;
 
-        $collection = new \Illuminate\Database\Eloquent\Collection();
+        $collection = new \Illuminate\Database\Eloquent\Collection;
 
         foreach ($array as $value) {
-            $collection->push(collect((object)[
+            $collection->push(collect((object) [
                 'idepro' => $value[0],
                 'capital' => $value[1],
                 'interes' => $value[2],
@@ -60,7 +60,7 @@ class ExcelController extends Controller
         //return $collection;
 
         try {
-            $data = new \Illuminate\Database\Eloquent\Collection();
+            $data = new \Illuminate\Database\Eloquent\Collection;
 
             foreach ($collection as $key => $value) {
 
@@ -69,7 +69,7 @@ class ExcelController extends Controller
                     ->orderBy('fecha_ppg', 'desc')
                     ->first();
 
-                if (!$startIndex) {
+                if (! $startIndex) {
                     $startIndex = \App\Models\Plan::where('idepro', $value['idepro'])
                         ->where('estado', 'ACTIVO')
                         ->orderBy('fecha_ppg', 'desc')
@@ -86,17 +86,17 @@ class ExcelController extends Controller
                 }
 
                 if ($startIndex != null) {
-                    $cap = round((float)$value['capital'] / $value['cuotas'], 8);
-                    $int = round((float)$value['interes'] / $value['cuotas'], 8);
+                    $cap = round((float) $value['capital'] / $value['cuotas'], 8);
+                    $int = round((float) $value['interes'] / $value['cuotas'], 8);
 
                     for ($i = 1; $i <= $value['cuotas']; $i++) {
-                        $data->push(collect((object)[
+                        $data->push(collect((object) [
                             'idepro' => $value['idepro'],
                             'nro_cuota' => $i + ($startIndex->prppgnpag ?? 0),
                             'capital' => $cap,
                             'interes' => $int,
-                            'vencimiento' => date('Y/m/15', strtotime(($startIndex->fecha_ppg ?? now()) . ' + ' . $i . ' months')),
-                            'estado' => 'ACTIVO'
+                            'vencimiento' => date('Y/m/15', strtotime(($startIndex->fecha_ppg ?? now()).' + '.$i.' months')),
+                            'estado' => 'ACTIVO',
                         ]));
                     }
                 }
@@ -124,11 +124,11 @@ class ExcelController extends Controller
 
             //return $data;
 
-            return redirect()->route('importaciones')->with('successD', 'Se lograron importar ' . ($count) . ' registros para diferimentos.');
+            return redirect()->route('importaciones')->with('successD', 'Se lograron importar '.($count).' registros para diferimentos.');
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Error during row(s) generation: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Error during row(s) generation: '.$e->getMessage());
 
-            return redirect()->route('importaciones')->with('errorD', 'Motivo de la falla: ' . $e->getMessage());
+            return redirect()->route('importaciones')->with('errorD', 'Motivo de la falla: '.$e->getMessage());
         }
     }
 
@@ -146,8 +146,8 @@ class ExcelController extends Controller
         $file = $request->file('file-spends');
         $separator = $validatedData['separator-spends'];
 
-        $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
-        $filePath = 'storage/uploads/' . $fileName;
+        $fileName = uniqid().'.'.$file->getClientOriginalExtension();
+        $filePath = 'storage/uploads/'.$fileName;
         $file->move(public_path('storage/uploads'), $fileName);
 
         //$rows = array_map('str_getcsv', file($filePath));
@@ -166,10 +166,10 @@ class ExcelController extends Controller
 
         //return $array;
 
-        $collection = new \Illuminate\Database\Eloquent\Collection();
+        $collection = new \Illuminate\Database\Eloquent\Collection;
 
         foreach ($array as $value) {
-            $collection->push(collect((object)[
+            $collection->push(collect((object) [
                 'idepro' => $value[0],
                 'criterio' => $value[1],
                 'monto' => $value[2],
@@ -193,11 +193,11 @@ class ExcelController extends Controller
                 $count++;
             }
 
-            return redirect()->route('importaciones')->with('successS', 'Se lograron importar ' . ($count) . ' registros para gastos.');
+            return redirect()->route('importaciones')->with('successS', 'Se lograron importar '.($count).' registros para gastos.');
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Error during row(s) generation: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Error during row(s) generation: '.$e->getMessage());
 
-            return redirect()->route('importaciones')->with('errorS', 'Motivo de la falla: ' . $e->getMessage());
+            return redirect()->route('importaciones')->with('errorS', 'Motivo de la falla: '.$e->getMessage());
         }
     }
 
@@ -217,102 +217,96 @@ class ExcelController extends Controller
         ]);
 
         $file = $request->file('file');
-        $dynaModel = 'App\\Models\\' . Str::singular(ucwords($validatedData['model']));
+        $dynaModel = 'App\\Models\\'.Str::singular(ucwords($validatedData['model']));
         $separator = $validatedData['separator'];
 
-        $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
-        $filePath = 'storage/uploads/' . $fileName;
+        $fileName = uniqid().'.'.$file->getClientOriginalExtension();
+        $filePath = 'storage/uploads/'.$fileName;
         $file->move(public_path('storage/uploads'), $fileName);
 
         $rows = array_map('str_getcsv', file($filePath));
 
-        $collection = new \Illuminate\Database\Eloquent\Collection();
+        //return $rows[0];
 
-        foreach ($rows as $row) {
+        $collection = new \Illuminate\Database\Eloquent\Collection;
+
+        // First row contains headers
+        $headers = null;
+        foreach ($rows as $index => $row) {
             $array = explode($separator, $row[0]);
-            $collection->push((object) $array);
-        }
+            if ($index === 0) {
+                // Store headers from the first row
+                $headers = $array;
 
-        // Reemplazar la obtención de headers con:
-        $tableName = (new $dynaModel)->getTable();
-        $headers = \Illuminate\Support\Facades\Schema::getColumnListing($tableName);
-
-        // Filtrar las columnas no deseadas
-        $headers = collect($headers)->reject(function ($item) {
-            return in_array($item, [
-                'id',
-                'cod_promotor',
-                'cod_cristorey',
-                'cod_fondesif',
-                'cod_smp',
-                'created_at',
-                'updated_at'
-            ]);
-        });
-
-        $headers = collect((object)$headers->flatten());
-
-
-        // DELETE 'id', 'created_at', 'updated_at' FROM $HEADERS
-        $headers = $headers->reject(function ($item, $key) {
-            return in_array($item, ['id', 'cod_promotor', 'cod_cristorey', 'cod_fondesif', 'cod_smp', 'created_at', 'updated_at']);
-        });
-
-        $headers = collect((object)$headers->flatten());
-
-        //return $headers;
-
-        $data = new \Illuminate\Database\Eloquent\Collection();
-
-        foreach ($collection as $item) {
-            $row = new \stdClass();
-            foreach ($headers as $index => $header) {
-                $value = isset($item->{$index}) ? $item->{$index} : null;
-
-                // Check if the value is a date string and convert it
-                if ($value && $this->isDateString($value)) {
-                    $value = $this->convertToMySQLDate($value);
-                }
-
-                // Handle empty strings for numeric fields
-                if ($value === '') {
-                    $value = null;
-                }
-
-                $row->{$header} = $value;
+                continue;
             }
-            $row->{'user_id'} = \Illuminate\Support\Facades\Auth::user()->id;
-            $data->push($row);
+            // Combine headers with values
+            $assoc = [];
+            foreach ($headers as $i => $header) {
+                // Replace empty strings with null
+                $value = $array[$i] ?? null;
+                $assoc[$header] = $value === '' ? null : $value;
+            }
+
+            $collection->push((object) $assoc);
         }
+
+        //return $collection;
 
         $updt = 0;
 
         try {
-            foreach ($data as $d) {
+            foreach ($collection as $d) {
                 $x = $dynaModel::where('idepro', $d->idepro)->first();
-                if (!$x) {
-                    $dynaModel::create((array)$d);
+                if (! $x) {
+                    // Create new record
+                    $dynaModel::create((array) $d);
+                } else {
+                    // Update existing record
+                    $x->fill((array) $d);
+                    $x->save();
+                    $updt++;
+                }
+
+                // Handle GASTOS ADMINISTRATIVOS
+                if (isset($d->{'GASTOS ADMINISTRATIVOS'}) && (float) $d->{'GASTOS ADMINISTRATIVOS'} > 0) {
+                    Spend::create([
+                        'idepro' => $d->idepro,
+                        'criterio' => 'GASTOS ADMINISTRATIVOS',
+                        'monto' => (float) $d->{'GASTOS ADMINISTRATIVOS'},
+                        'estado' => 'ACTIVO',
+                    ]);
+                }
+
+                // Handle GASTOS JUDICIALES
+                if (isset($d->{'GASTOS JUDICIALES'}) && (float) $d->{'GASTOS JUDICIALES'} > 0) {
+                    Spend::create([
+                        'idepro' => $d->idepro,
+                        'criterio' => 'GASTOS JUDICIALES',
+                        'monto' => (float) $d->{'GASTOS JUDICIALES'},
+                        'estado' => 'ACTIVO',
+                    ]);
                 }
             }
 
             File::delete($filePath);
 
-            return redirect()->route('importaciones')->with('success', 'Se lograron importar ' . count($data) . ' registros, actualizados: ' . $updt);
+            return redirect()->route('importaciones')->with('success', 'Se lograron importar '.count($collection).' registros, actualizados: '.$updt);
         } catch (\Illuminate\Database\QueryException $e) {
-            \Illuminate\Support\Facades\Log::error('Error during data import: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Error during data import: '.$e->getMessage());
 
             // Delete the uploaded file
             File::delete($filePath);
 
             // Redirect back with an error message
-            return redirect()->route('importaciones')->with('error', 'Motivo de la falla: ' . $e->getMessage());
+            return redirect()->route('importaciones')->with('error', 'Motivo de la falla: '.$e->getMessage());
         }
     }
 
     public function exportModel($model)
     {
-        $dynaModel = 'App\\Models\\' . Str::singular(ucwords($model));
-        $fileName = 'exportacion_' . $model . '_' . uniqid() . '.xlsx';
+        $dynaModel = 'App\\Models\\'.Str::singular(ucwords($model));
+        $fileName = 'exportacion_'.$model.'_'.uniqid().'.xlsx';
         $data = $dynaModel::all();
 
         $headers = collect($data->first())->keys();
@@ -324,7 +318,7 @@ class ExcelController extends Controller
 
     public function exportCollection(Request $request, $title = 'datos')
     {
-        $fileName = 'exportacion_' . uniqid() . '.xlsx';
+        $fileName = 'exportacion_'.uniqid().'.xlsx';
         $idepro = $request->input('idepro');
 
         $userId = \Illuminate\Support\Facades\Auth::user()->id;
@@ -346,6 +340,7 @@ class ExcelController extends Controller
     private function prepareHeaders($data)
     {
         $headers = collect($data->first())->keys();
+
         return $headers->combine($headers);
     }
 
@@ -353,7 +348,7 @@ class ExcelController extends Controller
     {
         $this->ensureExportDirectoryExists();
 
-        $spreadsheet = new Spreadsheet();
+        $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
 
         $array = $this->prepareDataArray($data);
@@ -363,7 +358,7 @@ class ExcelController extends Controller
         $this->styleHeaderRow($sheet, count($array[0]));
 
         $writer = new Xlsx($spreadsheet);
-        $filePath = public_path('storage/exports/' . $fileName);
+        $filePath = public_path('storage/exports/'.$fileName);
         $writer->save($filePath);
 
         $spreadsheet->disconnectWorksheets();
@@ -375,7 +370,7 @@ class ExcelController extends Controller
     private function ensureExportDirectoryExists()
     {
         $directory = public_path('storage/exports');
-        if (!File::isDirectory($directory)) {
+        if (! File::isDirectory($directory)) {
             File::makeDirectory($directory, 0755, true);
         }
     }
@@ -391,7 +386,7 @@ class ExcelController extends Controller
     {
         foreach ($array as $rowIndex => $row) {
             foreach ($row as $columnIndex => $value) {
-                $coordinates = (string) ($this->numberToLetters($columnIndex + 1) . $rowIndex + 1);
+                $coordinates = (string) ($this->numberToLetters($columnIndex + 1).$rowIndex + 1);
                 $sheet->setCellValue($coordinates, $value ?? '');
             }
         }
@@ -414,9 +409,10 @@ class ExcelController extends Controller
         $letters = '';
         while ($number > 0) {
             $number--;
-            $letters = chr(65 + ($number % 26)) . $letters;
+            $letters = chr(65 + ($number % 26)).$letters;
             $number = intdiv($number, 26);
         }
+
         return $letters;
     }
 
@@ -424,6 +420,7 @@ class ExcelController extends Controller
     {
         // This regex pattern matches common date formats
         $datePattern = '/^(\d{2}\/\d{2}\/\d{4}|\d{4}-\d{2}-\d{2}|\d{2}-\d{2}-\d{4}|\d{4}\/\d{2}\/\d{2})$/';
+
         return preg_match($datePattern, $string);
     }
 

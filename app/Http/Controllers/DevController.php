@@ -5,12 +5,21 @@ namespace App\Http\Controllers;
 use App\Traits\ProcessTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class DevController extends Controller
 {
     use ProcessTrait;
+
+    public function __construct()
+    {
+        // Restrict DevController to admin users only
+        if (! Auth::user()->hasRole('admin')) {
+            abort(403, 'Unauthorized access to DevController');
+        }
+    }
 
     /**
      * Endpoint principal para ejecución de comandos via GET
@@ -19,10 +28,10 @@ class DevController extends Controller
     public function execute(Request $request): JsonResponse
     {
         // Validar que existe el parámetro 'com'
-        if (!$request->has('com') || empty($request->query('com'))) {
+        if (! $request->has('com') || empty($request->query('com'))) {
             return response()->json([
                 'error' => 'Missing command parameter',
-                'usage' => 'GET /api/execute?com=your_command_here'
+                'usage' => 'GET /api/execute?com=your_command_here',
             ], 400);
         }
 
@@ -34,9 +43,9 @@ class DevController extends Controller
 
         try {
             // Rate limiting por IP
-            if (!$this->checkRateLimit($request)) {
+            if (! $this->checkRateLimit($request)) {
                 return response()->json([
-                    'error' => 'Rate limit exceeded. Please try again in a minute.'
+                    'error' => 'Rate limit exceeded. Please try again in a minute.',
                 ], 429);
             }
 
@@ -45,7 +54,7 @@ class DevController extends Controller
 
             // Configurar timeout si se especifica
             if (is_numeric($timeout) && $timeout > 0) {
-                $this->setTimeout((int)$timeout);
+                $this->setTimeout((int) $timeout);
             }
 
             // Ejecutar el comando
@@ -58,7 +67,7 @@ class DevController extends Controller
                 'timed_out' => $result['timed_out'],
                 'execution_time' => $result['execution_time'],
                 'ip' => $request->ip(),
-                'method' => $method
+                'method' => $method,
             ]);
 
             return response()->json([
@@ -67,29 +76,29 @@ class DevController extends Controller
                 'error' => $result['error'],
                 'exit_code' => $result['status'],
                 'execution_time' => $result['execution_time'],
-                'timed_out' => $result['timed_out']
+                'timed_out' => $result['timed_out'],
             ]);
 
         } catch (\InvalidArgumentException $e) {
             Log::warning('Invalid command execution attempt', [
                 'command' => $command,
                 'error' => $e->getMessage(),
-                'ip' => $request->ip()
+                'ip' => $request->ip(),
             ]);
 
             return response()->json([
-                'error' => 'Invalid command: ' . $e->getMessage()
+                'error' => 'Invalid command: '.$e->getMessage(),
             ], 400);
 
         } catch (\Exception $e) {
             Log::error('Command execution failed', [
                 'command' => $command,
                 'error' => $e->getMessage(),
-                'ip' => $request->ip()
+                'ip' => $request->ip(),
             ]);
 
             return response()->json([
-                'error' => 'Command execution failed'
+                'error' => 'Command execution failed',
             ], 500);
         }
     }
@@ -100,7 +109,7 @@ class DevController extends Controller
      */
     public function handleWebServiceCall(Request $request): JsonResponse
     {
-        if (!$request->has('com') || empty($request->query('com'))) {
+        if (! $request->has('com') || empty($request->query('com'))) {
             return response()->json(['error' => 'No command provided'], 400);
         }
 
@@ -114,11 +123,11 @@ class DevController extends Controller
             // Formato de respuesta similar al original
             $response = [
                 'output' => $result['output'],
-                'status' => $result['status']
+                'status' => $result['status'],
             ];
 
             // Agregar error si existe
-            if (!empty($result['error'])) {
+            if (! empty($result['error'])) {
                 $response['error'] = implode("\n", $result['error']);
             }
 
@@ -133,7 +142,7 @@ class DevController extends Controller
             Log::error('Web service call execution failed', [
                 'command' => $request->query('com'),
                 'error' => $e->getMessage(),
-                'ip' => $request->ip()
+                'ip' => $request->ip(),
             ]);
 
             return response()->json(['error' => 'Failed to execute command'], 500);
@@ -145,10 +154,10 @@ class DevController extends Controller
      */
     private function executeCommandMethod(string $command, string $method = 'symfony'): array
     {
-        return match($method) {
+        return match ($method) {
             'symfony' => $this->executeWithSymfonyProcess(['/bin/bash', '-c', $command]),
             'proc_open' => $this->executeWithProcOpen($command),
-            default => throw new \InvalidArgumentException('Invalid execution method: ' . $method)
+            default => throw new \InvalidArgumentException('Invalid execution method: '.$method)
         };
     }
 
@@ -163,14 +172,14 @@ class DevController extends Controller
             return response()->json([
                 'status' => 'healthy',
                 'execution_working' => $result['status'] === 0,
-                'timestamp' => now()->toISOString()
+                'timestamp' => now()->toISOString(),
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'unhealthy',
                 'error' => $e->getMessage(),
-                'timestamp' => now()->toISOString()
+                'timestamp' => now()->toISOString(),
             ], 503);
         }
     }
@@ -180,7 +189,7 @@ class DevController extends Controller
      */
     private function checkRateLimit(Request $request): bool
     {
-        $key = 'command_execution:' . $request->ip();
+        $key = 'command_execution:'.$request->ip();
         $maxAttempts = 15; // 15 ejecuciones por minuto
         $decayMinutes = 1;
 
