@@ -31,6 +31,7 @@ class PlansNotification extends Component
     {
         // Primero obtenemos solo los IDs de planes vencidos
         $this->lVencidos = \App\Models\Plan::where('estado', 'VENCIDO')
+            ->distinct('idepro')
             ->pluck('idepro');
 
         // Obtenemos todos los beneficiarios vencidos en una sola consulta con los datos necesarios

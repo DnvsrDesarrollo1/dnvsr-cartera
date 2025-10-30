@@ -27,7 +27,7 @@ class PlanStatus extends Command
     public function handle()
     {
         try {
-            \App\Models\Plan::where('estado', 'ACTIVO')->chunk(15000, function ($plans) {
+            \App\Models\Plan::where('estado', 'ACTIVO')->chunk(10000, function ($plans) {
                 foreach ($plans as $p) {
                     if (\Carbon\Carbon::parse($p->fecha_ppg)->diffInDays(now()) < 0 && ! \Carbon\Carbon::parse($p->fecha_ppg)->isToday()) {
                         $p->update([
