@@ -29,9 +29,9 @@ class PlanStatus extends Command
         try {
             \App\Models\Plan::where('estado', 'ACTIVO')->chunk(15000, function ($plans) {
                 foreach ($plans as $p) {
-                    if ($p->fecha_ppg < now()) {
+                    if (\Carbon\Carbon::parse($p->fecha_ppg)->diffInDays(now()) < 0 && ! \Carbon\Carbon::parse($p->fecha_ppg)->isToday()) {
                         $p->update([
-                            'estado' => 'VENCIDO'
+                            'estado' => 'VENCIDO',
                         ]);
                     }
                 }
@@ -39,9 +39,9 @@ class PlanStatus extends Command
 
             \App\Models\Readjustment::where('estado', 'ACTIVO')->chunk(10000, function ($plans) {
                 foreach ($plans as $p) {
-                    if ($p->fecha_ppg < now()) {
+                    if (\Carbon\Carbon::parse($p->fecha_ppg)->diffInDays(now()) < 0 && ! \Carbon\Carbon::parse($p->fecha_ppg)->isToday()) {
                         $p->update([
-                            'estado' => 'VENCIDO'
+                            'estado' => 'VENCIDO',
                         ]);
                     }
                 }
@@ -49,7 +49,7 @@ class PlanStatus extends Command
 
             Log::info('Plan status updated');
         } catch (\Exception $e) {
-            Log::info('Error updating plan status: ' . $e->getMessage());
+            Log::info('Error updating plan status: '.$e->getMessage());
         }
     }
 }

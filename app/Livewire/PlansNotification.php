@@ -36,6 +36,7 @@ class PlansNotification extends Component
         // Obtenemos todos los beneficiarios vencidos en una sola consulta con los datos necesarios
         $this->lBeneficiarios = \App\Models\Beneficiary::whereIn('idepro', $this->lVencidos)
             ->where('estado', '!=', 'BLOQUEADO')
+            ->where('estado', '!=', 'CANCELADO')
             ->orderBy('proyecto')
             ->get(['nombre', 'ci', 'proyecto']);
 
@@ -45,6 +46,8 @@ class PlansNotification extends Component
 
         // Pre-cargamos los contadores de beneficiarios por proyecto en una sola consulta
         $totalesPorProyecto = \App\Models\Beneficiary::whereIn('proyecto', $this->lProyectos)
+            ->where('estado', '!=', 'BLOQUEADO')
+            ->where('estado', '!=', 'CANCELADO')
             ->selectRaw('proyecto, COUNT(*) as total')
             ->groupBy('proyecto')
             ->pluck('total', 'proyecto');

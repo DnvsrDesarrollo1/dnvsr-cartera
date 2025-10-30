@@ -2,10 +2,10 @@
 
 namespace App\Livewire\Components;
 
-use App\Models\Beneficiary;
-use Illuminate\Support\Facades\Cache;
 use Livewire\Component;
+use App\Models\Beneficiary;
 use Livewire\WithPagination;
+use Illuminate\Support\Facades\Cache;
 
 class BeneficiaryTable extends Component
 {
@@ -194,5 +194,4 @@ class BeneficiaryTable extends Component
             'filterOptions' => $filterOptions,
         ]);
     }
-
 }

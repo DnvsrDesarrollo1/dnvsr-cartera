@@ -251,8 +251,9 @@
                     wire:confirm="¿Está seguro de que desea guardar los cambios?">
                     Aplicar Cambios
                 </x-personal.button>
-                <x-personal.button @click="benModal = false" variant="danger" iconLeft="fa-solid fa-xmark">
-                    Cerrar
+                <x-personal.button variant="danger" iconLeft="fa-solid fa-trash" wire:click="delete"
+                    wire:confirm.prompt="Desea eliminar el beneficiario?\n\nEscriba BORRAR para proceder|BORRAR">
+                    Eliminar Beneficiario
                 </x-personal.button>
             </div>
         </div>

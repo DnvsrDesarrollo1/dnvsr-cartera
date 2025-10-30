@@ -33,38 +33,35 @@ class BeneficiaryStatus extends Command
         $count = 0;
 
         foreach ($beneficiaries as $b) {
-            $venc = $b
-                ->getCurrentPlan('VENCIDO', '=')
-                ->first() ?? null;
 
             $total = 0;
 
-            if ($venc && $venc != null) {
-                $fechaInicio = \Carbon\Carbon::parse($venc->fecha_ppg);
-                $fechaFin = now();
+            if ($b->getCurrentPlan('VENCIDO', '=') && $b->getCurrentPlan('VENCIDO', '=')->count() > 0) {
+                $fechaInicio = \Carbon\Carbon::parse($b->getCurrentPlan('VENCIDO', '=')->fecha_ppg);
+                $fechaFin = now()->startOfDay();
                 $diff = $fechaInicio->diffInDays($fechaFin);
-                $total = $diff;
+                $total = (int) $diff;
             }
 
             if ($total > 60) {
                 $b->update([
-                    'estado' => 'EJECUCION'
+                    'estado' => 'EJECUCION',
                 ]);
             }
             if ($total > 0 && $total <= 60) {
                 $b->update([
-                    'estado' => 'VENCIDO'
+                    'estado' => 'VENCIDO',
                 ]);
             }
             if ($total <= 0) {
                 $b->update([
-                    'estado' => 'VIGENTE'
+                    'estado' => 'VIGENTE',
                 ]);
             }
 
             $count++;
         }
 
-        Log::info('Beneficiaries status updated [' . $count . ']');
+        Log::info('Beneficiaries status updated ['.$count.']');
     }
 }

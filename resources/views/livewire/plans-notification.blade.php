@@ -85,7 +85,7 @@
                                                 <td>
                                                     <a href="{{ route('plan.mora-pdf-proyecto', $proyecto) }}" target="_blank"
                                                         class='py-2 px-4 rounded-lg border'>
-                                                        <i class="fa-solid fa-file-pdf text-xl"></i>
+                                                        <i class="fa-solid fa-file-excel text-xl"></i>
                                                     </a>
                                                 </td>
                                             </tr>

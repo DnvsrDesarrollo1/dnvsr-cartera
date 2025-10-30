@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Beneficiary;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
 class BeneficiaryUpdate extends Component
@@ -26,7 +27,9 @@ class BeneficiaryUpdate extends Component
     public $fecha_nacimiento;
 
     public $monto_credito;
+
     public $total_activado;
+
     public $monto_activado;
 
     public $gastos_judiciales;
@@ -83,7 +86,7 @@ class BeneficiaryUpdate extends Component
         }
         $this->seguro = number_format($this->seguro, 3);
 
-        $this->cuota = ($this->beneficiary->hasPlan()) ? $this->beneficiary->getCurrentPlan()->first() : null;
+        $this->cuota = ($this->beneficiary->hasPlan()) ? $this->beneficiary->getCurrentPlan('INACTIVO', '!=')->first()->prppgcuota : 0;
     }
 
     public function update()
@@ -153,6 +156,26 @@ class BeneficiaryUpdate extends Component
         );
 
         return redirect()->route('beneficiario.show', ['cedula' => $this->beneficiary->ci]);
+    }
+
+    public function delete()
+    {
+        $idepro = $this->beneficiary->idepro;
+
+        \App\Models\Insurance::where('idepro', $idepro)->delete();
+        \App\Models\Plan::where('idepro', $idepro)->delete();
+        \App\Models\Readjustment::where('idepro', $idepro)->delete();
+        \App\Models\Spend::where('idepro', $idepro)->delete();
+        \App\Models\Earn::where('idepro', $idepro)->delete();
+        \App\Models\Voucher::where('numprestamo', $idepro)->delete();
+        \App\Models\Payment::where('numprestamo', $idepro)->delete();
+        \App\Models\Helper::where('idepro', $idepro)->delete();
+
+        Beneficiary::where('idepro', $idepro)->delete();
+
+        Log::info('Beneficiary with idepro '.$idepro.' has been deleted by '.\Illuminate\Support\Facades\Auth::user()->name);
+
+        return redirect()->route('beneficiario.index');
     }
 
     public function render()

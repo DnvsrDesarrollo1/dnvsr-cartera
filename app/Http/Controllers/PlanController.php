@@ -64,45 +64,23 @@ class PlanController extends Controller
         // 3) Construir el reporte
         $reporte = collect();
 
-        // Encabezado del proyecto
-        $reporte->push([
-            'Nombre del Proyecto' => $proyecto,
-            'Número de Beneficiarios' => $beneficiariosProyecto->count(),
-            'CI' => '',
-            'IDEPRO' => '',
-            'Estado' => '',
-            'Dias Mora' => '',
-            'Cuotas Vencidas' => '',
-        ]);
-
-        // Resumen por estado
-        foreach ($estados as $est => $cant) {
-            $reporte->push([
-                'Nombre del Proyecto' => '',
-                'Número de Beneficiarios' => "Estado: {$est} = {$cant}",
-                'CI' => '',
-                'IDEPRO' => '',
-                'Estado' => '',
-                'Dias Mora' => '',
-                'Cuotas Vencidas' => '',
-            ]);
-        }
-
         // Separador visual
         $reporte->push([
             'Nombre del Proyecto' => '',
-            'Número de Beneficiarios' => '',
+            'Beneficiarios' => '',
             'CI' => '',
-            'IDEPRO' => '',
+            'Cod. Prestamo' => '',
             'Estado' => '',
             'Dias Mora' => '',
             'Cuotas Vencidas' => '',
+            'F. Ult. Pago' => '',
+            'F. Activacion' => '',
         ]);
 
         // Detalle de cada beneficiario
         $beneficiarios = Beneficiary::where('proyecto', $proyecto)
             ->orderBy('nombre')
-            ->get(['nombre', 'ci', 'idepro', 'estado']);
+            ->get(['nombre', 'ci', 'idepro', 'estado', 'fecha_activacion']);
 
         foreach ($beneficiarios as $beneficiario) {
 
@@ -119,15 +97,55 @@ class PlanController extends Controller
             }
 
             $reporte->push([
-                'Nombre del Proyecto' => '',
-                'Número de Beneficiarios' => $beneficiario->nombre,
+                'Nombre del Proyecto' => $proyecto,
+                'Beneficiarios' => $beneficiario->nombre,
                 'CI' => $beneficiario->ci,
-                'IDEPRO' => $beneficiario->idepro,
+                'Cod. Prestamo' => $beneficiario->idepro,
                 'Estado' => $beneficiario->estado,
                 'Dias Mora' => $mora,
                 'Cuotas Vencidas' => $cantidadVencido,
+                'F. Ult. Pago' => $beneficiario->vouchers()->orderBy('fecha_pago', 'desc')->first()->fecha_pago ?? 'N/A',
+                'F. Activacion' => $beneficiario->fecha_activacion,
             ]);
         }
+
+        $reporte->push([
+            'Nombre del Proyecto' => '',
+            'Beneficiarios' => '',
+            'CI' => '',
+            'Cod. Prestamo' => '',
+            'Estado' => '',
+            'Dias Mora' => '',
+            'Cuotas Vencidas' => '',
+            'F. Ult. Pago' => '',
+            'F. Activacion' => '',
+        ]);
+
+        foreach ($estados as $est => $cant) {
+            $reporte->push([
+                'Nombre del Proyecto' => '',
+                'Beneficiarios' => "Estado: {$est} = {$cant}",
+                'CI' => '',
+                'Cod. Prestamo' => '',
+                'Estado' => '',
+                'Dias Mora' => '',
+                'Cuotas Vencidas' => '',
+                'F. Ult. Pago' => '',
+                'F. Activacion' => '',
+            ]);
+        }
+
+        $reporte->push([
+            'Nombre del Proyecto' => '',
+            'Beneficiarios' => "Total: {$beneficiariosProyecto->count()}",
+            'CI' => '',
+            'Cod. Prestamo' => '',
+            'Estado' => '',
+            'Dias Mora' => '',
+            'Cuotas Vencidas' => '',
+            'F. Ult. Pago' => '',
+            'F. Activacion' => '',
+        ]);
 
         // 4) Exportar a Excel (usando Maatwebsite/Laravel-Excel)
         return (new \Rap2hpoutre\FastExcel\FastExcel($reporte))
