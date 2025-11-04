@@ -117,13 +117,15 @@ class BeneficiaryController extends Controller
 
             // Avoid LIKE in eager-loaded collections; map once and filter in memory
             $paymentsByVoucher[$voucher->numtramite][$voucher->numpago] = [
-                'capital' => $payments->filter(fn ($p) => str_starts_with($p->prtdtdesc, 'CAPITAL'))
+                'capital' => $payments->filter(fn ($p) => str_starts_with($p->prtdtdesc, 'CAPITAL') && ! str_contains($p->prtdtdesc, 'DIF'))
                     ->sum('montopago'),
-                'capital_diferido' => $payments->filter(fn ($p) => str_contains($p->prtdtdesc, 'DIFER'))
+                'capital_diferido' => $payments->filter(fn ($p) => str_contains($p->prtdtdesc, 'CAPITAL DIF'))
+                    ->sum('montopago'),
+                'interes_diferido' => $payments->filter(fn ($p) => str_contains($p->prtdtdesc, 'INTERES DIF'))
                     ->sum('montopago'),
                 'amortizacion' => $payments->filter(fn ($p) => str_starts_with($p->prtdtdesc, 'AMR'))
                     ->sum('montopago'),
-                'intereses' => $payments->filter(fn ($p) => str_starts_with($p->prtdtdesc, 'INTE'))
+                'intereses' => $payments->filter(fn ($p) => str_starts_with($p->prtdtdesc, 'INTERES') && ! str_contains($p->prtdtdesc, 'DIF'))
                     ->sum('montopago'),
                 'seguros' => $payments->filter(fn ($p) => str_starts_with($p->prtdtdesc, 'SEGU'))
                     ->sum('montopago'),

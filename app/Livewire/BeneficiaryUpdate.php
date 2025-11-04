@@ -171,7 +171,9 @@ class BeneficiaryUpdate extends Component
         \App\Models\Payment::where('numprestamo', $idepro)->delete();
         \App\Models\Helper::where('idepro', $idepro)->delete();
 
-        Beneficiary::where('idepro', $idepro)->delete();
+        \App\Models\BeneficiaryDeleted::create($this->beneficiary->toArray());
+
+        $this->beneficiary->delete();
 
         Log::info('Beneficiary with idepro '.$idepro.' has been deleted by '.\Illuminate\Support\Facades\Auth::user()->name);
 

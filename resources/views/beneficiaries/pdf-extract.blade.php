@@ -353,7 +353,7 @@
                                 {{ number_format($capital, 2) . ($cd > 0 ? ' + ' . $cd : '') }}
                             </td>
                             <td style="text-align: center; padding: 4px; border-bottom: 1px solid #a5a4a47a;">
-                                {{ number_format($paymentsByVoucher[$v->numtramite][$v->numpago]['intereses'], 2) }}
+                                {{ number_format($paymentsByVoucher[$v->numtramite][$v->numpago]['intereses'], 2) . ($paymentsByVoucher[$v->numtramite][$v->numpago]['interes_diferido'] > 0 ? ' + ' . number_format($paymentsByVoucher[$v->numtramite][$v->numpago]['interes_diferido'], 2) : '') }}
                             </td>
                             <td style="text-align: center; padding: 4px; border-bottom: 1px solid #a5a4a47a;">
                                 {{ number_format($paymentsByVoucher[$v->numtramite][$v->numpago]['seguros'], 2) }}
