@@ -168,6 +168,7 @@ class BeneficiaryController extends Controller
         // Calculamos el total de capital pagado una sola vez
         $capitalPagado = $beneficiary->payments()
             ->where('prtdtdesc', 'LIKE', 'CAPI%')
+            ->where('prtdtdesc', 'NOT LIKE', '%DIF%')
             ->where(function ($query) {
                 $query->whereNull('observacion')
                     ->orWhere('observacion', '')
