@@ -216,18 +216,18 @@ class SettleBeneficiary extends Component
         $this->settlement = Settlement::updateOrCreate(
             ['beneficiary_id' => $this->beneficiary->id],
             [
-                'capital_inicial' => $this->beneficiary->monto_activado,
-                'capital_final' => $this->capSettle,
-                'capital_diferido' => $this->capDifSettle,
-                'interes' => $this->intSettle,
-                'interes_devengado' => $this->intDevSettle,
-                'interes_diferido' => $this->intDifSettle,
-                'seguro' => $this->segSettle,
-                'seguro_devengado' => $this->segDevSettle,
-                'gastos_judiciales' => $this->gastosJud,
-                'gastos_administrativos' => $this->gastosAdm,
-                'otros' => $this->otrosSettle,
-                'descuento' => $this->descuento,
+                'capital_inicial' => $this->beneficiary->monto_activado ?? 0,
+                'capital_final' => $this->capSettle ?? 0,
+                'capital_diferido' => $this->capDifSettle ?? 0,
+                'interes' => $this->intSettle ?? 0,
+                'interes_devengado' => $this->intDevSettle ?? 0,
+                'interes_diferido' => $this->intDifSettle ?? 0,
+                'seguro' => $this->segSettle ?? 0,
+                'seguro_devengado' => $this->segDevSettle ?? 0,
+                'gastos_judiciales' => $this->gastosJud ?? 0,
+                'gastos_administrativos' => $this->gastosAdm ?? 0,
+                'otros' => $this->otrosSettle ?? 0,
+                'descuento' => $this->descuento ?? 0,
                 'plan_de_pagos' => $this->plan_de_pagos ? $this->plan_de_pagos->pluck('id', 'estado') : [],
                 'estado' => $this->estado,
                 'comentarios' => $this->comentarios, // por parte del liquidador
@@ -249,7 +249,7 @@ class SettleBeneficiary extends Component
                 null,
                 'CAPITAL',
                 $this->capSettle,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
+                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: '.Auth::user()->name) : ('LIQUIDACION TOTAL: '.Auth::user()->name),
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'CANCELACION/LIQUIDACION'
@@ -265,7 +265,7 @@ class SettleBeneficiary extends Component
                 null,
                 'CAPITAL DIFERIDO',
                 $this->capDifSettle,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
+                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: '.Auth::user()->name) : ('LIQUIDACION TOTAL: '.Auth::user()->name),
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'CANCELACION/LIQUIDACION'
@@ -281,7 +281,7 @@ class SettleBeneficiary extends Component
                 null,
                 'INTERES',
                 $this->intSettle,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
+                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: '.Auth::user()->name) : ('LIQUIDACION TOTAL: '.Auth::user()->name),
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'CANCELACION/LIQUIDACION'
@@ -297,7 +297,7 @@ class SettleBeneficiary extends Component
                 null,
                 'INTERES DIFERIDO',
                 $this->intDifSettle,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
+                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: '.Auth::user()->name) : ('LIQUIDACION TOTAL: '.Auth::user()->name),
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'CANCELACION/LIQUIDACION'
@@ -313,7 +313,7 @@ class SettleBeneficiary extends Component
                 null,
                 'INTERES DEVENGADO',
                 $this->intDevSettle,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
+                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: '.Auth::user()->name) : ('LIQUIDACION TOTAL: '.Auth::user()->name),
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'CANCELACION/LIQUIDACION'
@@ -329,7 +329,7 @@ class SettleBeneficiary extends Component
                 null,
                 'SEGURO DESGRAVAMEN',
                 $this->segSettle,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
+                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: '.Auth::user()->name) : ('LIQUIDACION TOTAL: '.Auth::user()->name),
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'CANCELACION/LIQUIDACION'
@@ -345,7 +345,7 @@ class SettleBeneficiary extends Component
                 null,
                 'SEGURO DESGRAVAMEN DEVENGADO',
                 $this->segDevSettle,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
+                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: '.Auth::user()->name) : ('LIQUIDACION TOTAL: '.Auth::user()->name),
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'CANCELACION/LIQUIDACION'
@@ -361,7 +361,7 @@ class SettleBeneficiary extends Component
                 null,
                 'OTROS',
                 $this->otrosSettle,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
+                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: '.Auth::user()->name) : ('LIQUIDACION TOTAL: '.Auth::user()->name),
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'CANCELACION/LIQUIDACION'
@@ -377,7 +377,7 @@ class SettleBeneficiary extends Component
                 null,
                 'GASTOS ADMINISTRATIVOS',
                 $this->gastosAdm,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
+                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: '.Auth::user()->name) : ('LIQUIDACION TOTAL: '.Auth::user()->name),
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'CANCELACION/LIQUIDACION'
@@ -393,7 +393,7 @@ class SettleBeneficiary extends Component
                 null,
                 'GASTOS JUDICIALES',
                 $this->gastosJud,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
+                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: '.Auth::user()->name) : ('LIQUIDACION TOTAL: '.Auth::user()->name),
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'CANCELACION/LIQUIDACION'
@@ -409,14 +409,14 @@ class SettleBeneficiary extends Component
                 null,
                 'DESCUENTO AL GASTO ADMINISTRATIVO',
                 $this->descuento,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
+                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: '.Auth::user()->name) : ('LIQUIDACION TOTAL: '.Auth::user()->name),
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'CANCELACION/LIQUIDACION'
             );
 
             $this->createVoucher(
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
+                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: '.Auth::user()->name) : ('LIQUIDACION TOTAL: '.Auth::user()->name),
                 'CANCELACION/LIQUIDACION',
                 $this->fecha_comprobante,
                 null,

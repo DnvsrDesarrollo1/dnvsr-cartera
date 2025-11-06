@@ -135,7 +135,7 @@ abstract class Controller
                 'abono_capital' => round($abono, 4),
                 'interes' => round($interes, 4),
                 'seguro' => round($seguroCuota, 4),
-                'gastos_judiciales' => $acumGj >= $gastos_judiciales ? 0 : round($gj, 4),
+                'gastos_judiciales' => $acumGj > $gastos_judiciales ? 0 : round($gj, 4),
                 'total_cuota' => round($cuota + $seguroCuota + ($acumGj >= $gastos_judiciales ? 0 : $gj) + $interesDiffPorCuota + ($i > 12 ? 0 : $seguroDiffPorCuota), 4),
                 'saldo_final' => round($saldoFin, 4),
                 'vencimiento' => $fechaVen,
@@ -146,7 +146,7 @@ abstract class Controller
             $saldo = $saldoFin;
 
             // Gastos judiciales ya cubiertos
-            if ($acumGj >= $gastos_judiciales) {
+            if ($acumGj > $gastos_judiciales) {
                 $gj = 0;
             }
 

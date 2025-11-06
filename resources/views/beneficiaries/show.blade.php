@@ -1,15 +1,15 @@
 <x-app-layout>
     <div class="w-full mt-4">
         <div class="px-4 grid sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-2">
-            <div class="bg-white shadow-lg rounded-lg p-6 mb-4 h-fit border border-gray-300" id=$"profile_preview">
-                <div class="flex items-center justify-between border-b pb-4">
-                    <div class="flex items-center space-x-4 border-l-4 border-gray-500 pl-2" b:class>
+            <div class="bg-white shadow-lg rounded-lg p-6 mb-4 h-fit border border-gray-300" id="profile_preview">
+                <div class="flex items-center justify-between border-b pb-2">
+                    <div class="flex items-center space-x-4 border-l-4 border-gray-500 pl-2">
                         <h1 class="text-xl font-medium text-gray-900">
                             {{ $beneficiary->nombre }}
                         </h1>
                     </div>
 
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-3 p-2 bg-gray-200 rounded-md">
                         @if ($beneficiary->estado != 'BLOQUEADO' && $beneficiary->estado != 'CANCELADO')
                             @can('write beneficiaries')
                                 <form action="{{ route('beneficiario.update', $beneficiary) }}" method="POST" class="inline">
@@ -38,9 +38,10 @@
                     </div>
                 </div>
 
-                <div class="flex items-center my-2">
-                    <span class="text-sm text-gray-600">
-                        CI: {{ $beneficiary->ci }} {{ $beneficiary->complemento }} {{ $beneficiary->expedido }} |
+                <div class="flex items-center justify-center my-2">
+                    <span class="text-xs text-gray-800 bg-gray-200 p-2 rounded-md">
+                        CI: <span class="font-medium">{{ $beneficiary->ci }} {{ $beneficiary->complemento }}
+                            {{ $beneficiary->expedido }}</span> |
                         COD.CREDITO: <span class="font-medium">{{ $beneficiary->idepro }}
                             ({{ $beneficiary->entidad_financiera }})</span>
                     </span>
@@ -55,44 +56,38 @@
                     @php
                         $infoCards = [
                             [
-                                'icon' => 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
+                                'icon' => 'fas fa-shield',
                                 'label' => 'Estado del Credito',
                                 'value' => $beneficiary->estado,
                                 'isStatus' => true,
                             ],
                             [
-                                'icon' =>
-                                    'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',
+                                'icon' => 'fas fa-project-diagram',
                                 'label' => 'Proyecto',
                                 'value' => $beneficiary->proyecto,
                             ],
                             [
-                                'icon' =>
-                                    'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z',
+                                'icon' => 'fas fa-map-marked-alt',
                                 'label' => 'Departamento',
                                 'value' => $beneficiary->departamento,
                             ],
                             [
-                                'icon' =>
-                                    'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',
+                                'icon' => 'fas fa-calendar-check',
                                 'label' => 'Fecha Activacion',
                                 'value' => $beneficiary->fecha_activacion,
                             ],
                             [
-                                'icon' =>
-                                    'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+                                'icon' => 'fas fa-dollar-sign',
                                 'label' => 'Monto Activado',
                                 'value' => number_format($beneficiary->monto_activado, 2),
                             ],
                             [
-                                'icon' =>
-                                    'M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3',
+                                'icon' => 'fas fa-money-bill-wave',
                                 'label' => 'Saldo Credito',
                                 'value' => number_format($beneficiary->saldo_credito, 2),
                             ],
                             [
-                                'icon' =>
-                                    'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z',
+                                'icon' => 'fas fa-piggy-bank',
                                 'label' => 'Capital Cancelado',
                                 'value' => number_format(
                                     $beneficiary->payments()->where('prtdtdesc', 'like', '%CAPI%')->sum('montopago'),
@@ -106,11 +101,7 @@
                         <div class="bg-white rounded-lg p-3 shadow-sm border border-gray-100 flex items-center gap-3">
                             <div class="flex-shrink-0">
                                 <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
-                                    <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                            d="{{ $card['icon'] }}" />
-                                    </svg>
+                                    <i class="{{ $card['icon'] }} text-blue-500"></i>
                                 </div>
                             </div>
                             <div class="min-w-0 flex-1">
@@ -138,7 +129,9 @@
                                             ->orderBy('fecha_ppg')
                                             ->get();
                                         if ($vencs->count() > 0) {
-                                            $fechaInicio = \Carbon\Carbon::parse($vencs->first()->fecha_ppg)->startOfDay();
+                                            $fechaInicio = \Carbon\Carbon::parse(
+                                                $vencs->first()->fecha_ppg,
+                                            )->startOfDay();
                                             $diff = $fechaInicio->diffInDays(now()->startOfDay());
                                             echo "<p class=\"text-sm text-red-500\">Dias de Mora: <b>" .
                                                 number_format(max(0, $diff), 0) .
