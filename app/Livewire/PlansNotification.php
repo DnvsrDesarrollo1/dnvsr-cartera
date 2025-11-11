@@ -31,6 +31,7 @@ class PlansNotification extends Component
     {
         // Primero obtenemos solo los IDs de planes vencidos
         $this->lVencidos = \App\Models\Plan::where('estado', 'VENCIDO')
+            ->where('prppgmpag', 'SI')
             ->distinct('idepro')
             ->pluck('idepro');
 

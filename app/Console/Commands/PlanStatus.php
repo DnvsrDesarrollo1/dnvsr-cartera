@@ -27,7 +27,6 @@ class PlanStatus extends Command
     public function handle()
     {
         try {
-
             $today = now()->toDateString();
 
             \App\Models\Plan::where('estado', '!=', 'CANCELADO')->update([
@@ -40,6 +39,16 @@ class PlanStatus extends Command
                 "),
             ]);
 
+            \App\Models\Plan::where('estado', 'VENCIDO')
+                ->update([
+                    'prppgmpag' => \Illuminate\Support\Facades\DB::raw("
+                    CASE
+                        WHEN fecha_ppg <= ('$today'::date - INTERVAL '60 days') THEN 'SI'
+                        ELSE 'NO'
+                    END
+                "),
+                ]);
+
             \App\Models\Readjustment::where('estado', '!=', 'CANCELADO')->update([
                 'estado' => \Illuminate\Support\Facades\DB::raw("
                     CASE
@@ -49,6 +58,16 @@ class PlanStatus extends Command
                     END
                 "),
             ]);
+
+            \App\Models\Readjustment::where('estado', 'VENCIDO')
+                ->update([
+                    'prppgmpag' => \Illuminate\Support\Facades\DB::raw("
+                    CASE
+                        WHEN fecha_ppg <= ('$today'::date - INTERVAL '60 days') THEN 'SI'
+                        ELSE 'NO'
+                    END
+                "),
+                ]);
 
             Log::info('Plan status updated');
         } catch (\Exception $e) {
