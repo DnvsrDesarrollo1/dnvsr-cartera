@@ -416,27 +416,4 @@ class ExcelController extends Controller
         return $letters;
     }
 
-    private function isDateString($string)
-    {
-        // This regex pattern matches common date formats
-        $datePattern = '/^(\d{2}\/\d{2}\/\d{4}|\d{4}-\d{2}-\d{2}|\d{2}-\d{2}-\d{4}|\d{4}\/\d{2}\/\d{2})$/';
-
-        return preg_match($datePattern, $string);
-    }
-
-    private function convertToMySQLDate($dateString)
-    {
-        $formats = ['d/m/Y', 'Y-m-d', 'd-m-Y', 'Y/m/d'];
-
-        foreach ($formats as $format) {
-            try {
-                return \Carbon\Carbon::createFromFormat($format, $dateString)->format('Y-m-d');
-            } catch (\Exception $e) {
-                continue;
-            }
-        }
-
-        // If all formats fail, return null
-        return null;
-    }
 }

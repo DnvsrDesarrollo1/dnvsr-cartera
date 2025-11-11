@@ -278,7 +278,7 @@
                             <td></td>
                             <td>Saldo "{{ $beneficiary->entidad_financiera }}": <br /> Gastos Jud - Adm: </td>
                             <td>Bs.
-                                {{ number_format($beneficiary->total_activado + ($differs->sum('capital') ?? 0), 2) }}
+                                {{ number_format($beneficiary->total_activado, 2) }}
                                 {{-- {{ number_format($beneficiary->saldo_credito, 2) }} --}}
                                 <br />
                                 Bs.

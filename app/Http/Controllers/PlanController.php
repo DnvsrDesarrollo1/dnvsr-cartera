@@ -93,7 +93,7 @@ class PlanController extends Controller
                 $fechaVenc = \Carbon\Carbon::parse($vencidoPlan->fecha_ppg)->startOfDay();
                 $hoy = now()->startOfDay();
                 $dias = $fechaVenc->diffInDays($hoy, false);
-                $mora = $dias > 0 ? $dias : ($dias < 0 ? ($dias * -1) : 'Hoy');
+                $mora = $dias > 0 ? $dias : 0;
             }
 
             $reporte->push([

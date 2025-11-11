@@ -43,7 +43,8 @@
         <div class="flex items-center gap-3 bg-white p-2 rounded-lg shadow-sm border border-gray-400">
             <div class="flex-1 flex items-center gap-2">
                 <div class="relative flex-1">
-                    <input type="text" wire:model.live.debounce.300ms="search"
+                    <input type="text" wire:model.live.debounce.500ms="search"
+                        wire:keyup.enter="search"
                         placeholder="Buscar por nombre, CI o código..."
                         class="w-full pl-3 pr-10 py-1.5 text-sm border-0 rounded bg-gray-50 focus:ring-1 focus:ring-indigo-200 uppercase"
                         oninput="this.value = this.value.toUpperCase()">

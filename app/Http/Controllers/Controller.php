@@ -10,23 +10,21 @@ abstract class Controller
     {
         if ($partes <= 0) {
             return [];
-        } // Validación básica
+        }
 
-        // Convertir el total a centavos (trabajar en enteros)
         $totalCentavos = round($total * 100);
 
         // Calcular la base entera y el residuo
         $baseEntera = floor($totalCentavos / $partes);
-        $residuo = $totalCentavos % $partes; // Centavos sobrantes
+        $residuo = $totalCentavos % $partes;
 
         $resultados = [];
         for ($i = 0; $i < $partes; $i++) {
             $centavos = $baseEntera;
-            // Distribuir el residuo: un centavo extra en las primeras $residuo partes
             if ($i < $residuo) {
                 $centavos += 1;
             }
-            $resultados[] = $centavos / 100; // Convertir a dólares
+            $resultados[] = $centavos / 100;
         }
 
         return $resultados;
@@ -53,32 +51,31 @@ abstract class Controller
         float $i_diff = 0,
         float $s_diff = 0
     ): \Illuminate\Database\Eloquent\Collection {
-        // Normalizar tasa de interés y seguro a mensual
         $tasaMensual = $taza_interes / 100 / 12;
         $seguroMensual = $seguro / 100;
 
-        // Distribuir diferimientos
         $interesDiffPorCuota = $meses > 0 ? bcdiv($i_diff, $meses, 6) : 0;
         $seguroDiffPorCuota = bcdiv($s_diff, '12', 4);
 
-        // Calcular cuota de gastos judiciales
-        $gj = 0;
+        $gjDistribuido = [];
         if ($gastos_judiciales > 0) {
+            $cuotasGj = $meses;
             if ($gastos_judiciales <= 100) {
-                $gj = $gastos_judiciales / 5;
+                $cuotasGj = min(5, $meses);
             } elseif ($gastos_judiciales <= 300) {
-                $gj = $gastos_judiciales / 12;
-            } else {
-                $gj = $gastos_judiciales / $meses;
+                $cuotasGj = min(12, $meses);
             }
+            $gjDistribuido = $this->dividirConRedondeo($gastos_judiciales, $cuotasGj);
         }
 
-        // Calcular cuota fija (amortización)
-        $cuota = $taza_interes > 0
-            ? $this->calcularPago($capital_inicial, $tasaMensual, $meses)
-            : $capital_inicial / $meses;
+        if ($taza_interes > 0) {
+            $cuota = $this->calcularPago($capital_inicial, $tasaMensual, $meses);
+            $abonosDistribuidos = [];
+        } else {
+            $abonosDistribuidos = $this->dividirConRedondeo($capital_inicial, $meses);
+            $cuota = 0;
+        }
 
-        // Ajustar índice inicial y cantidad de cuotas si es correlativo
         $indiceInicial = 1;
         $totalCuotas = $meses;
         if ($correlativo === 'on') {
@@ -89,7 +86,6 @@ abstract class Controller
             }
         }
 
-        // Fecha de inicio siempre día 15
         $fechaBase = \Carbon\Carbon::parse($fecha_inicio)->copy()->day(15);
 
         $plan = [];
@@ -98,16 +94,24 @@ abstract class Controller
         $acumCap = 0;
 
         for ($i = $indiceInicial; $i <= $totalCuotas; $i++) {
+            $gjIndex = $i - $indiceInicial;
+            $gj = isset($gjDistribuido[$gjIndex]) ? $gjDistribuido[$gjIndex] : 0;
             $acumGj += $gj;
 
             $interes = $saldo * $tasaMensual;
-            $abono = $cuota - $interes;
+
+            if ($taza_interes > 0) {
+                $abono = $cuota - $interes;
+            } else {
+                $abono = isset($abonosDistribuidos[$gjIndex]) ? $abonosDistribuidos[$gjIndex] : 0;
+                $cuota = $abono;
+            }
+
             $saldoFin = $saldo - $abono;
             $seguroCuota = ($saldo + $interes) * $seguroMensual;
 
             $acumCap += $abono;
 
-            // Última cuota: ajustar errores de redondeo
             if ($i === $totalCuotas || $i === $indiceInicial + $meses - 1) {
                 if ($taza_interes > 0) {
                     $abono += $saldoFin;
@@ -115,7 +119,6 @@ abstract class Controller
                     $interes = 0;
                     $cuota += $saldoFin;
                 }
-                // Ajustar cuota si el capital acumulado no cuadra
                 if (! bccomp($acumCap, $capital_inicial, 2)) {
                     $delta = $capital_inicial - $acumCap;
                     $cuota += $delta;
@@ -145,29 +148,24 @@ abstract class Controller
 
             $saldo = $saldoFin;
 
-            // Gastos judiciales ya cubiertos
             if ($acumGj > $gastos_judiciales) {
                 $gj = 0;
             }
 
-            // Seguro diferido solo 12 meses
             if ($i === 12) {
                 $seguroDiffPorCuota = 0;
             }
 
-            // Saldo cero => terminamos
             if ($saldo <= 0.01) {
                 break;
             }
 
         }
 
-        // Comparar capital planificado con capital inicial
         $capitalPlanificado = array_sum(array_column($plan, 'abono_capital'));
         $diferenciaCapital = $capital_inicial - $capitalPlanificado;
 
-        // Ajustar última cuota con la diferencia
-        if (abs($diferenciaCapital) > 0.001) {
+        if (abs($diferenciaCapital) > 0.0001) {
             $ultimoIndice = count($plan) - 1;
             $plan[$ultimoIndice]['abono_capital'] += $diferenciaCapital;
             $plan[$ultimoIndice]['total_cuota'] += $diferenciaCapital;
