@@ -43,8 +43,8 @@ class PlanStatus extends Command
                 ->update([
                     'prppgmpag' => \Illuminate\Support\Facades\DB::raw("
                     CASE
-                        WHEN fecha_ppg <= ('$today'::date - INTERVAL '60 days') THEN 'NO'
-                        ELSE 'SI'
+                        WHEN fecha_ppg <= ('$today'::date - INTERVAL '60 days') THEN 'SI'
+                        ELSE 'NO'
                     END
                 "),
                 ]);
@@ -63,8 +63,8 @@ class PlanStatus extends Command
                 ->update([
                     'prppgmpag' => \Illuminate\Support\Facades\DB::raw("
                     CASE
-                        WHEN fecha_ppg <= ('$today'::date - INTERVAL '60 days') THEN 'NO'
-                        ELSE 'SI'
+                        WHEN fecha_ppg <= ('$today'::date - INTERVAL '60 days') THEN 'SI'
+                        ELSE 'NO'
                     END
                 "),
                 ]);

@@ -27,6 +27,7 @@ class PlanController extends Controller
     {
         $lVencidos = Plan::where('estado', 'VENCIDO')
             ->where('prppgmpag', 'SI')
+            ->whereNotNull('prppgmpag')
             ->distinct('idepro')
             ->pluck('idepro');
 

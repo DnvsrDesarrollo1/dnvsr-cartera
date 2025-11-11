@@ -11,8 +11,11 @@ class PlansNotification extends Component
     public $title = '';
 
     public $nVencidos = 0;
+
     public $lVencidos;
+
     public $lBeneficiarios;
+
     public $lProyectos;
 
     public $lSettlements;
@@ -32,6 +35,7 @@ class PlansNotification extends Component
         // Primero obtenemos solo los IDs de planes vencidos
         $this->lVencidos = \App\Models\Plan::where('estado', 'VENCIDO')
             ->where('prppgmpag', 'SI')
+            ->whereNotNull('prppgmpag')
             ->distinct('idepro')
             ->pluck('idepro');
 
@@ -67,9 +71,9 @@ class PlansNotification extends Component
                     'total' => $totalBeneficiarios,
                     'porcentajeMora' => $porcentajeMora,
                     'listaBeneficiarios' => $group
-                        ->map(fn($item) => [
+                        ->map(fn ($item) => [
                             'nombre' => $item->nombre,
-                            'ci' => $item->ci
+                            'ci' => $item->ci,
                         ])->toArray(),
                 ];
             });
