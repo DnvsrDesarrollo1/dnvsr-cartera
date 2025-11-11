@@ -25,23 +25,51 @@ class PlanController extends Controller
 
     public function pdfMora()
     {
-        $lVencidos = Plan::where('estado', 'VENCIDO')->distinct('idepro')->pluck('idepro');
-        $lBeneficiarios = Beneficiary::whereIn('idepro', $lVencidos)->where('estado', '!=', 'BLOQUEADO')->orderBy('proyecto')->get();
-        $lProyectos = Beneficiary::whereIn('idepro', $lVencidos)->orderBy('proyecto')->distinct('proyecto')->get(['proyecto', 'departamento']);
-        $todosProyectos = Beneficiary::whereIn('proyecto', $lProyectos->pluck('proyecto'))->orderBy('proyecto')->distinct('proyecto')->get(['proyecto', 'departamento']);
-        $lProyectos = $lBeneficiarios->groupBy('proyecto')->map(function ($group, $proyecto) {
-            $totalBeneficiarios = Beneficiary::where('proyecto', $proyecto)->count();
-            $morosos = $group->count();
-            $porcentajeMora = $totalBeneficiarios > 0 ? ($morosos / $totalBeneficiarios) * 100 : 0;
-            $departamento = $group->first()->departamento ?? 'N/A';
+        $lVencidos = Plan::where('estado', 'VENCIDO')
+            ->where('prppgmpag', 'SI')
+            ->distinct('idepro')
+            ->pluck('idepro');
 
-            return [
-                'morosos' => $morosos,
-                'total' => $totalBeneficiarios,
-                'porcentajeMora' => $porcentajeMora,
-                'departamento' => $departamento,
-            ];
-        });
+        // Obtenemos todos los beneficiarios vencidos en una sola consulta con los datos necesarios
+        $lBeneficiarios = Beneficiary::whereIn('idepro', $lVencidos)
+            ->where('estado', '!=', 'BLOQUEADO')
+            ->where('estado', '!=', 'CANCELADO')
+            ->orderBy('proyecto')
+            ->get(['nombre', 'ci', 'proyecto', 'departamento']);
+
+        // Obtenemos la lista única de proyectos directamente de los beneficiarios ya cargados
+        $lProyectos = $lBeneficiarios->unique('proyecto')
+            ->pluck('proyecto');
+
+        // Pre-cargamos los contadores de beneficiarios por proyecto en una sola consulta
+        $totalesPorProyecto = Beneficiary::whereIn('proyecto', $lProyectos)
+            ->where('estado', '!=', 'BLOQUEADO')
+            ->where('estado', '!=', 'CANCELADO')
+            ->selectRaw('proyecto, COUNT(*) as total')
+            ->groupBy('proyecto')
+            ->pluck('total', 'proyecto');
+
+        // Construimos la estructura final procesando los datos en memoria
+        $lProyectos = $lBeneficiarios
+            ->groupBy('proyecto')
+            ->map(function ($group, $proyecto) use ($totalesPorProyecto) {
+                $totalBeneficiarios = $totalesPorProyecto[$proyecto] ?? 0;
+                $morosos = $group->count();
+                $porcentajeMora = $totalBeneficiarios > 0 ? ($morosos / $totalBeneficiarios) * 100 : 0;
+                $departamento = $group->first()->departamento ?? 'N/A';
+
+                return [
+                    'morosos' => $morosos,
+                    'total' => $totalBeneficiarios,
+                    'porcentajeMora' => $porcentajeMora,
+                    'departamento' => $departamento,
+                    'listaBeneficiarios' => $group
+                        ->map(fn ($item) => [
+                            'nombre' => $item->nombre,
+                            'ci' => $item->ci,
+                        ])->toArray(),
+                ];
+            });
 
         $lProyectos = $lProyectos->sortBy('departamento');
 
