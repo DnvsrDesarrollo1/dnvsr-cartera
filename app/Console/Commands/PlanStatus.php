@@ -27,25 +27,28 @@ class PlanStatus extends Command
     public function handle()
     {
         try {
-            \App\Models\Plan::where('estado', 'ACTIVO')->chunk(10000, function ($plans) {
-                foreach ($plans as $p) {
-                    if (\Carbon\Carbon::parse($p->fecha_ppg)->diffInDays(now()) < 0 && ! \Carbon\Carbon::parse($p->fecha_ppg)->isToday()) {
-                        $p->update([
-                            'estado' => 'VENCIDO',
-                        ]);
-                    }
-                }
-            });
 
-            \App\Models\Readjustment::where('estado', 'ACTIVO')->chunk(10000, function ($plans) {
-                foreach ($plans as $p) {
-                    if (\Carbon\Carbon::parse($p->fecha_ppg)->diffInDays(now()) < 0 && ! \Carbon\Carbon::parse($p->fecha_ppg)->isToday()) {
-                        $p->update([
-                            'estado' => 'VENCIDO',
-                        ]);
-                    }
-                }
-            });
+            $today = now()->toDateString();
+
+            \App\Models\Plan::where('estado', '!=', 'CANCELADO')->update([
+                'estado' => \Illuminate\Support\Facades\DB::raw("
+                    CASE
+                        WHEN fecha_ppg < '$today' AND fecha_ppg != '$today' THEN 'VENCIDO'
+                        WHEN fecha_ppg > '$today' THEN 'ACTIVO'
+                        ELSE estado
+                    END
+                "),
+            ]);
+
+            \App\Models\Readjustment::where('estado', '!=', 'CANCELADO')->update([
+                'estado' => \Illuminate\Support\Facades\DB::raw("
+                    CASE
+                        WHEN fecha_ppg < '$today' AND fecha_ppg != '$today' THEN 'VENCIDO'
+                        WHEN fecha_ppg > '$today' THEN 'ACTIVO'
+                        ELSE estado
+                    END
+                "),
+            ]);
 
             Log::info('Plan status updated');
         } catch (\Exception $e) {
