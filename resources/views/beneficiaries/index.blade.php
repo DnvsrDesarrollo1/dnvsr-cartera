@@ -36,15 +36,12 @@
                         </div>
                     </div>
                 @endforeach
-                @php
-                    // Generate list of periods: last 12 months + next 5 months
+                {{-- @php
                     $periods = collect();
-                    // Past 12 months
-                    for ($i = 0; $i < 12; $i++) {
+                    for ($i = 0; $i < 4; $i++) {
                         $periods->push(now()->subMonths($i)->format('Y-m'));
                     }
-                    // Next 5 months
-                    for ($i = 1; $i <= 5; $i++) {
+                    for ($i = 1; $i <= 4; $i++) {
                         $periods->prepend(now()->addMonths($i)->format('Y-m'));
                     }
                 @endphp
@@ -61,7 +58,7 @@
                         </select>
                         <button type="submit"
                             class="text-xs bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 active:bg-blue-800 transition">
-                            Exportar i
+                            Exportar
                         </button>
                     </form>
                 </div>
@@ -70,13 +67,7 @@
                         const periodo = document.getElementById('periodo').value;
                         this.action = this.action.replace('__periodo__', periodo);
                     });
-
-                    /* document.getElementById('frmXlsxSeguros').addEventListener('submit', function(e) {
-                        e.preventDefault();
-                        const periodo = document.getElementById('periodo').value;
-                        console.log(periodo);
-                    }); */
-                </script>
+                </script> --}}
             </div>
         </div>
         {{-- <div
