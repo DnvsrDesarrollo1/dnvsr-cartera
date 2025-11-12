@@ -58,6 +58,7 @@ Route::middleware([
     Route::delete('beneficiario/{beneficiary}', [\App\Http\Controllers\BeneficiaryController::class, 'destroy'])->name('beneficiario.destroy');
 
     // Planes - Rutas específicas primero
+    Route::get('plan/xlsx-seguros/{periodo}', [App\Http\Controllers\PlanController::class, 'xlsxSeguros'])->name('plan.xlsx-seguros');
     Route::get('plan/mora-pdf', [App\Http\Controllers\PlanController::class, 'pdfMora'])->name('plan.mora-pdf');
     Route::get('plan/mora-pdf/{proyecto}', [App\Http\Controllers\PlanController::class, 'pdfMoraProyecto'])->name('plan.mora-pdf-proyecto');
     Route::get('plan/{data}/ajuste-masivo', [App\Http\Controllers\PlanController::class, 'bulkAdjust'])->name('plan.bulk-adjust');

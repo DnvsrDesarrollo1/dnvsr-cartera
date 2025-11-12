@@ -181,6 +181,50 @@ class PlanController extends Controller
             ->download("reporte_{$proyecto}.xlsx");
     }
 
+    public function xlsxSeguros($periodo)
+    {
+        //return $periodo;
+        // Ejecutar la consulta SQL requerida
+        $rows = DB::select("
+            WITH totales AS (
+                SELECT
+                    idepro,
+                    MIN(fecha_ppg) AS fecha_pago,
+                    MAX(prppgsegu) AS seguro_inicial,
+                    SUM(prppgcapi) AS total_capital
+                FROM \"plans\"
+                GROUP BY idepro
+            )
+            SELECT
+                B.nombre,
+                B.ci,
+                B.idepro AS cod_prestamo,
+                B.fecha_activacion,
+                T.total_capital,
+                P.fecha_ppg AS vencimiento,
+                P.prppgnpag AS nro_cuota,
+                P.prppgcapi AS capital,
+                P.prppginte AS interes,
+                P.prppgsegu AS seguro,
+                ROUND((ROUND(CAST(T.seguro_inicial AS numeric),4) / ROUND(CAST(T.total_capital AS numeric),4)) * 100, 3) AS tasa_seguro,
+                P.estado AS estado_cuota
+            FROM
+                beneficiaries B
+                INNER JOIN \"plans\" P ON B.idepro = P.idepro
+                LEFT JOIN totales T ON B.idepro = T.idepro
+            WHERE
+                (P.fecha_ppg >= '{$periodo}-01' AND P.fecha_ppg < '{$periodo}-01'::DATE + INTERVAL '1 month')
+                AND B.estado NOT IN ('BLOQUEADO', 'CANCELADO')
+        ");
+
+        $collection = collect($rows)->map(function ($item) {
+            return (array) $item;
+        });
+
+        return (new \Rap2hpoutre\FastExcel\FastExcel($collection))
+            ->download("seguros_{$periodo}_".uniqid().".xlsx");
+    }
+
     public function store(Request $request)
     {
         $validatedData = $request->validate([

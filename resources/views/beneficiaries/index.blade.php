@@ -36,6 +36,47 @@
                         </div>
                     </div>
                 @endforeach
+                @php
+                    // Generate list of periods: last 12 months + next 5 months
+                    $periods = collect();
+                    // Past 12 months
+                    for ($i = 0; $i < 12; $i++) {
+                        $periods->push(now()->subMonths($i)->format('Y-m'));
+                    }
+                    // Next 5 months
+                    for ($i = 1; $i <= 5; $i++) {
+                        $periods->prepend(now()->addMonths($i)->format('Y-m'));
+                    }
+                @endphp
+                <div class="bg-gray-50 rounded-xl p-3 shadow-sm hover:shadow transition">
+                    <form action="{{ route('plan.xlsx-seguros', ['periodo' => '__periodo__']) }}" method="GET"
+                        id="frmXlsxSeguros" class="flex items-center gap-2">
+                        <label for="periodo" class="text-gray-700 text-xs font-medium">Planilla Seguros</label>
+                        <select name="periodo" id="periodo" class="text-xs border bg-white rounded-lg p-2 w-full">
+                            @foreach ($periods as $p)
+                                <option value="{{ $p }}" {{ $loop->first ? 'selected' : '' }}>
+                                    {{ $p }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <button type="submit"
+                            class="text-xs bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 active:bg-blue-800 transition">
+                            Exportar i
+                        </button>
+                    </form>
+                </div>
+                <script>
+                    document.getElementById('frmXlsxSeguros').addEventListener('submit', function(e) {
+                        const periodo = document.getElementById('periodo').value;
+                        this.action = this.action.replace('__periodo__', periodo);
+                    });
+
+                    /* document.getElementById('frmXlsxSeguros').addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        const periodo = document.getElementById('periodo').value;
+                        console.log(periodo);
+                    }); */
+                </script>
             </div>
         </div>
         {{-- <div
