@@ -2,49 +2,52 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
 
 class Beneficiary extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        "nombre",
-        "ci",
-        "complemento",
-        "expedido",
-        "mail",
-        "estado",
-        "entidad_financiera",
-        "cod_proy",
-        "idepro",
-        "cod_fondesif",
-        "proyecto",
-        "genero",
-        "fecha_nacimiento",
-        "monto_credito",
-        "monto_activado",
-        "total_activado",
-        "gastos_judiciales",
-        "saldo_credito",
-        "monto_recuperado",
-        "fecha_activacion",
-        "plazo_credito",
-        "tasa_interes",
-        "departamento",
-        "user_id",
+        'nombre',
+        'ci',
+        'complemento',
+        'expedido',
+        'mail',
+        'estado',
+        'entidad_financiera',
+        'cod_proy',
+        'idepro',
+        'cod_fondesif',
+        'proyecto',
+        'genero',
+        'fecha_nacimiento',
+        'monto_credito',
+        'monto_activado',
+        'total_activado',
+        'gastos_judiciales',
+        'saldo_credito',
+        'monto_recuperado',
+        'fecha_activacion',
+        'plazo_credito',
+        'tasa_interes',
+        'departamento',
+        'user_id',
     ];
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
 
     private const API_BASE_URL = 'http://20.20.1.55:8080/api/';
+
     private const TIMEOUT = 5; // seconds
+
     private const RETRY_TIMES = 2;
+
     private const RETRY_DELAY = 100; // milliseconds
 
     //public $incrementing = false;
@@ -58,7 +61,7 @@ class Beneficiary extends Model
             ->first();
 
         // If no unpaid plan found, check 'readjustments'
-        if (!$firstUnpaidPlan) {
+        if (! $firstUnpaidPlan) {
             $firstUnpaidPlan = $this->readjustments
                 ->where('estado', '!=', 'CANCELADO')
                 ->sortBy('fecha_ppg')
@@ -69,6 +72,7 @@ class Beneficiary extends Model
             $startDate = Carbon::parse($firstUnpaidPlan->fecha_ppg);
             $endDate = now();
             $days = $startDate->diffInDays($endDate);
+
             return $days > 0 ? $days : 0;
         }
 
@@ -132,8 +136,8 @@ class Beneficiary extends Model
 
     public function hasPlan(): bool
     {
-        return ($this->plans()->where('estado', '<>', 'INACTIVO')->exists()
-            || $this->readjustments()->where('estado', '<>', 'INACTIVO')->exists());
+        return $this->plans()->where('estado', '<>', 'INACTIVO')->exists()
+            || $this->readjustments()->where('estado', '<>', 'INACTIVO')->exists();
     }
 
     public function getCurrentPlan(string $status = 'ACTIVO', string $wildcard = '=')
@@ -156,13 +160,13 @@ class Beneficiary extends Model
     public function getFirstQuote()
     {
         $quota = $this->plans()
-            ->where('estado', "!=", 'CANCELADO')
+            ->where('estado', '!=', 'CANCELADO')
             ->orderBy('fecha_ppg', 'asc')
             ->get();
 
         if ($quota->isEmpty()) {
             $quota = $this->readjustments()
-                ->where('estado', "!=", 'CANCELADO')
+                ->where('estado', '!=', 'CANCELADO')
                 ->orderBy('fecha_ppg', 'asc')
                 ->get();
         }
@@ -170,9 +174,27 @@ class Beneficiary extends Model
         return $quota->first();
     }
 
+    public function getCV()
+    {
+        return \DB::table('plans')
+            ->selectRaw('COUNT(*) as cv')
+            ->where('idepro', $this->idepro)
+            ->where('estado', 'VENCIDO')
+            ->value('cv') ?? 0;
+    }
+
+    public function getCP()
+    {
+        return \DB::table('plans')
+            ->selectRaw('COUNT(*) as cv')
+            ->where('idepro', $this->idepro)
+            ->where('estado', '!=', 'CANCELADO')
+            ->value('cv') ?? 0;
+    }
+
     public function hasVouchers(): bool
     {
-        return ($this->vouchers()->exists());
+        return $this->vouchers()->exists();
     }
 
     /**
@@ -180,7 +202,7 @@ class Beneficiary extends Model
      */
     public function statusCredito(): array
     {
-        return $this->makeApiRequest('credito/' . $this->idepro);
+        return $this->makeApiRequest('credito/'.$this->idepro);
     }
 
     /**
@@ -188,7 +210,7 @@ class Beneficiary extends Model
      */
     public function statusSocial(string $codigo): array
     {
-        return $this->makeApiRequest('social/' . $codigo);
+        return $this->makeApiRequest('social/'.$codigo);
     }
 
     /**
@@ -196,7 +218,7 @@ class Beneficiary extends Model
      */
     public function statusLegal(string $codigo): array
     {
-        return $this->makeApiRequest('legal/' . $codigo);
+        return $this->makeApiRequest('legal/'.$codigo);
     }
 
     /**
@@ -209,15 +231,14 @@ class Beneficiary extends Model
                 ->acceptJson()
                 ->timeout(self::TIMEOUT)
                 ->retry(self::RETRY_TIMES, self::RETRY_DELAY)
-                ->get(self::API_BASE_URL . $endpoint);
+                ->get(self::API_BASE_URL.$endpoint);
 
             return $response->throw()->json()['data'] ?? [];
         } catch (\Exception $e) {
             // Log error if needed
-            Log::error("API request failed for {$endpoint}: " . $e->getMessage());
+            Log::error("API request failed for {$endpoint}: ".$e->getMessage());
+
             return [];
         }
     }
-
-
 }

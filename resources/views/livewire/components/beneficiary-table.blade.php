@@ -2,8 +2,7 @@
     @if ($selected)
         <div class="flex flex-col sm:flex-row justify-end items-center gap-2 mb-2">
             <div class="w-full sm:w-auto">
-                <x-personal.button iconLeft="fa-solid fa-bolt"
-                    class="w-full sm:w-auto"
+                <x-personal.button iconLeft="fa-solid fa-bolt" class="w-full sm:w-auto"
                     href="{{ route('plan.bulk-activation', ['data' => json_encode(collect($selected))]) }}">
                     <span class="hidden sm:inline">Activación</span>
                     <span class="sm:hidden">Activar Seleccionados</span>
@@ -43,8 +42,7 @@
         <div class="flex items-center gap-3 bg-white p-2 rounded-lg shadow-sm border border-gray-400">
             <div class="flex-1 flex items-center gap-2">
                 <div class="relative flex-1">
-                    <input type="text" wire:model.live.debounce.500ms="search"
-                        wire:keyup.enter="search"
+                    <input type="text" wire:model.live.debounce.500ms="search" wire:keyup.enter="search"
                         placeholder="Buscar por nombre, CI o código..."
                         class="w-full pl-3 pr-10 py-1.5 text-sm border-0 rounded bg-gray-50 focus:ring-1 focus:ring-indigo-200 uppercase"
                         oninput="this.value = this.value.toUpperCase()">
@@ -265,24 +263,8 @@
                                 <div class="flex items-center justify-between space-x-2" x-show="!editing">
                                     <span @click="editing = true; $nextTick(() => $refs.input.focus())"
                                         class="cursor-pointer text-sm text-gray-900 truncate max-w-[100px] sm:max-w-none"
-                                        x-text="value" title="{{ $beneficiary->nombre }}"></span>
-                                    <button
-                                        @click.prevent="
-                                    const index = expandedRows.indexOf({{ $beneficiary->id }});
-                                    if (index > -1) {
-                                        expandedRows.splice(index, 1);
-                                    } else {
-                                        expandedRows.push({{ $beneficiary->id }});
-                                    }
-                                ">
-                                        <span class="transform transition-transform duration-200"
-                                            :class="{ 'rotate-180': expandedRows.includes({{ $beneficiary->id }}) }">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M19 9l-7 7-7-7" />
-                                            </svg>
-                                        </span>
+                                        x-text="value" title="{{ $beneficiary->nombre }}">
+                                    </span>
                                     </button>
                                 </div>
                                 <div x-show="editing" x-cloak>
@@ -350,9 +332,7 @@
                             </span>
                         </td>
                         <td class="px-3 py-2 sm:px-6 sm:py-4 text-sm text-gray-500 whitespace-nowrap">
-                            {{ $beneficiary->getCurrentPlan('CANCELADO', '!=')->where('fecha_ppg', '<', now())->count() ?? 'N/A' }}
-                            /
-                            {{ $beneficiary->getCurrentPlan('CANCELADO', '!=')->count() ?? 'N/A' }}
+                            {{-- {{ $beneficiary->getCV() }} / {{ $beneficiary->getCP() }} --}}
                         </td>
                         <td class="px-3 py-2 sm:px-6 sm:py-4 bf-gray-100">
                             <div class="flex items-center justify-evenly space-x-1 sm:space-x-2">
@@ -371,20 +351,6 @@
                                     class="text-green-600 hover:scale-125 transition-all transform text-sm sm:text-xl">
                                     <i class="fa-solid fa-book"></i>
                                 </a>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr wire:key="expanded-row-{{ $beneficiary->id }}" class="bg-gray-50"
-                        x-show="expandedRows.includes({{ $beneficiary->id }})" x-cloak>
-                        <td colspan="7" class="px-3 py-2 sm:px-6 sm:py-4">
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-6">
-                                @foreach (['Entidad Financiera' => $beneficiary->entidad_financiera, 'Departamento' => $beneficiary->departamento, 'Fecha Activación' => $beneficiary->fecha_activacion] as $label => $value)
-                                    <div>
-                                        <dt class="text-xs sm:text-sm font-medium text-gray-500">{{ $label }}
-                                        </dt>
-                                        <dd class="mt-1 text-xs sm:text-sm text-gray-900">{{ $value }}</dd>
-                                    </div>
-                                @endforeach
                             </div>
                         </td>
                     </tr>

@@ -2,10 +2,10 @@
 
 namespace App\Livewire\Components;
 
-use Livewire\Component;
 use App\Models\Beneficiary;
-use Livewire\WithPagination;
 use Illuminate\Support\Facades\Cache;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 class BeneficiaryTable extends Component
 {
