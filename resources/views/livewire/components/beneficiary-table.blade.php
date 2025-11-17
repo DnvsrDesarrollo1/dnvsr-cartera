@@ -332,7 +332,9 @@
                             </span>
                         </td>
                         <td class="px-3 py-2 sm:px-6 sm:py-4 text-sm text-gray-500 whitespace-nowrap">
-                            {{-- {{ $beneficiary->getCV() }} / {{ $beneficiary->getCP() }} --}}
+                            {{ count($beneficiary->plans->filter(fn ($p) => $p->estado == 'VENCIDO')) }}
+                            /
+                            {{ count($beneficiary->plans->filter(fn ($p) => $p->estado != 'CANCELADO')) }}
                         </td>
                         <td class="px-3 py-2 sm:px-6 sm:py-4 bf-gray-100">
                             <div class="flex items-center justify-evenly space-x-1 sm:space-x-2">

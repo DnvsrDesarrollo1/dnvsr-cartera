@@ -149,6 +149,7 @@ class BeneficiaryTable extends Component
             'monto_credito',
             'saldo_credito',
         ])
+            ->with(['plans' => fn ($subquery) => $subquery->select('idepro', 'estado')])
             ->when($this->search != '', function ($query) {
                 $query->where(function ($query) {
                     $query->where('nombre', 'like', '%'.$this->search.'%')
