@@ -50,35 +50,6 @@ class Beneficiary extends Model
 
     private const RETRY_DELAY = 100; // milliseconds
 
-    //public $incrementing = false;
-
-    public function getDaysInArrearsAttribute()
-    {
-        // First, check the 'plans' relationship
-        $firstUnpaidPlan = $this->plans
-            ->where('estado', '!=', 'CANCELADO')
-            ->sortBy('fecha_ppg')
-            ->first();
-
-        // If no unpaid plan found, check 'readjustments'
-        if (! $firstUnpaidPlan) {
-            $firstUnpaidPlan = $this->readjustments
-                ->where('estado', '!=', 'CANCELADO')
-                ->sortBy('fecha_ppg')
-                ->first();
-        }
-
-        if ($firstUnpaidPlan) {
-            $startDate = Carbon::parse($firstUnpaidPlan->fecha_ppg);
-            $endDate = now();
-            $days = $startDate->diffInDays($endDate);
-
-            return $days > 0 ? $days : 0;
-        }
-
-        return 0;
-    }
-
     public function payments()
     {
         return $this->hasMany(Payment::class, 'numprestamo', 'idepro');
@@ -172,24 +143,6 @@ class Beneficiary extends Model
         }
 
         return $quota->first();
-    }
-
-    public function getCV()
-    {
-        return \DB::table('plans')
-            ->selectRaw('COUNT(*) as cv')
-            ->where('idepro', $this->idepro)
-            ->where('estado', 'VENCIDO')
-            ->value('cv') ?? 0;
-    }
-
-    public function getCP()
-    {
-        return \DB::table('plans')
-            ->selectRaw('COUNT(*) as cv')
-            ->where('idepro', $this->idepro)
-            ->where('estado', '!=', 'CANCELADO')
-            ->value('cv') ?? 0;
     }
 
     public function hasVouchers(): bool

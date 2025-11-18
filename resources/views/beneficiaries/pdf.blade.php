@@ -168,8 +168,8 @@
     <body>
         @php
             $saldo = $plans->sum('prppgcapi');
-            $tasa = 1;
-            if ($beneficiary->insurance()->exists()) {
+            $tasa = 0;
+            if ($beneficiary->insurance()->exists() && $beneficiary->insurance->tasa_seguro < 1) {
                 $tasa = $beneficiary->insurance->tasa_seguro;
             } else {
                 $tasa = $plans->first() ? ($plans->first()->prppgsegu / $plans->sum('prppgcapi')) * 100 : 1;

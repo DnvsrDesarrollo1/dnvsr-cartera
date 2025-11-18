@@ -36,7 +36,7 @@
                         </div>
                     </div>
                 @endforeach
-                {{-- @php
+                @php
                     $periods = collect();
                     for ($i = 0; $i < 4; $i++) {
                         $periods->push(now()->subMonths($i)->format('Y-m'));
@@ -66,8 +66,9 @@
                     document.getElementById('frmXlsxSeguros').addEventListener('submit', function(e) {
                         const periodo = document.getElementById('periodo').value;
                         this.action = this.action.replace('__periodo__', periodo);
+                        
                     });
-                </script> --}}
+                </script>
             </div>
         </div>
         {{-- <div
