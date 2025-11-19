@@ -234,7 +234,7 @@
                             <div class="mb-4">
                                 <label for="seguro" class="block text-gray-700 text-sm font-bold">Seguro
                                     Desgravamen:</label>
-                                <input type="text" wire:model="seguro" id="seguro"
+                                <input type="number" wire:model="seguro" id="seguro" min="0" max="0.076" step="0.001"
                                     class="appearance-none border-0 border-b-2 border-gray-300 w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                 @error('seguro')
                                     <span class="text-red-500 text-xs">{{ $message }}</span>

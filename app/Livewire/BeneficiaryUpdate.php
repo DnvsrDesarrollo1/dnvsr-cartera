@@ -82,7 +82,9 @@ class BeneficiaryUpdate extends Component
         if ($this->seguro == 0) {
             $this->seguro = ($this->beneficiary->hasPlan())
                 ?
-                ($this->beneficiary->getCurrentPlan('INACTIVO', '!=')->first()->prppgsegu > 0 ?: 0.0001 / $beneficiary->saldo_credito) * 100 : 0;
+                ($this->beneficiary->getCurrentPlan('INACTIVO', '!=')->first()->prppgsegu /
+                $this->beneficiary->getCurrentPlan('INACTIVO', '!=')->sum('prppgcapi')) * 100
+                : 0;
         }
         $this->seguro = number_format($this->seguro, 3);
 
