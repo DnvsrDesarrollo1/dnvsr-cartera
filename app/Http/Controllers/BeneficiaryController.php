@@ -130,7 +130,8 @@ class BeneficiaryController extends Controller
                 'seguros' => $payments->filter(fn ($p) => str_starts_with($p->prtdtdesc, 'SEGU'))
                     ->sum('montopago'),
                 'otros' => $payments->filter(fn ($p) => str_starts_with($p->prtdtdesc, 'OTR'))
-                    ->sum('montopago'),
+                    ->sum('montopago') + $payments->filter(fn ($p) => str_starts_with($p->prtdtdesc, 'GAS'))
+                    ->sum('montopago')
             ];
 
             $payments = null;

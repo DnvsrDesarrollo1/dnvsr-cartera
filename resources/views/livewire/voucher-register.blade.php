@@ -232,7 +232,8 @@
                                 </div>
 
                                 <hr class="mt-4 mb-4" />
-                                <span class="block text-green-600 text-sm mb-2 text-end p-2 border-b-2 border-green-600">
+                                <span
+                                    class="block text-green-600 text-sm mb-2 text-end p-2 border-b-2 border-green-600">
                                     <i class="fa-solid fa-circle-info"></i> &nbsp; Total a Pagar: Bs.
                                     {{ number_format($montopago, 2) }}</span>
                             </div>
@@ -274,8 +275,10 @@
             <div
                 class="bg-gray-100 px-4 py-3 items-center justify-between lg:flex sm:px-6 sm:flex border-t border-gray-200">
                 <x-personal.button variant="success" iconLeft="fa-solid fa-save" wire:click="save"
-                    wire:confirm="¿Está seguro de que desea registrar este Voucher?">
-                    Registrar Voucher
+                    wire:confirm="¿Está seguro de que desea registrar este Voucher?" wire:loading.attr="disabled"
+                    wire:target="save">
+                    <span wire:loading.remove wire:target="save">Registrar Voucher</span>
+                    <span wire:loading wire:target="save">Guardando voucher…</span>
                 </x-personal.button>
                 <x-personal.button @click="voucherModal = false" variant="danger" iconLeft="fa-solid fa-xmark">
                     Cerrar

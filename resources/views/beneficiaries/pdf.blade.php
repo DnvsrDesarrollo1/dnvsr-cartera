@@ -169,11 +169,13 @@
         @php
             $saldo = $plans->sum('prppgcapi');
             $tasa = 0;
-            if ($beneficiary->insurance()->exists() && $beneficiary->insurance->tasa_seguro < 1) {
+            if ($beneficiary->insurance()->exists()) {
                 $tasa = $beneficiary->insurance->tasa_seguro;
-            } else {
-                $tasa = $plans->first() ? ($plans->first()->prppgsegu / $plans->sum('prppgcapi')) * 100 : 1;
             }
+            if ($tasa == 0) {
+                $tasa = $plans->isNotEmpty() ? ($plans->first()->prppgsegu / $plans->sum('prppgcapi')) * 100 : 0;
+            }
+            $tasa = number_format($tasa, 3);
         @endphp
         <div id="footer">
             <strong>
@@ -240,7 +242,7 @@
                         <tr>
                             <td>Seguro Desgravamen:</td>
                             <td>
-                                {{ number_format($tasa, 3) }} %
+                                {{ number_format($tasa, 2) }} %
                             </td>
                             <td></td>
                             <td>Fecha Vencimiento del Plan:</td>
@@ -327,14 +329,14 @@
                             <tr>
                                 <td>
                                     @can('write plans')
-                                        <a
-                                            style="text-decoration: none; font-weight: 600; @if ($plan->estado == 'CANCELADO') color: green; @else color: black @endif"
+                                        <a style="text-decoration: none; font-weight: 600; @if ($plan->estado == 'CANCELADO') color: green; @else color: black @endif"
                                             title="Click para cambiar estado a CANCELADO/ACTIVO"
                                             href="{{ route('beneficiario.pdf.switch-status', [$beneficiary->ci, $plan]) }}">
                                             {{ $plan->prppgnpag }}
                                         </a>
                                     @else
-                                        <span style="font-weight: 600; @if ($plan->estado == 'CANCELADO') color: green; @else color: black @endif">
+                                        <span
+                                            style="font-weight: 600; @if ($plan->estado == 'CANCELADO') color: green; @else color: black @endif">
                                             {{ $plan->prppgnpag }}
                                         </span>
                                     @endcan

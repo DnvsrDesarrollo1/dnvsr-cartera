@@ -9,7 +9,9 @@ trait FinanceTrait
 {
     private function dividirConRedondeo($total, $partes)
     {
-        if ($partes <= 0) return []; // Validación básica
+        if ($partes <= 0) {
+            return [];
+        } // Validación básica
 
         // Convertir el total a centavos (trabajar en enteros)
         $totalCentavos = round($total * 100);
@@ -27,6 +29,7 @@ trait FinanceTrait
             }
             $resultados[] = $centavos / 100; // Convertir a dólares
         }
+
         return $resultados;
     }
 
@@ -45,16 +48,19 @@ trait FinanceTrait
         $numerador = pow(1 + $tasaInteres, $numPeriodos) * $tasaInteres;
         $denominador = pow(1 + $tasaInteres, $numPeriodos) - 1;
         $pago = $valorPresente * ($numerador / $denominador);
+
         return $pago;
     }
 
-    private function calcularTasaSeguro(Collection $plan, float $saldoInicial): float
+    private function calcularTasaSeguro($plan, float $saldoInicial): float
     {
         $seguro = 0;
         if (count($plan) > 0) {
             $primerCuota = $plan->first();
 
-            $seguro = round(($primerCuota->prppgsegu / $saldoInicial), 5);
+            $seguroPrimeraCuota = round($primerCuota->prppgsegu, 5);
+
+            $seguro = round(($seguroPrimeraCuota / $saldoInicial), 5);
         }
 
         return $seguro;
@@ -62,39 +68,43 @@ trait FinanceTrait
 
     private function calcularPagoInteres(float $saldoInicial, float $tasaInteres): float
     {
-        if ($saldoInicial == 0)
-        {
+        if ($saldoInicial == 0) {
             return 0;
         }
+
+        if ($tasaInteres == 0) {
+            return 0;
+        }
+
         return round($saldoInicial * (($tasaInteres / 100) / 12), 4);
     }
 
     private function calcularPagoSeguro(float $saldoInicial, float $tasaSeguro): float
     {
-        if ($saldoInicial == 0)
-        {
+        if ($saldoInicial == 0) {
             return 0;
         }
 
         return round($saldoInicial * $tasaSeguro, 4);
     }
 
-
     public function actualizarPlanActual(string $idepro, float $saldoCapital, Collection $planVigente, float $totalPlan): Collection
     {
         $cuotasPendientes = $planVigente->count();
 
         if ($cuotasPendientes == 0) {
-            return new Collection();
+            return new Collection;
         }
 
-        $tasaInteres = Beneficiary::where('idepro', $idepro)
-            ->first()
-            ->tasa_interes ?? 0;
+        $beneficiary = Beneficiary::where('idepro', $idepro)->with(['plans'])->first();
+
+        $tasaInteres = $beneficiary->tasa_interes ?? 0;
 
         $saldoInicial = $saldoCapital;
 
-        $tasaSeguro = $this->calcularTasaSeguro($planVigente, $saldoCapital);
+        $planBase = \App\Models\Plan::where('idepro', $idepro)->orderBy('fecha_ppg', 'asc')->get();
+
+        $tasaSeguro = $this->calcularTasaSeguro($planBase, $totalPlan);
 
         $amortizacion = $this->calcularPagoMensual($saldoCapital, $tasaInteres, $cuotasPendientes);
 
@@ -104,11 +114,13 @@ trait FinanceTrait
 
         $abonoCapital = $amortizacion - $abonoInteres;
 
-        $planActualizado = new Collection();
+        $planActualizado = new Collection;
 
         $totalCapitalizado = 0;
 
         foreach ($planVigente as $key => $value) {
+
+            /** @var \App\Models\Plan $value */
 
             $abonoCapital = round($abonoCapital, 4);
 
@@ -127,6 +139,7 @@ trait FinanceTrait
                 'prppgsegu' => round($abonoSeguro, 4),
                 'prppgtota' => round($abonoCapital + $abonoInteres + $abonoSeguro + $value->prppgcarg + $value->prppggral + $value->prppgotro, 4),
                 'prppgahor' => $saldoInicial,
+                //'prppgmpag' => $planBase->first()->prppgsegu.' / '.$totalPlan,
                 'estado' => 'ACTIVO',
                 'user_id' => \Illuminate\Support\Facades\Auth::user()->id ?? 1,
             ]);
@@ -154,12 +167,12 @@ trait FinanceTrait
             $planActualizado->push($value);
         }
 
-        return ($planActualizado);
+        return $planActualizado;
     }
 
     public function createPayment($comprobante, $index, $codigoPrestamo, $codRef, $codCon, $fechaPago, $horaPago, $glosa, $montoPagado, $usuario, $numeroCuota, $departamento, $observaciones)
     {
-        #PAYMENT
+        //PAYMENT
         \App\Models\Payment::create([
             'numtramite' => $comprobante,
             'prtdtitem' => $index,
@@ -174,7 +187,7 @@ trait FinanceTrait
             'prtdtfpro' => null,
             'prtdtnpag' => $numeroCuota,
             'depto_pago' => $departamento,
-            'obs_pago' => $observaciones
+            'obs_pago' => $observaciones,
         ]);
     }
 
@@ -190,7 +203,7 @@ trait FinanceTrait
             'numprestamo' => $numPrestamo,
             'numtramite' => $numTramite,
             'depto_pago' => $departamento,
-            'obs_pago' => $observaciones
+            'obs_pago' => $observaciones,
         ]);
     }
 }

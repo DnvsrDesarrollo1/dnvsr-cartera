@@ -12,30 +12,55 @@ class VoucherRegister extends Component
     use FinanceTrait;
 
     public $idepro;
+
     public $beneficiario;
+
     public $cuota;
 
-    public $numpago,
-        $numtramite,
-        $numprestamo,
-        $fecha_pago,
-        $descripcion,
-        $montopago,
-        $capital,
-        $interes,
-        $interes_devg,
-        $seguro,
-        $seguro_devg,
-        $otros,
-        $hora_pago,
-        $prtdtfpro,
-        $agencia_pago,
-        $depto_pago,
-        $obs_pago;
+    public $numpago;
 
-    public $capital_diff, $interes_diff, $cuota_diff;
+    public $numtramite;
+
+    public $numprestamo;
+
+    public $fecha_pago;
+
+    public $descripcion;
+
+    public $montopago;
+
+    public $capital;
+
+    public $interes;
+
+    public $interes_devg;
+
+    public $seguro;
+
+    public $seguro_devg;
+
+    public $otros;
+
+    public $hora_pago;
+
+    public $prtdtfpro;
+
+    public $agencia_pago;
+
+    public $depto_pago;
+
+    public $obs_pago;
+
+    public $capital_diff;
+
+    public $interes_diff;
+
+    public $cuota_diff;
+
     public $enableDiffFields = false;
+
     public $totalpagado = 0;
+
     public $totalinicial = 0;
 
     public $comprobanteDuplicado = false;
@@ -56,7 +81,7 @@ class VoucherRegister extends Component
         'hora_pago' => 'required',
         'agencia_pago' => 'required',
         'depto_pago' => 'required',
-        'obs_pago' => 'required'
+        'obs_pago' => 'required',
     ];
 
     public function save()
@@ -65,7 +90,7 @@ class VoucherRegister extends Component
         $timestamp = now()->format('Y-m-d_H-i-s');
         $tempDir = storage_path('app/public/temp/');
 
-        if (!File::isDirectory($tempDir)) {
+        if (! File::isDirectory($tempDir)) {
             File::makeDirectory($tempDir, 0755, true, true);
         }
 
@@ -73,7 +98,7 @@ class VoucherRegister extends Component
         $fullPath = "{$tempDir}/{$filename}";
 
         // Create temp directory if it doesn't exist
-        if (!file_exists($tempDir)) {
+        if (! file_exists($tempDir)) {
             mkdir($tempDir, 0755, true);
         }
 
@@ -96,7 +121,7 @@ class VoucherRegister extends Component
                 $payment->prppgcarg,
                 $payment->prppgotro,
                 $payment->prppgtota,
-                $payment->estado
+                $payment->estado,
             ]);
         }
         fclose($file);
@@ -114,7 +139,7 @@ class VoucherRegister extends Component
 
             if ($this->capital_diff >= $helpers->sum('capital') && $this->interes_diff >= $helpers->sum('interes')) {
 
-                #CAPITAL PAYMENT
+                //CAPITAL PAYMENT
                 \App\Models\Payment::create([
                     'numtramite' => $this->numtramite,
                     'prtdtitem' => 1,
@@ -129,7 +154,7 @@ class VoucherRegister extends Component
                     'prtdtfpro' => null,
                     'prtdtnpag' => $this->cuota_diff,
                     'depto_pago' => $this->depto_pago,
-                    'obs_pago' => $this->obs_pago
+                    'obs_pago' => $this->obs_pago,
                 ]);
 
                 \App\Models\Payment::create([
@@ -146,12 +171,12 @@ class VoucherRegister extends Component
                     'prtdtfpro' => null,
                     'prtdtnpag' => $this->cuota_diff,
                     'depto_pago' => $this->depto_pago,
-                    'obs_pago' => $this->obs_pago
+                    'obs_pago' => $this->obs_pago,
                 ]);
 
-                #VOUCHER
+                //VOUCHER
                 \App\Models\Voucher::create([
-                    'agencia_pago' => $this->agencia_pago . ' : (VENTANILLA) ' . Auth::user()->name,
+                    'agencia_pago' => $this->agencia_pago.' : (VENTANILLA) '.Auth::user()->name,
                     'descripcion' => $this->descripcion,
                     'fecha_pago' => $this->fecha_pago,
                     'hora_pago' => $this->hora_pago,
@@ -160,7 +185,7 @@ class VoucherRegister extends Component
                     'numprestamo' => $this->numprestamo,
                     'numtramite' => $this->numtramite,
                     'depto_pago' => $this->depto_pago,
-                    'obs_pago' => $this->obs_pago
+                    'obs_pago' => $this->obs_pago,
                 ]);
 
                 $this->beneficiario->helpers()->where('estado', 'ACTIVO')->where('indice', $this->cuota_diff)->first()->update([
@@ -183,7 +208,7 @@ class VoucherRegister extends Component
 
                 return redirect(request()->header('Referer'));
             } else {
-                #CAPITAL PAYMENT
+                //CAPITAL PAYMENT
                 \App\Models\Payment::create([
                     'numtramite' => $this->numtramite,
                     'prtdtitem' => 1,
@@ -198,7 +223,7 @@ class VoucherRegister extends Component
                     'prtdtfpro' => null,
                     'prtdtnpag' => $this->cuota_diff,
                     'depto_pago' => $this->depto_pago,
-                    'obs_pago' => $this->obs_pago
+                    'obs_pago' => $this->obs_pago,
                 ]);
 
                 \App\Models\Payment::create([
@@ -215,12 +240,12 @@ class VoucherRegister extends Component
                     'prtdtfpro' => null,
                     'prtdtnpag' => $this->cuota_diff,
                     'depto_pago' => $this->depto_pago,
-                    'obs_pago' => $this->obs_pago
+                    'obs_pago' => $this->obs_pago,
                 ]);
 
-                #VOUCHER
+                //VOUCHER
                 \App\Models\Voucher::create([
-                    'agencia_pago' => $this->agencia_pago . ' : (VENTANILLA) ' . Auth::user()->name,
+                    'agencia_pago' => $this->agencia_pago.' : (VENTANILLA) '.Auth::user()->name,
                     'descripcion' => $this->descripcion,
                     'fecha_pago' => $this->fecha_pago,
                     'hora_pago' => $this->hora_pago,
@@ -229,7 +254,7 @@ class VoucherRegister extends Component
                     'numprestamo' => $this->numprestamo,
                     'numtramite' => $this->numtramite,
                     'depto_pago' => $this->depto_pago,
-                    'obs_pago' => $this->obs_pago
+                    'obs_pago' => $this->obs_pago,
                 ]);
 
                 $this->beneficiario->helpers()->where('indice', $this->cuota_diff)->update([
@@ -240,18 +265,18 @@ class VoucherRegister extends Component
                 $this->beneficiario->update([
                     'saldo_credito' => $this->beneficiario->saldo_credito - $this->capital_diff,
                     'user_id' => Auth::user()->id,
-                    'updated_at' => now()
+                    'updated_at' => now(),
                 ]);
 
                 return redirect(request()->header('Referer'));
             }
         }
 
-        if (!$this->enableDiffFields) {
+        if (! $this->enableDiffFields) {
 
             $this->validate();
 
-            #CAPITAL PAYMENT
+            //CAPITAL PAYMENT
             \App\Models\Payment::create([
                 'numtramite' => $this->numtramite,
                 'prtdtitem' => 1,
@@ -266,7 +291,7 @@ class VoucherRegister extends Component
                 'prtdtfpro' => null,
                 'prtdtnpag' => $this->numpago,
                 'depto_pago' => $this->depto_pago,
-                'obs_pago' => $this->obs_pago
+                'obs_pago' => $this->obs_pago,
             ]);
 
             \App\Models\Payment::create([
@@ -283,7 +308,7 @@ class VoucherRegister extends Component
                 'prtdtfpro' => null,
                 'prtdtnpag' => $this->numpago,
                 'depto_pago' => $this->depto_pago,
-                'obs_pago' => $this->obs_pago
+                'obs_pago' => $this->obs_pago,
             ]);
 
             \App\Models\Payment::create([
@@ -300,7 +325,7 @@ class VoucherRegister extends Component
                 'prtdtfpro' => null,
                 'prtdtnpag' => $this->numpago,
                 'depto_pago' => $this->depto_pago,
-                'obs_pago' => $this->obs_pago
+                'obs_pago' => $this->obs_pago,
             ]);
 
             \App\Models\Payment::create([
@@ -317,7 +342,7 @@ class VoucherRegister extends Component
                 'prtdtfpro' => null,
                 'prtdtnpag' => $this->numpago,
                 'depto_pago' => $this->depto_pago,
-                'obs_pago' => $this->obs_pago
+                'obs_pago' => $this->obs_pago,
             ]);
 
             \App\Models\Payment::create([
@@ -334,7 +359,7 @@ class VoucherRegister extends Component
                 'prtdtfpro' => null,
                 'prtdtnpag' => $this->numpago,
                 'depto_pago' => $this->depto_pago,
-                'obs_pago' => $this->obs_pago
+                'obs_pago' => $this->obs_pago,
             ]);
 
             \App\Models\Payment::create([
@@ -351,14 +376,14 @@ class VoucherRegister extends Component
                 'prtdtfpro' => null,
                 'prtdtnpag' => $this->numpago,
                 'depto_pago' => $this->depto_pago,
-                'obs_pago' => $this->obs_pago
+                'obs_pago' => $this->obs_pago,
             ]);
 
             $this->montopago = $this->capital + $this->interes + $this->interes_devg + $this->seguro + $this->seguro_devg + $this->otros;
 
-            #VOUCHER
+            //VOUCHER
             \App\Models\Voucher::create([
-                'agencia_pago' => $this->agencia_pago . ' : (VENTANILLA) ' . Auth::user()->name,
+                'agencia_pago' => $this->agencia_pago.' : (VENTANILLA) '.Auth::user()->name,
                 'descripcion' => $this->descripcion,
                 'fecha_pago' => $this->fecha_pago,
                 'hora_pago' => $this->hora_pago,
@@ -367,9 +392,8 @@ class VoucherRegister extends Component
                 'numprestamo' => $this->numprestamo,
                 'numtramite' => $this->numtramite,
                 'depto_pago' => $this->depto_pago,
-                'obs_pago' => $this->obs_pago
+                'obs_pago' => $this->obs_pago,
             ]);
-
 
             $this->cuota->update([
                 'prppgcapi' => $this->capital,
@@ -386,9 +410,11 @@ class VoucherRegister extends Component
 
                 $planVigente = $this->beneficiario->getCurrentPlan('CANCELADO', '!=');
 
-                $totalPlan = $this->beneficiario->getCurrentPlan('INACTIVO', '!=')->sum('prppgcapi');
+                $this->beneficiario->refresh();
 
-                $this->beneficiario = $this->beneficiario->refresh();
+                $this->beneficiario->load('plans');
+
+                $totalPlan = $this->beneficiario->plans->sum('prppgcapi');
 
                 $this->actualizarPlanActual($this->numprestamo, $this->beneficiario->saldo_credito, $planVigente, $totalPlan);
             }
@@ -399,7 +425,7 @@ class VoucherRegister extends Component
 
                 $totalPlan = $this->beneficiario->getCurrentPlan('INACTIVO', '!=')->sum('prppgcapi');
 
-                $this->beneficiario = $this->beneficiario->refresh();
+                $this->beneficiario->refresh();
 
                 $this->actualizarPlanActual($this->numprestamo, $this->beneficiario->saldo_credito, $planVigente, $totalPlan);
 
@@ -407,7 +433,7 @@ class VoucherRegister extends Component
                     'saldo_credito' => 0,
                     'estado' => 'CANCELADO',
                     'user_id' => Auth::user()->id,
-                    'updated_at' => now()
+                    'updated_at' => now(),
                 ]);
             }
 
@@ -422,7 +448,7 @@ class VoucherRegister extends Component
             ->orderBy('fecha_ppg', 'asc')
             ->first();
 
-        if (!$p) {
+        if (! $p) {
             $p = \App\Models\Readjustment::where('idepro', $idepro)
                 ->whereIn('estado', ['VENCIDO', 'ACTIVO'])
                 ->orderBy('fecha_ppg', 'asc')
