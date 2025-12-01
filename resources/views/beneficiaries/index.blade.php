@@ -62,11 +62,12 @@
                         </button>
                     </form>
                 </div>
+                <livewire:beneficiaries.create-beneficiary lazy="on-load" />
                 <script>
                     document.getElementById('frmXlsxSeguros').addEventListener('submit', function(e) {
                         const periodo = document.getElementById('periodo').value;
                         this.action = this.action.replace('__periodo__', periodo);
-                        
+
                     });
                 </script>
             </div>
