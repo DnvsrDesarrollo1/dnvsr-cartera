@@ -1,44 +1,38 @@
 <x-app-layout>
     <div class="w-full mt-4">
-        <div class="px-4 grid sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-2">
+        <div class="px-4 grid sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-2 relative">
+            <button type="button" onclick="startBeneficiaryTour()"
+                class="absolute top-2 left-[1.5rem] p-1 rounded-full bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                title="Guía rápida">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                        clip-rule="evenodd" />
+                </svg>
+            </button>
             <div class="bg-white shadow-lg rounded-lg p-6 mb-4 h-fit border border-gray-300" id="profile_preview">
-                <div class="flex items-center justify-between border-b pb-2">
+                <div class="flex items-center justify-between border-b pb-2" id="profile_header">
                     <div class="flex items-center space-x-4 border-l-4 border-gray-500 pl-2">
                         <h1 class="text-xl font-medium text-gray-900">
                             {{ $beneficiary->nombre }}
                         </h1>
                     </div>
-
-                    <div class="flex items-center gap-3 p-2 bg-gray-200 rounded-md">
-                        @if ($beneficiary->estado != 'BLOQUEADO' && $beneficiary->estado != 'CANCELADO')
-                            @can('write beneficiaries')
-                                <form action="{{ route('beneficiario.update', $beneficiary) }}" method="POST" class="inline">
-                                    @csrf
-                                    @method('PUT')
-                                    <button type="submit"
-                                        class="p-1.5 rounded-full hover:bg-gray-100 text-gray-500 hover:text-red-600 transition-colors"
-                                        onclick="return confirm('¿Está seguro de bloquear este beneficiario?')"
-                                        title="Bloquear beneficiario">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                        </svg>
-                                    </button>
-                                </form>
-                            @endcan
-                        @endif
-
+                    <div class="flex items-center gap-3 p-2 bg-gray-200 rounded-md" id="profile_actions">
                         @can('write beneficiaries')
-                            @livewire('beneficiary-update', ['beneficiary' => $beneficiary])
+                            <div id="update-beneficiary">
+                                @livewire('beneficiary-update', ['beneficiary' => $beneficiary])
+                            </div>
                         @endcan
 
                         @if (auth()->user()->can('read settlements') || auth()->user()->can('write settlements'))
-                            @livewire('settle-beneficiary', ['beneficiary' => $beneficiary])
+                            <div id="settle-beneficiary">
+                                @livewire('settle-beneficiary', ['beneficiary' => $beneficiary])
+                            </div>
                         @endif
                     </div>
                 </div>
 
-                <div class="flex items-center justify-center my-2">
+                <div class="flex items-center justify-center my-2" id="profile_identifiers">
                     <span class="text-xs text-gray-800 bg-gray-200 p-2 rounded-md">
                         CI: <span class="font-medium">{{ $beneficiary->ci }} {{ $beneficiary->complemento }}
                             {{ $beneficiary->expedido }}</span> |
@@ -52,7 +46,7 @@
                         goto="{{ session('file') ?? null }}" />
                 @endif
 
-                <div class="mt-2 grid grid-cols-2 gap-4">
+                <div class="mt-2 grid grid-cols-2 gap-4" id="profile_infocards">
                     @php
                         $infoCards = [
                             [
@@ -115,7 +109,7 @@
                     @endforeach
 
                     <div class="col-span-2 grid grid-cols-2 gap-4">
-                        <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+                        <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100" id="profile_plan">
                             @php
                                 $plans = $beneficiary->getCurrentPlan();
                             @endphp
@@ -144,7 +138,7 @@
                             </div>
                         </div>
 
-                        <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+                        <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100" id="profile_payments">
                             <div class="flex flex-col items-center gap-2">
                                 @if ($beneficiary->payments()->count() > 0)
                                     <livewire:payment-modal lazy :beneficiary="$beneficiary" title="Historial de Pagos" />
@@ -458,7 +452,7 @@
                 </div>
             </div>
             <div class="bg-white p-4 rounded-lg shadow h-fit border border-gray-300" id="profile_management">
-                <div class="bg-gray-100 p-4 rounded-lg flex justify-between border-l-8 border-gray-800">
+                <div class="bg-gray-100 p-4 rounded-lg flex justify-between border-l-8 border-gray-800" id="profile_mgmt_header">
                     <h3 class="font-bold">
                         Generador de Planes de Pago:
                     </h3>
@@ -471,9 +465,9 @@
                         @endif
                     </p>
                 </div>
-                <div x-data="{ show: false }">
+                <div x-data="{ show: false }" id="profile_mgmt_section">
                     @if ($beneficiary->estado != 'CANCELADO')
-                        <button @click="show = !show"
+                        <button @click="show = !show" id="profile_mgmt_toggle"
                             class="rounded-full m-2 overflow-hidden border border-gray-300 block mx-auto transition">
                             <svg x-show="!show" width="64px" height="64px" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
@@ -499,7 +493,7 @@
                     @endif
                     <div class="bg-white rounded-lg shadow-lg p-8 border border-gray-200" x-show="show" x-transition
                         x-cloak>
-                        <form action="{{ route('plan.reajuste') }}" method="post">
+                        <form action="{{ route('plan.reajuste') }}" method="post" id="profile_mgmt_form">
                             @csrf
                             <input type="hidden" name="idepro" value="{{ $beneficiary->idepro }}" />
                             <input type="hidden" name="plazo_credito" value="{{ $beneficiary->plazo_credito }}" />
@@ -509,7 +503,7 @@
                             <div class="space-y-6">
                                 <!-- Main Credit Information -->
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                    <div class="bg-gray-50 p-4 rounded-lg" id="profile_mgmt_capital">
                                         <label for="capital_inicial"
                                             class="text-gray-700 font-semibold mb-2 flex items-center">
                                             <span
@@ -524,7 +518,7 @@
                                             title="Saldo restante de (Monto Activado menos Monto en Cuotas)">
                                     </div>
 
-                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                    <div class="bg-gray-50 p-4 rounded-lg" id="profile_mgmt_months">
                                         <label for="meses"
                                             class="text-gray-700 font-semibold mb-2 flex items-center">
                                             <span
@@ -539,8 +533,8 @@
                                 </div>
 
                                 <!-- Interest and Insurance -->
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="profile_mgmt_rates">
+                                    <div class="bg-gray-50 p-4 rounded-lg" id="profile_mgmt_interest">
                                         <label for="taza_interes"
                                             class="text-gray-700 font-semibold mb-2 flex items-center">
                                             <span
@@ -548,7 +542,7 @@
                                             Interés
                                         </label>
                                         <div class="relative">
-                                            <input type="text" inputmode="decimal" name="taza_interes"
+                                            <input type="text" inputmode="decimal" name="taza_interes" id="taza_interes"
                                                 placeholder="Ej: 13" pattern="[0-9]*[.,]?[0-9]*"
                                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                                                 required value="{{ $beneficiary->tasa_interes ?? 0 }}"
@@ -557,7 +551,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                    <div class="bg-gray-50 p-4 rounded-lg" id="seguro">
                                         <label for="seguro"
                                             class="text-gray-700 font-semibold mb-2 flex items-center">
                                             <span
@@ -575,7 +569,7 @@
                                 </div>
 
                                 <!-- Additional Options -->
-                                <div class="bg-gray-50 p-4 rounded-lg">
+                                <div class="bg-gray-50 p-4 rounded-lg" id="profile_mgmt_options">
                                     <div class="space-y-4">
                                         <label for="correlativo"
                                             class="hidden items-center p-4 bg-white rounded-lg shadow-sm border border-gray-200 cursor-pointer hover:bg-gray-50 transition"
@@ -605,7 +599,7 @@
                                 </div>
 
                                 <!-- Optional Deferral Section -->
-                                <div class="bg-gray-50 p-6 rounded-lg space-y-4">
+                                <div class="bg-gray-50 p-6 rounded-lg space-y-4" id="profile_mgmt_deferral">
                                     <h3 class="font-semibold text-gray-800 mb-4">Diferimiento de cobro (Opcional)</h3>
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         <input type="number" id="diff_cuotas" name="diff_cuotas"
@@ -628,7 +622,7 @@
                                 </div>
                             </div>
 
-                            <div class="flex justify-end mt-6">
+                            <div class="flex justify-end mt-6" id="profile_mgmt_submit">
                                 <x-personal.button submit="true" iconCenter="fa-solid fa-calculator text-xl"
                                     class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200">
                                     Vista Previa del Plan

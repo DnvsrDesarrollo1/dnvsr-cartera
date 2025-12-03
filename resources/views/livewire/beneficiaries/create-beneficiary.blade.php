@@ -1,6 +1,7 @@
-<div x-data="{ openNewBeneficiary: @entangle('openNewBeneficiary') }">
+<div x-data="{ openNewBeneficiary: @entangle('openNewBeneficiary') }" id="create_beneficiary_root">
     <div class="relative inline-block">
         <button @click="openNewBeneficiary = true" @keydown.escape.window="openNewBeneficiary = false"
+            id="new_beneficiary_button"
             class="text-xs bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 active:bg-green-800 transition flex items-center gap-2">
             <i class="fa-solid fa-user-plus"></i><span>Nuevo Beneficiario</span>
         </button>
@@ -14,9 +15,19 @@
         <div class="fixed inset-0 transition-opacity" @click="openNewBeneficiary = false">
             <div class="absolute inset-0 bg-gray-500 opacity-25"></div>
         </div>
-        <div
-            class="bg-white rounded-lg shadow-md transform transition-all sm:max-w-4xl sm:w-full m-4 z-50 overflow-hidden border-2 border-gray-400">
-            <div class="bg-gray-100 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+        <div class="relative bg-white rounded-lg shadow-md transform transition-all sm:max-w-4xl sm:w-full m-4 z-50 overflow-hidden border-2 border-gray-400"
+            id="create_beneficiary_modal">
+            <div class="bg-gray-100 px-4 py-3 border-b border-gray-200 flex justify-between items-center"
+                id="create_beneficiary_header">
+                <button type="button" onclick="startCreateBeneficiaryTour()"
+                    class="absolute top-2 left-[12rem] p-1 rounded-full bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    title="Guía rápida">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </button>
                 <div>
                     <h3 class="text-lg font-medium text-gray-900">Nuevo Beneficiario</h3>
                     <span class="text-xs text-gray-400">
@@ -33,9 +44,10 @@
                 </div>
             </div>
 
-            <form wire:submit.prevent="saveBeneficiary" class="p-4 max-h-[calc(100vh-200px)] overflow-y-auto">
+            <form wire:submit.prevent="saveBeneficiary" class="p-4 max-h-[calc(100vh-200px)] overflow-y-auto"
+                id="create_beneficiary_form">
                 {{-- Sección: Información Personal --}}
-                <div class="mb-6 pb-4 border-l-2 border-green-800 px-4">
+                <div class="mb-6 pb-4 border-l-2 border-green-800 px-4" id="create_beneficiary_personal">
                     <h4 class="text-md font-semibold text-gray-800 mb-4 bg-gray-200 p-2 rounded">
                         Información Personal
                     </h4>
@@ -193,7 +205,7 @@
                 </div>
 
                 {{-- Sección: Información del Crédito --}}
-                <div class="mb-6 pb-4 border-l-2 border-green-800 px-4">
+                <div class="mb-6 pb-4 border-l-2 border-green-800 px-4" id="create_beneficiary_credit">
                     <h4 class="text-md font-semibold text-gray-800 mb-4 bg-gray-200 p-2 rounded">
                         Información del Crédito
                     </h4>
@@ -345,10 +357,12 @@
                     </div>
                 </div>
             </form>
-            <div class="bg-gray-200 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+            <div class="bg-gray-200 px-4 py-3 border-b border-gray-200 flex justify-between items-center"
+                id="create_beneficiary_footer">
                 <button wire:click="saveBeneficiary" wire:loading.attr="disabled"
                     wire:confirm="¿Estas seguro(a) de crear el perfil?"
-                    class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                    class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    id="create_beneficiary_submit">
                     <span wire:loading.remove wire:target="saveBeneficiary">Crear Perfil</span>
                     <span wire:loading wire:target="saveBeneficiary">Creando...</span>
                 </button>

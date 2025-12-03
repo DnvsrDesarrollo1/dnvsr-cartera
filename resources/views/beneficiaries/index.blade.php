@@ -1,11 +1,22 @@
 <x-app-layout>
-    <div class="mx-auto px-4 py-2 w-full">
+    <div class="relative mx-auto px-4 py-2 w-full">
+
+        <button type="button" onclick="startBeneficiaryTour()"
+            class="absolute top-[5.5rem] right-4 p-1 rounded-full bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            title="Guía rápida">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                    clip-rule="evenodd" />
+            </svg>
+        </button>
+
         <div class="space-y-2 my-2">
             @php
                 $criterio = DB::table('beneficiaries')->distinct()->get('estado');
                 $total = DB::table('beneficiaries')->count();
             @endphp
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2" id="index_status_grid">
                 @foreach ($criterio as $c)
                     @php
                         $count = DB::table('beneficiaries')->where('estado', $c->estado)->count();
@@ -45,7 +56,7 @@
                         $periods->prepend(now()->addMonths($i)->format('Y-m'));
                     }
                 @endphp
-                <div class="bg-gray-50 rounded-xl p-3 shadow-sm hover:shadow transition">
+                <div class="bg-gray-50 rounded-xl p-3 shadow-sm hover:shadow transition" id="index_seguros_card">
                     <form action="{{ route('plan.xlsx-seguros', ['periodo' => '__periodo__']) }}" method="GET"
                         id="frmXlsxSeguros" class="flex items-center gap-2">
                         <label for="periodo" class="text-gray-700 text-xs font-medium">Planilla Seguros</label>
@@ -56,13 +67,15 @@
                                 </option>
                             @endforeach
                         </select>
-                        <button type="submit"
+                        <button type="submit" id="frmXlsxSeguros_submit"
                             class="text-xs bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 active:bg-blue-800 transition">
                             Exportar
                         </button>
                     </form>
                 </div>
-                <livewire:beneficiaries.create-beneficiary lazy="on-load" />
+                <div id="index_create_beneficiary">
+                    <livewire:beneficiaries.create-beneficiary lazy="on-load" />
+                </div>
                 <script>
                     document.getElementById('frmXlsxSeguros').addEventListener('submit', function(e) {
                         const periodo = document.getElementById('periodo').value;
@@ -80,16 +93,19 @@
             </svg>
             <span class="font-semibold">En desarrollo, espere el lanzamiento oficial...</span>
         </div> --}}
-        <div class="bg-white overflow-x-auto shadow-lg overflow-y-auto p-2 rounded-lg border border-gray-300 mt-2 mb-2">
+        <div class="bg-white overflow-x-auto shadow-lg overflow-y-auto p-2 rounded-lg border border-gray-300 mt-2 mb-2"
+            id="index_table_card">
             <div class="px-4">
-                @if (session('success'))
-                    <x-personal.alert type="success" message="{{ session('success') }}" />
-                @endif
-                @if (session('error'))
-                    <x-personal.alert type="error" message="{{ session('error') }} : {{ session('data') }}" />
-                @endif
+                <div id="index_alerts">
+                    @if (session('success'))
+                        <x-personal.alert type="success" message="{{ session('success') }}" />
+                    @endif
+                    @if (session('error'))
+                        <x-personal.alert type="error" message="{{ session('error') }} : {{ session('data') }}" />
+                    @endif
+                </div>
             </div>
-            <div class="px-4">
+            <div class="px-4" id="index_table">
                 @livewire('components.beneficiary-table')
                 {{-- <livewire:components.beneficiary-table lazy="on-load" /> --}}
             </div>
