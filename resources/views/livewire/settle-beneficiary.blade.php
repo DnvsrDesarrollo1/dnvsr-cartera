@@ -453,8 +453,10 @@
                                         clossable="false" />
                                     <div>
                                         <x-personal.button variant="success" iconLeft="fa-solid fa-paper-plane"
-                                            wire:click="save" wire:confirm="¿Está seguro de actualizar la solicitud?">
-                                            Actualizar Solicitud
+                                            wire:click="save" wire:confirm="¿Está seguro de actualizar la solicitud?"
+                                            wire:loading.attr="disabled" wire:loading.class="opacity-75 cursor-not-allowed">
+                                            <span wire:loading.remove wire:target="save">Actualizar Solicitud</span>
+                                            <span wire:loading wire:target="save">Liquidando/Cancelando....</span>
                                         </x-personal.button>
                                     </div>
                                 </div>
