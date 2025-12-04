@@ -20,13 +20,13 @@
                     <div class="flex items-center gap-3 p-2 bg-gray-200 rounded-md" id="profile_actions">
                         @can('write beneficiaries')
                             <div id="update-beneficiary">
-                                @livewire('beneficiary-update', ['beneficiary' => $beneficiary])
+                                <livewire:beneficiary-update lazy :beneficiary="$beneficiary" />
                             </div>
                         @endcan
 
                         @if (auth()->user()->can('read settlements') || auth()->user()->can('write settlements'))
                             <div id="settle-beneficiary">
-                                @livewire('settle-beneficiary', ['beneficiary' => $beneficiary])
+                                <livewire:settle-beneficiary lazy :beneficiary="$beneficiary" />
                             </div>
                         @endif
                     </div>
@@ -452,7 +452,8 @@
                 </div>
             </div>
             <div class="bg-white p-4 rounded-lg shadow h-fit border border-gray-300" id="profile_management">
-                <div class="bg-gray-100 p-4 rounded-lg flex justify-between border-l-8 border-gray-800" id="profile_mgmt_header">
+                <div class="bg-gray-100 p-4 rounded-lg flex justify-between border-l-8 border-gray-800"
+                    id="profile_mgmt_header">
                     <h3 class="font-bold">
                         Generador de Planes de Pago:
                     </h3>
@@ -542,8 +543,8 @@
                                             Interés
                                         </label>
                                         <div class="relative">
-                                            <input type="text" inputmode="decimal" name="taza_interes" id="taza_interes"
-                                                placeholder="Ej: 13" pattern="[0-9]*[.,]?[0-9]*"
+                                            <input type="text" inputmode="decimal" name="taza_interes"
+                                                id="taza_interes" placeholder="Ej: 13" pattern="[0-9]*[.,]?[0-9]*"
                                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                                                 required value="{{ $beneficiary->tasa_interes ?? 0 }}"
                                                 title="Taza por defecto 3%">

@@ -176,7 +176,7 @@ class SettleBeneficiary extends Component
         } catch (\Exception $e) {
             // Reset to default values on error
             $this->resetProperties();
-            throw new \Exception('Error mounting SettleBeneficiary component: '.$e->getMessage());
+            throw new \Exception('Error mounting SettleBeneficiary component: ' . $e->getMessage());
         }
     }
 
@@ -249,7 +249,7 @@ class SettleBeneficiary extends Component
                 null,
                 'CAPITAL',
                 $this->capSettle,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: '.Auth::user()->name) : ('LIQUIDACION TOTAL: '.Auth::user()->name),
+                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'CANCELACION/LIQUIDACION'
@@ -265,7 +265,7 @@ class SettleBeneficiary extends Component
                 null,
                 'CAPITAL DIFERIDO',
                 $this->capDifSettle,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: '.Auth::user()->name) : ('LIQUIDACION TOTAL: '.Auth::user()->name),
+                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'CANCELACION/LIQUIDACION'
@@ -281,7 +281,7 @@ class SettleBeneficiary extends Component
                 null,
                 'INTERES',
                 $this->intSettle,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: '.Auth::user()->name) : ('LIQUIDACION TOTAL: '.Auth::user()->name),
+                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'CANCELACION/LIQUIDACION'
@@ -297,7 +297,7 @@ class SettleBeneficiary extends Component
                 null,
                 'INTERES DIFERIDO',
                 $this->intDifSettle,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: '.Auth::user()->name) : ('LIQUIDACION TOTAL: '.Auth::user()->name),
+                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'CANCELACION/LIQUIDACION'
@@ -313,7 +313,7 @@ class SettleBeneficiary extends Component
                 null,
                 'INTERES DEVENGADO',
                 $this->intDevSettle,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: '.Auth::user()->name) : ('LIQUIDACION TOTAL: '.Auth::user()->name),
+                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'CANCELACION/LIQUIDACION'
@@ -329,7 +329,7 @@ class SettleBeneficiary extends Component
                 null,
                 'SEGURO DESGRAVAMEN',
                 $this->segSettle,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: '.Auth::user()->name) : ('LIQUIDACION TOTAL: '.Auth::user()->name),
+                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'CANCELACION/LIQUIDACION'
@@ -345,7 +345,7 @@ class SettleBeneficiary extends Component
                 null,
                 'SEGURO DESGRAVAMEN DEVENGADO',
                 $this->segDevSettle,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: '.Auth::user()->name) : ('LIQUIDACION TOTAL: '.Auth::user()->name),
+                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'CANCELACION/LIQUIDACION'
@@ -361,7 +361,7 @@ class SettleBeneficiary extends Component
                 null,
                 'OTROS',
                 $this->otrosSettle,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: '.Auth::user()->name) : ('LIQUIDACION TOTAL: '.Auth::user()->name),
+                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'CANCELACION/LIQUIDACION'
@@ -377,7 +377,7 @@ class SettleBeneficiary extends Component
                 null,
                 'GASTOS ADMINISTRATIVOS',
                 $this->gastosAdm,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: '.Auth::user()->name) : ('LIQUIDACION TOTAL: '.Auth::user()->name),
+                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'CANCELACION/LIQUIDACION'
@@ -393,7 +393,7 @@ class SettleBeneficiary extends Component
                 null,
                 'GASTOS JUDICIALES',
                 $this->gastosJud,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: '.Auth::user()->name) : ('LIQUIDACION TOTAL: '.Auth::user()->name),
+                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'CANCELACION/LIQUIDACION'
@@ -409,14 +409,14 @@ class SettleBeneficiary extends Component
                 null,
                 'DESCUENTO AL GASTO ADMINISTRATIVO',
                 $this->descuento,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: '.Auth::user()->name) : ('LIQUIDACION TOTAL: '.Auth::user()->name),
+                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
                 'CANCELACION/LIQUIDACION'
             );
 
             $this->createVoucher(
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: '.Auth::user()->name) : ('LIQUIDACION TOTAL: '.Auth::user()->name),
+                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
                 'CANCELACION/LIQUIDACION',
                 $this->fecha_comprobante,
                 null,
@@ -575,5 +575,15 @@ class SettleBeneficiary extends Component
         }
 
         return round(\Carbon\Carbon::parse($listaPlan->fecha_ppg)->diffInDays(now()), 0);
+    }
+
+    public function placeholder()
+    {
+        return <<< 'HTML'
+            <div class="flex items-center justify-center p-4">
+                <div class="animate-pulse h-2 w-2 bg-blue-500 rounded-full"></div>
+                <span class="ml-3 text-gray-600 text-sm font-light">Cargando</span>
+            </div>
+        HTML;
     }
 }

@@ -65,6 +65,7 @@ class CreateBeneficiary extends Component
 
     private $departamentos = [
         '' => '',
+        'QR' => 'QR',
         'LA PAZ' => 'LP',
         'COCHABAMBA' => 'CB',
         'SANTA CRUZ' => 'SC',
@@ -96,7 +97,7 @@ class CreateBeneficiary extends Component
             'nombre' => strtoupper($this->nombre),
             'ci' => $this->ci,
             'complemento' => strtoupper($this->complemento),
-            'expedido' => $this->expedido,
+            'expedido' => $this->departamentos[$this->expedido],
             'mail' => $this->mail,
             'estado' => $this->estado,
             'entidad_financiera' => strtoupper($this->entidad_financiera),

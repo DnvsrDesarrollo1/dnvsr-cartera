@@ -60,7 +60,7 @@ class BeneficiaryUpdate extends Component
         'estado' => 'required|string|max:50',
         'idepro' => 'required|string|max:50',
         'cod_fondesif' => '',
-        'fecha_nacimiento' => 'required|date',
+        'fecha_nacimiento' => 'nullable|date',
         'total_activado' => 'required|numeric',
         'monto_activado' => 'required|numeric',
         'monto_credito' => 'required|numeric',
@@ -76,19 +76,39 @@ class BeneficiaryUpdate extends Component
 
     public function mount(Beneficiary $beneficiary)
     {
-        $this->beneficiary = $beneficiary;
+        // Eager load todas las relaciones necesarias para evitar N+1
+        $this->beneficiary = $beneficiary->load([
+            'insurance',
+            'plans' => function ($query) {
+                $query->where('estado', '!=', 'INACTIVO')->orderBy('fecha_ppg', 'asc');
+            },
+            'readjustments' => function ($query) {
+                $query->where('estado', '!=', 'INACTIVO')->orderBy('fecha_ppg', 'asc');
+            }
+        ]);
+
         $this->fill($beneficiary->toArray());
-        $this->seguro = ($beneficiary->insurance()->exists()) ? $beneficiary->insurance->tasa_seguro : 0;
+
+        // Calcular seguro usando la relación ya cargada
+        $this->seguro = $beneficiary->insurance?->tasa_seguro ?? 0;
+
         if ($this->seguro == 0) {
-            $this->seguro = ($this->beneficiary->hasPlan())
-                ?
-                ($this->beneficiary->getCurrentPlan('INACTIVO', '!=')->first()->prppgsegu /
-                $this->beneficiary->getCurrentPlan('INACTIVO', '!=')->sum('prppgcapi')) * 100
-                : 0;
+            // Cachear el resultado de getCurrentPlan para evitar consultas duplicadas
+            $currentPlan = $this->beneficiary->getCurrentPlan('INACTIVO', '!=');
+
+            if ($currentPlan->isNotEmpty()) {
+                $totalCapital = $currentPlan->sum('prppgcapi');
+                if ($totalCapital > 0) {
+                    $this->seguro = ($currentPlan->first()->prppgsegu / $totalCapital) * 100;
+                }
+            }
         }
+
         $this->seguro = number_format($this->seguro, 3);
 
-        $this->cuota = ($this->beneficiary->hasPlan()) ? $this->beneficiary->getCurrentPlan('INACTIVO', '!=')->first()->prppgcuota : 0;
+        // Reutilizar el plan ya cargado para obtener la cuota
+        $currentPlan = $currentPlan ?? $this->beneficiary->getCurrentPlan('INACTIVO', '!=');
+        $this->cuota = $currentPlan->first()?->prppgcuota ?? 0;
     }
 
     public function update()
@@ -96,13 +116,25 @@ class BeneficiaryUpdate extends Component
         $this->validate();
 
         if ($this->idepro != $this->beneficiary->idepro) {
+            // Eager load todas las relaciones que se van a actualizar
+            $this->beneficiary->loadMissing([
+                'plans',
+                'helpers',
+                'spends',
+                'insurance',
+                'earns',
+                'vouchers',
+                'payments'
+            ]);
 
+            // Actualizar planes activos
             foreach ($this->beneficiary->getCurrentPlan('INACTIVO', '!=') as $p) {
                 $p->update([
                     'idepro' => $this->idepro,
                 ]);
             }
 
+            // Actualizar relaciones usando las ya cargadas
             $this->beneficiary->helpers()->update([
                 'idepro' => $this->idepro,
             ]);
@@ -177,7 +209,7 @@ class BeneficiaryUpdate extends Component
 
         $this->beneficiary->delete();
 
-        Log::info('Beneficiary with idepro '.$idepro.' has been deleted by '.\Illuminate\Support\Facades\Auth::user()->name);
+        Log::info('Beneficiary with idepro ' . $idepro . ' has been deleted by ' . \Illuminate\Support\Facades\Auth::user()->name);
 
         return redirect()->route('beneficiario.index');
     }
@@ -185,5 +217,15 @@ class BeneficiaryUpdate extends Component
     public function render()
     {
         return view('livewire.beneficiary-update');
+    }
+
+    public function placeholder()
+    {
+        return <<< 'HTML'
+            <div class="flex items-center justify-center p-4">
+                <div class="animate-pulse h-2 w-2 bg-blue-500 rounded-full"></div>
+                <span class="ml-3 text-gray-600 text-sm font-light">Cargando</span>
+            </div>
+        HTML;
     }
 }
