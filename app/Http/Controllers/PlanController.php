@@ -65,7 +65,7 @@ class PlanController extends Controller
                     'porcentajeMora' => $porcentajeMora,
                     'departamento' => $departamento,
                     'listaBeneficiarios' => $group
-                        ->map(fn ($item) => [
+                        ->map(fn($item) => [
                             'nombre' => $item->nombre,
                             'ci' => $item->ci,
                         ])->toArray(),
@@ -81,12 +81,32 @@ class PlanController extends Controller
 
     public function pdfMoraProyecto($proyecto)
     {
-        // 1) Obtener todos los beneficiarios del proyecto solicitado
-        $beneficiariosProyecto = Beneficiary::where('proyecto', $proyecto)->get();
+        // 1) Obtener todos los beneficiarios del proyecto con sus relaciones necesarias (Eager Loading)
+        // Usamos subquery para la fecha del último pago para evitar cargar todos los vouchers en memoria
+        // Seleccionamos beneficiaries.* para asegurar que las claves foráneas para las relaciones estén presentes
+        $beneficiarios = Beneficiary::query()
+            ->where('proyecto', $proyecto)
+            ->select('beneficiaries.*')
+            ->addSelect([
+                'ultimo_pago_fecha' => \App\Models\Voucher::select('fecha_pago')
+                    ->whereColumn('numprestamo', 'beneficiaries.idepro')
+                    ->orderBy('fecha_pago', 'desc')
+                    ->limit(1)
+            ])
+            ->with([
+                'plans' => function ($query) {
+                    $query->where('estado', 'VENCIDO')->orderBy('fecha_ppg', 'asc');
+                },
+                'readjustments' => function ($query) {
+                    $query->where('estado', 'VENCIDO')->orderBy('fecha_ppg', 'asc');
+                }
+            ])
+            ->orderBy('nombre')
+            ->get();
 
-        // 2) Contar según estado
-        $estados = $beneficiariosProyecto->groupBy('estado')
-            ->map(fn ($grp) => $grp->count())
+        // 2) Contar según estado (en memoria, usando la colección ya cargada)
+        $estados = $beneficiarios->groupBy('estado')
+            ->map(fn($grp) => $grp->count())
             ->sortKeys()
             ->toArray();
 
@@ -106,15 +126,17 @@ class PlanController extends Controller
             'F. Activacion' => '',
         ]);
 
-        // Detalle de cada beneficiario
-        $beneficiarios = Beneficiary::where('proyecto', $proyecto)
-            ->orderBy('nombre')
-            ->get(['nombre', 'ci', 'idepro', 'estado', 'fecha_activacion']);
-
         foreach ($beneficiarios as $beneficiario) {
+            // Lógica equivalente a getCurrentPlan('VENCIDO', '=') pero usando las relaciones eager loaded
+            // para evitar consultas N+1 dentro del bucle
+            $planesVencidos = $beneficiario->plans;
 
-            $vencidoPlan = $beneficiario->getCurrentPlan('VENCIDO', '=')->first();
-            $cantidadVencido = $beneficiario->getCurrentPlan('VENCIDO', '=')->count();
+            if ($planesVencidos->isEmpty()) {
+                $planesVencidos = $beneficiario->readjustments;
+            }
+
+            $vencidoPlan = $planesVencidos->first();
+            $cantidadVencido = $planesVencidos->count();
 
             $mora = 0;
 
@@ -133,7 +155,7 @@ class PlanController extends Controller
                 'Estado' => $beneficiario->estado,
                 'Dias Mora' => $mora,
                 'Cuotas Vencidas' => $cantidadVencido,
-                'F. Ult. Pago' => $beneficiario->vouchers()->orderBy('fecha_pago', 'desc')->first()->fecha_pago ?? 'N/A',
+                'F. Ult. Pago' => $beneficiario->ultimo_pago_fecha ?? 'N/A',
                 'F. Activacion' => $beneficiario->fecha_activacion,
             ]);
         }
@@ -166,7 +188,7 @@ class PlanController extends Controller
 
         $reporte->push([
             'Nombre del Proyecto' => '',
-            'Beneficiarios' => "Total: {$beneficiariosProyecto->count()}",
+            'Beneficiarios' => "Total: {$beneficiarios->count()}",
             'CI' => '',
             'Cod. Prestamo' => '',
             'Estado' => '',
@@ -222,7 +244,7 @@ class PlanController extends Controller
         });
 
         return (new \Rap2hpoutre\FastExcel\FastExcel($collection))
-            ->download("seguros_{$periodo}_".uniqid().".xlsx");
+            ->download("seguros_{$periodo}_" . uniqid() . ".xlsx");
     }
 
     public function store(Request $request)
@@ -386,7 +408,7 @@ class PlanController extends Controller
                 ->with('success', "La activación masiva-automática de {$beneficiaries->count()} beneficiarios fue realizada");
         } catch (\Exception $e) {
             return redirect()->route('beneficiario.index')
-                ->with('error', "La activación masiva-automática de {$beneficiaries->count()} beneficiarios no fue realizada ->".$e->getMessage());
+                ->with('error', "La activación masiva-automática de {$beneficiaries->count()} beneficiarios no fue realizada ->" . $e->getMessage());
         }
     }
 
@@ -400,7 +422,7 @@ class PlanController extends Controller
         $finPlazo = date(
             'Y-m-d',
             // strtotime($beneficiary->fecha_activacion . ' + 20 years'));
-            strtotime($beneficiary->fecha_activacion.' + '.$beneficiary->plazo_credito.' months')
+            strtotime($beneficiary->fecha_activacion . ' + ' . $beneficiary->plazo_credito . ' months')
         );
 
         // // DETERMINAR LA CANTIDAD DE MESES/CUOTAS QUE SE VAN A GENERAR

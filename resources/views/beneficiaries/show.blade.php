@@ -45,6 +45,9 @@
                     <x-personal.alert type="success" message="{{ session('success') }}"
                         goto="{{ session('file') ?? null }}" />
                 @endif
+                @if (session('mutated'))
+                    <x-personal.alert type="success" message="{{ session('mutated') }}" />
+                @endif
 
                 <div class="mt-2 grid grid-cols-2 gap-4" id="profile_infocards">
                     @php
@@ -115,7 +118,10 @@
                             @endphp
                             <div class="flex flex-col items-center gap-2">
                                 @if ($plans->count() > 0)
-                                    <livewire:plan-modal lazy :beneficiary="$beneficiary" title="Plan de Pagos" />
+                                    <div class="flex items-center gap-2">
+                                        <livewire:plan-modal lazy :beneficiary="$beneficiary" title="Plan de Pagos" />
+                                        <livewire:plans.plan-mutator lazy :beneficiary="$beneficiary" />
+                                    </div>
                                     @php
                                         $vencs = $beneficiary
                                             ->plans()
