@@ -11,278 +11,93 @@ window.startBeneficiaryTour = () => {
         showProgress: true,
         steps: [
             {
-                element: "#profile_header",
+                element: "#beneficiary_header",
                 popover: {
-                    title: "Encabezado",
+                    title: "Perfil del Beneficiario",
                     description:
-                        "Nombre del beneficiario y acciones disponibles (bloquear, actualizar, liquidar).",
+                        "Vista general del beneficiario con información clave y acciones rápidas.",
                     position: "bottom",
                 },
             },
             {
-                element: "#profile_actions",
+                element: "#identity_info",
                 popover: {
-                    title: "Acciones",
+                    title: "Identificación",
                     description:
-                        "Acceso rápido a actualización del beneficiario y módulo de liquidación.",
+                        "Nombre, CI, y código de crédito (IDEPRO) para identificación rápida.",
+                    position: "bottom",
+                },
+            },
+            {
+                element: "#action_buttons",
+                popover: {
+                    title: "Barra de Acciones",
+                    description:
+                        "Herramientas para editar datos del beneficiario, realizar liquidaciones o consultar ayuda.",
                     position: "left",
                 },
             },
             {
-                element: "#profile_identifiers",
+                element: "#status_indicators",
                 popover: {
-                    title: "Identificadores",
+                    title: "Estado y Mora",
                     description:
-                        "CI, complemento y código de crédito (IDEPRO) con entidad financiera.",
-                    position: "bottom",
+                        "Indicadores visuales del estado actual del crédito y días de atraso en pagos.",
+                    position: "right",
                 },
             },
             {
-                element: "#profile_infocards",
+                element: "#financial_summary",
                 popover: {
-                    title: "Resumen",
+                    title: "Resumen Financiero",
                     description:
-                        "Estado, proyecto, departamento, activación, montos y capital cancelado.",
-                    position: "top",
+                        "Balance general: saldo de crédito, capital cancelado y barra de progreso de pagos.",
+                    position: "right",
                 },
             },
             {
-                element: "#profile_plan",
+                element: "#details_list",
                 popover: {
-                    title: "Plan de Pagos",
+                    title: "Detalles Adicionales",
                     description:
-                        "Visualiza y abre el plan de pagos. Muestra días de mora si aplica.",
-                    position: "top",
+                        "Información complementaria como proyecto, ubicación y gastos adicionales.",
+                    position: "right",
                 },
             },
             {
-                element: "#profile_payments",
+                element: "#chart_card",
                 popover: {
-                    title: "Historial de Pagos",
+                    title: "Evolución de Pagos",
                     description:
-                        "Consulta pagos registrados y registra nuevos vouchers cuando sea necesario.",
-                    position: "top",
-                },
-            },
-            {
-                element: "#timelineChart",
-                popover: {
-                    title: "Gráfica de Capital",
-                    description:
-                        "Comparación mensual entre capital planificado y pagado, con % de cumplimiento.",
-                    position: "top",
-                },
-            },
-            {
-                element: "#profile_mgmt_header",
-                popover: {
-                    title: "Generador",
-                    description:
-                        "Configura un nuevo plan de pagos y opciones relacionadas.",
-                    position: "bottom",
-                },
-            },
-            {
-                element: "#profile_mgmt_toggle",
-                popover: {
-                    title: "Mostrar/Ocultar",
-                    description:
-                        "Abre o cierra el formulario para editar parámetros.",
-                    position: "top",
-                },
-            },
-            {
-                element: "#profile_mgmt_form",
-                popover: {
-                    title: "Formulario",
-                    description:
-                        "Parámetros principales del plan y opciones adicionales.",
-                    position: "top",
-                },
-            },
-            {
-                element: "#profile_mgmt_capital",
-                popover: {
-                    title: "Capital Inicial",
-                    description:
-                        "Saldo restante del crédito para iniciar el cálculo.",
-                    position: "top",
-                },
-            },
-            {
-                element: "#profile_mgmt_months",
-                popover: {
-                    title: "Meses restantes",
-                    description:
-                        "Cantidad de meses para distribuir el plan de pagos.",
-                    position: "top",
-                },
-            },
-            {
-                element: "#taza_interes",
-                popover: {
-                    title: "Interés",
-                    description: "Porcentaje de interés aplicado al crédito.",
-                    position: "top",
-                },
-            },
-            {
-                element: "#seguro",
-                popover: {
-                    title: "Seguro",
-                    description: "Porcentaje de seguro aplicado al crédito.",
-                    position: "top",
-                },
-            },
-            {
-                element: "#profile_mgmt_options",
-                popover: {
-                    title: "Opciones",
-                    description:
-                        "Ajustes adicionales como tipo de generación y fecha de inicio.",
-                    position: "top",
-                },
-            },
-            {
-                element: "#profile_mgmt_deferral",
-                popover: {
-                    title: "Diferimiento",
-                    description: "Opcional: define cuotas y montos diferidos.",
-                    position: "top",
-                },
-            },
-            {
-                element: "#profile_mgmt_submit",
-                popover: {
-                    title: "Vista Previa",
-                    description:
-                        "Genera la vista previa del plan antes de confirmar.",
+                        "Gráfico interactivo que compara el plan de pagos vs. los pagos realizados en el tiempo.",
                     position: "left",
                 },
             },
             {
-                element: "#index_status_grid",
+                element: "#plan_management",
                 popover: {
-                    title: "Estados de crédito",
+                    title: "Gestión de Planes",
                     description:
-                        "Distribución y conteo de beneficiarios por estado, con porcentaje y barra.",
-                    position: "top",
-                },
-            },
-            {
-                element: "#index_seguros_card",
-                popover: {
-                    title: "Planilla de Seguros",
-                    description:
-                        "Exporta la planilla de seguros para el periodo seleccionado.",
-                    position: "top",
-                },
-            },
-            {
-                element: "#periodo",
-                popover: {
-                    title: "Periodo",
-                    description:
-                        "Selecciona el mes a exportar en formato YYYY-MM.",
-                    position: "bottom",
-                },
-            },
-            {
-                element: "#frmXlsxSeguros_submit",
-                popover: {
-                    title: "Exportar",
-                    description: "Genera el archivo de la planilla de seguros.",
+                        "Accede a modificaciones del plan (mutaciones) o descarga el PDF oficial.",
                     position: "left",
                 },
             },
             {
-                element: "#index_create_beneficiary",
+                element: "#payments_management",
                 popover: {
-                    title: "Alta de Beneficiario",
+                    title: "Control de Pagos",
                     description:
-                        "Formulario para crear un nuevo beneficiario en el sistema.",
-                    position: "top",
-                },
-            },
-            {
-                element: "#index_alerts",
-                popover: {
-                    title: "Notificaciones",
-                    description:
-                        "Mensajes de éxito y error de operaciones recientes.",
-                    position: "top",
-                },
-            },
-            {
-                element: "#index_table",
-                popover: {
-                    title: "Tabla de Beneficiarios",
-                    description:
-                        "Listado interactivo para consultar y gestionar beneficiarios.",
-                    position: "top",
-                },
-            },
-            {
-                element: "#new_beneficiary_button",
-                popover: {
-                    title: "Nuevo Beneficiario",
-                    description:
-                        "Abre el formulario para registrar un nuevo beneficiario.",
-                    position: "bottom",
-                },
-            },
-            {
-                element: "#create_beneficiary_modal",
-                popover: {
-                    title: "Preferencia General",
-                    description:
-                        "Mensaje personalizado: ajusta aquí tu instrucción principal del proceso.",
-                    position: "top",
-                },
-            },
-            {
-                element: "#create_beneficiary_header",
-                popover: {
-                    title: "Encabezado del Modal",
-                    description:
-                        "Información del responsable y cierre del diálogo.",
-                    position: "bottom",
-                },
-            },
-            {
-                element: "#create_beneficiary_form",
-                popover: {
-                    title: "Formulario",
-                    description:
-                        "Completa los datos del beneficiario y del crédito.",
-                    position: "top",
-                },
-            },
-            {
-                element: "#create_beneficiary_personal",
-                popover: {
-                    title: "Información Personal",
-                    description:
-                        "Nombre, CI, departamento, género, estado y más.",
-                    position: "top",
-                },
-            },
-            {
-                element: "#create_beneficiary_credit",
-                popover: {
-                    title: "Información del Crédito",
-                    description:
-                        "Montos, fechas, plazo e intereses; responsable y gastos.",
-                    position: "top",
-                },
-            },
-            {
-                element: "#create_beneficiary_submit",
-                popover: {
-                    title: "Crear Perfil",
-                    description:
-                        "Guarda el nuevo beneficiario con confirmación de seguridad.",
+                        "Registra nuevos pagos o visualiza el historial detallado de transacciones.",
                     position: "left",
+                },
+            },
+            {
+                element: "#plan_generator",
+                popover: {
+                    title: "Generador de Planes",
+                    description:
+                        "Herramienta avanzada para reestructurar la deuda o generar nuevos planes de pago. Haz clic para expandir.",
+                    position: "top",
                 },
             },
         ].filter((s) => document.querySelector(s.element)),

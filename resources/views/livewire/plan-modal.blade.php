@@ -208,7 +208,7 @@
                                 class="font-semibold text-gray-900">{{ number_format($plans->sum('prppgsegu'), 2) }}</span></span>
                         <span class="font-medium p-2 border-2 border-gray-700 rounded-md">Seguro Devengado: <span
                                 class="font-semibold text-gray-900">{{ number_format($plans->sum('prppgcarg'), 2) }}</span></span>
-                                <span class="font-medium p-2 border-2 border-gray-700 rounded-md">Gastos / Otros: <span
+                        <span class="font-medium p-2 border-2 border-gray-700 rounded-md">Gastos / Otros: <span
                                 class="font-semibold text-gray-900">{{ number_format($plans->sum('prppgotro'), 2) }}</span></span>
                         <span class="font-medium p-2 border-2 border-gray-700 rounded-md">Total: <span
                                 class="font-semibold text-gray-900">{{ number_format($plans->sum('prppgtota'), 2) }}</span></span>

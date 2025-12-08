@@ -1,4 +1,4 @@
-<div>
+<div id="profile_plan_mutator">
     <!-- Modal -->
     <div x-data="{ mutatorModal: @entangle('mutatorModal') }">
         <!-- Trigger Button -->
@@ -138,9 +138,9 @@
                         </div>
 
                         <div class="flex justify-end pt-4">
-                            <x-personal.button variant="success" iconLeft="fa-solid fa-paper-plane" wire:click="mutate"
-                                wire:confirm="¿Está seguro de mutar el plan de pagos?" wire:loading.attr="disabled"
-                                wire:loading.class="opacity-75 cursor-not-allowed">
+                            <x-personal.button variant="success" iconLeft="fa-solid fa-paper-plane"
+                                wire:click="mutate" wire:confirm="¿Está seguro de mutar el plan de pagos?"
+                                wire:loading.attr="disabled" wire:loading.class="opacity-75 cursor-not-allowed">
                                 <span wire:loading.remove wire:target="mutate">Aplicar Cambios</span>
                                 <span wire:loading wire:target="mutate">Aplicando Cambios....</span>
                             </x-personal.button>
