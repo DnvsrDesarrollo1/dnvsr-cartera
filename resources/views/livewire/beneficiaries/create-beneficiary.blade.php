@@ -87,7 +87,7 @@
 
                         {{-- IDEPRO (Autogenerado) --}}
                         <div>
-                            <label for="idepro" class="block text-sm font-medium text-gray-700">IDEPRO</label>
+                            <label for="idepro" class="block text-sm font-medium text-gray-700">Cod. Prestamo</label>
                             <input type="text" id="idepro" wire:model.live="idepro" readonly
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                             @error('idepro')
