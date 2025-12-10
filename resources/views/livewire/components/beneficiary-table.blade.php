@@ -42,25 +42,27 @@
         <div class="flex items-center gap-3 bg-white p-2 rounded-lg shadow-sm border border-gray-400">
             <div class="flex-1 flex items-center gap-2">
                 <div class="relative flex-1">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 pointer-events-none">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
                     <input type="text" wire:model.live.debounce.500ms="search" wire:keyup.enter="search"
                         placeholder="Buscar por nombre, CI o código..."
-                        class="w-full pl-3 pr-10 py-1.5 text-sm border-0 rounded bg-gray-50 focus:ring-1 focus:ring-indigo-200 uppercase"
+                        class="w-full pl-10 pr-10 py-1.5 text-sm border border-gray-300 rounded-md bg-white focus:ring-blue-500 focus:border-blue-500 uppercase placeholder-gray-400 shadow-sm"
                         oninput="this.value = this.value.toUpperCase()">
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-600">
-                        @if ($search)
-                            <button wire:click="$set('search', '')" class="mr-2 text-gray-400 hover:text-gray-600">
+                    @if ($search)
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                            <button wire:click="$set('search', '')"
+                                class="text-gray-400 hover:text-gray-600 focus:outline-none">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             </button>
-                        @endif
-                        <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                    </div>
+                        </div>
+                    @endif
                 </div>
 
                 <select wire:model.live.debounce.300ms="perPage"
@@ -202,20 +204,20 @@
         </div>
     </div>
 
-    <div class="overflow-x-auto relative mt-2" wire:loading.class.delay="opacity-50"
+    <div class="overflow-x-auto relative" wire:loading.class.delay="opacity-50"
         wire:target="search,selectAll,perPage,sortBy,filters,resetFilters">
-        <table class="min-w-full">
-            <thead class="rounded-md overflow-hidden">
-                <tr class="divide-x-2 divide-white">
-                    <th scope="col" class="p-2 sm:p-4 sticky top-0 border-r-2 border-gray-200 bg-gray-200">
+        <table class="min-w-full rounded-lg overflow-hidden shadow-sm border border-gray-400">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="p-4 sticky top-0 text-left">
                         <input type="checkbox" wire:model.live="selectAll"
-                            class="rounded border-gray-300 text-indigo-500 focus:ring-indigo-200">
+                            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
                     </th>
                     @foreach (['nombre' => 'Nombre', 'ci' => 'CI/IDEPRO', 'estado' => 'Estado', 'monto_credito' => 'Monto Crédito (k)', 'saldo_credito' => 'Saldo Crédito (k)'] as $field => $label)
                         <th scope="col"
-                            class="px-3 py-2 sm:px-6 sm:py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider sticky top-0 bg-gray-200 cursor-pointer whitespace-nowrap"
+                            class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider sticky top-0 cursor-pointer whitespace-nowrap border-b-2"
                             wire:click="sortBy('{{ $field }}')">
-                            <div class="flex items-center space-x-1">
+                            <div class="flex items-center justify-between space-x-1">
                                 <span class="hidden sm:inline">{{ $label }}</span>
                                 <span class="sm:hidden">
                                     @if ($field === 'nombre')
@@ -231,7 +233,7 @@
                                     @endif
                                 </span>
                                 @if ($sortField === $field)
-                                    <span class="text-indigo-500">
+                                    <span class="text-blue-700 text-lg">
                                         {{ $sortDirection === 'asc' ? '↑' : '↓' }}
                                     </span>
                                 @endif
@@ -239,79 +241,80 @@
                         </th>
                     @endforeach
                     <th scope="col" title="Cuotas Vencidas / Cuotas Pendientes"
-                        class="px-3 py-2 sm:px-6 sm:py-3 text-left text-xs font-bold text-gray-800 uppercase tracking-wider sticky top-0 bg-gray-200 whitespace-nowrap">
+                        class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider sticky top-0 whitespace-nowrap border-b-2">
                         <span class="hidden sm:inline">CV/CP</span>
                         <span class="sm:hidden">C</span>
                     </th>
                     <th scope="col"
-                        class="px-3 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-800 uppercase tracking-wider sticky top-0 bg-gray-200 whitespace-nowrap">
+                        class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider sticky top-0 whitespace-nowrap border-b-2">
                         <span class="sr-only">Acciones</span>
                     </th>
                 </tr>
             </thead>
-            <tbody class="bg-gray-200" x-data="{ expandedRows: [] }">
+            <tbody class="bg-white divide-y divide-gray-200" x-data="{ expandedRows: [] }">
                 @foreach ($beneficiaries as $beneficiary)
                     <tr wire:key="beneficiary-row-{{ $beneficiary->id }}"
-                        class="bg-white hover:bg-gray-100 transition-colors duration-200 divide-x-2 divide-gray-200">
-                        <td class="p-2 sm:p-4">
+                        class="hover:bg-gray-50 transition-colors duration-150">
+                        <td class="p-4">
                             <input type="checkbox" wire:model.live="selected" value="{{ $beneficiary->id }}"
-                                class="w-4 h-4 rounded border-gray-300 text-indigo-500 focus:ring-indigo-200">
+                                class="w-4 h-4 rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
                         </td>
-                        <td class="px-3 py-2 sm:px-6 sm:py-4">
+                        <td class="px-4 py-3">
                             <div x-data="{ editing: false, value: '{{ $beneficiary->nombre }}' }"
                                 @click.away="if(editing) { editing = false; $wire.save('{{ $beneficiary->id }}', 'nombre', value) }">
                                 <div class="flex items-center justify-between space-x-2" x-show="!editing">
                                     <span @click="editing = true; $nextTick(() => $refs.input.focus())"
-                                        class="cursor-pointer text-sm text-gray-900 truncate max-w-[100px] sm:max-w-none"
+                                        class="cursor-pointer text-sm text-gray-900 truncate max-w-[100px] sm:max-w-none hover:text-indigo-600"
                                         x-text="value" title="{{ $beneficiary->nombre }}">
                                     </span>
-                                    </button>
                                 </div>
                                 <div x-show="editing" x-cloak>
                                     <input type="text" x-ref="input" x-model="value"
                                         @keydown.enter="editing = false; $wire.save('{{ $beneficiary->id }}', 'nombre', value)"
                                         @keydown.escape="editing = false"
-                                        class="w-full px-1 py-0.5 text-sm border border-indigo-300 rounded focus:ring-1 focus:ring-indigo-200 uppercase"
+                                        class="w-full px-2 py-1 text-sm border border-indigo-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 uppercase"
                                         oninput="this.value = this.value.toUpperCase()"
                                         title="Presione Enter para guardar, o click fuera para guardar...">
                                 </div>
                             </div>
                         </td>
-                        <td class="px-3 py-2 sm:px-6 sm:py-4 text-sm text-gray-500">
+                        <td class="px-4 py-3 text-sm text-gray-600">
                             <div x-data="{ editing: false, value: '{{ $beneficiary->ci }}' }"
                                 @click.away="if(editing) { editing = false; $wire.save('{{ $beneficiary->id }}', 'ci', value) }">
                                 <div @click="editing = true; $nextTick(() => $refs.input.focus())"
-                                    class="cursor-pointer" x-show="!editing">
+                                    class="cursor-pointer hover:text-indigo-600" x-show="!editing">
                                     <div x-text="value" class="truncate max-w-[80px] sm:max-w-none"></div>
                                 </div>
                                 <div x-show="editing" x-cloak>
                                     <input type="text" x-ref="input" x-model="value"
                                         @keydown.enter="editing = false; $wire.save('{{ $beneficiary->id }}', 'ci', value)"
                                         @keydown.escape="editing = false"
-                                        class="w-full px-1 py-0.5 text-sm border border-indigo-300 rounded focus:ring-1 focus:ring-indigo-200 uppercase"
+                                        class="w-full px-2 py-1 text-sm border border-indigo-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 uppercase"
                                         title="Presione Enter para guardar, o click fuera para guardar...">
                                 </div>
                             </div>
-                            <div class="mt-1 truncate max-w-[80px] sm:max-w-none">
+                            <div class="mt-1 text-xs text-gray-400 truncate max-w-[80px] sm:max-w-none">
                                 {{ $beneficiary->idepro }}
                             </div>
                         </td>
-                        <td class="px-3 py-2 sm:px-6 sm:py-4">
+                        <td class="px-4 py-3">
                             <div x-data="{ editing: false, value: '{{ $beneficiary->estado }}' }"
                                 @click.away="if(editing) { editing = false; $wire.save('{{ $beneficiary->id }}', 'estado', value) }">
                                 <div @click="editing = true; $nextTick(() => $refs.select.focus())"
                                     class="cursor-pointer" x-show="!editing">
-                                    <span x-text="value" @class([
+                                    <span @class([
                                         'px-2 py-1 text-xs font-medium rounded-full whitespace-nowrap',
                                         'bg-red-100 text-red-800' => $beneficiary->estado === 'BLOQUEADO',
                                         'bg-blue-100 text-blue-800' => $beneficiary->estado === 'CANCELADO',
-                                    ])></span>
+                                        'bg-green-100 text-green-800' => $beneficiary->estado === 'ACTIVO',
+                                        'bg-yellow-100 text-yellow-800' => $beneficiary->estado === 'PENDIENTE',
+                                    ]) x-text="value"></span>
                                 </div>
                                 <div x-show="editing" x-cloak>
                                     <select x-ref="select" x-model="value"
                                         @change="editing = false; $wire.save('{{ $beneficiary->id }}', 'estado', value)"
                                         @keydown.escape="editing = false"
-                                        class="w-full px-1 py-0.5 text-sm border border-indigo-300 rounded focus:ring-1 focus:ring-indigo-200"
+                                        class="w-full px-2 py-1 text-sm border border-indigo-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
                                         title="Click fuera del campo para guardar cambios o presione ESC para cancelar...">
                                         @foreach ($statusOptions as $status)
                                             <option value="{{ $status }}">{{ $status }}</option>
@@ -320,37 +323,38 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="px-3 py-2 sm:px-6 sm:py-4 text-sm text-gray-500 whitespace-nowrap">
+                        <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">
                             {{ number_format($beneficiary->monto_activado, 2) }}
                         </td>
-                        <td class="px-3 py-2 sm:px-6 sm:py-4 text-sm text-gray-500 whitespace-nowrap">
+                        <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">
                             <span @class([
-                                'px-2 py-1 font-bold rounded-full',
+                                'px-2 py-1 font-semibold rounded-full',
                                 'bg-blue-100 text-blue-800' => $beneficiary->saldo_credito <= 0,
+                                'bg-green-100 text-green-800' => $beneficiary->saldo_credito > 0,
                             ])>
                                 {{ number_format($beneficiary->saldo_credito, 2) }}
                             </span>
                         </td>
-                        <td class="px-3 py-2 sm:px-6 sm:py-4 text-sm text-gray-500 whitespace-nowrap">
-                            {{ count($beneficiary->plans->filter(fn ($p) => $p->estado == 'VENCIDO')) }}
+                        <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">
+                            {{ count($beneficiary->plans->filter(fn($p) => $p->estado == 'VENCIDO')) }}
                             /
-                            {{ count($beneficiary->plans->filter(fn ($p) => $p->estado != 'CANCELADO')) }}
+                            {{ count($beneficiary->plans->filter(fn($p) => $p->estado != 'CANCELADO')) }}
                         </td>
-                        <td class="px-3 py-2 sm:px-6 sm:py-4 bf-gray-100">
-                            <div class="flex items-center justify-evenly space-x-1 sm:space-x-2">
+                        <td class="px-4 py-3">
+                            <div class="flex items-center justify-center space-x-2">
                                 <a href="{{ route('beneficiario.show', $beneficiary->ci) }}" target="_blank"
                                     title="Administrar Perfil"
-                                    class="text-green-600 hover:scale-125 transition-all transform text-sm sm:text-xl">
+                                    class="text-indigo-600 hover:text-indigo-800 hover:scale-110 transition-all transform text-lg">
                                     <i class="fa-solid fa-user-gear"></i>
                                 </a>
                                 <a href="{{ route('beneficiario.pdf', $beneficiary->ci) }}" target="_blank"
                                     title="Ver Plan de Pagos Vigente"
-                                    class="text-green-600 hover:scale-125 transition-all transform text-sm sm:text-xl">
+                                    class="text-indigo-600 hover:text-indigo-800 hover:scale-110 transition-all transform text-lg">
                                     <i class="fa-solid fa-calendar-days"></i>
                                 </a>
                                 <a href="{{ route('beneficiario.pdf-extract', $beneficiary->ci) }}" target="_blank"
                                     title="Ver Extracto de Pagos"
-                                    class="text-green-600 hover:scale-125 transition-all transform text-sm sm:text-xl">
+                                    class="text-indigo-600 hover:text-indigo-800 hover:scale-110 transition-all transform text-lg">
                                     <i class="fa-solid fa-book"></i>
                                 </a>
                             </div>
@@ -361,7 +365,7 @@
         </table>
     </div>
 
-    <div class="mt-4">
+    <div class="p-4 mt-2 bg-white rounded-lg">
         {{ $beneficiaries->links() }}
     </div>
 

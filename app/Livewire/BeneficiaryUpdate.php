@@ -196,20 +196,22 @@ class BeneficiaryUpdate extends Component
     {
         $idepro = $this->beneficiary->idepro;
 
-        \App\Models\Insurance::where('idepro', $idepro)->delete();
-        \App\Models\Plan::where('idepro', $idepro)->delete();
-        \App\Models\Readjustment::where('idepro', $idepro)->delete();
-        \App\Models\Spend::where('idepro', $idepro)->delete();
-        \App\Models\Earn::where('idepro', $idepro)->delete();
-        \App\Models\Voucher::where('numprestamo', $idepro)->delete();
-        \App\Models\Payment::where('numprestamo', $idepro)->delete();
-        \App\Models\Helper::where('idepro', $idepro)->delete();
+        \Illuminate\Support\Facades\DB::transaction(function () use ($idepro) {
+            \App\Models\BeneficiaryDeleted::create($this->beneficiary->toArray());
 
-        \App\Models\BeneficiaryDeleted::create($this->beneficiary->toArray());
+            \App\Models\Insurance::where('idepro', $idepro)->delete();
+            \App\Models\Plan::where('idepro', $idepro)->delete();
+            \App\Models\Readjustment::where('idepro', $idepro)->delete();
+            \App\Models\Spend::where('idepro', $idepro)->delete();
+            \App\Models\Earn::where('idepro', $idepro)->delete();
+            \App\Models\Voucher::where('numprestamo', $idepro)->delete();
+            \App\Models\Payment::where('numprestamo', $idepro)->delete();
+            \App\Models\Helper::where('idepro', $idepro)->delete();
 
-        $this->beneficiary->delete();
+            $this->beneficiary->delete();
+        });
 
-        Log::info('Beneficiary with idepro ' . $idepro . ' has been deleted by ' . \Illuminate\Support\Facades\Auth::user()->name);
+        \Illuminate\Support\Facades\Log::info('Beneficiary with idepro ' . $idepro . ' has been deleted by ' . \Illuminate\Support\Facades\Auth::user()->name);
 
         return redirect()->route('beneficiario.index');
     }

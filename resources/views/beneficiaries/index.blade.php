@@ -11,7 +11,7 @@
             </svg>
         </button>
 
-        <div class="space-y-2 my-2">
+        <div class="space-y-2 mt-2">
             @php
                 $criterio = DB::table('beneficiaries')->distinct()->get('estado');
                 $total = DB::table('beneficiaries')->count();
@@ -85,17 +85,9 @@
                 </script>
             </div>
         </div>
-        {{-- <div
-            class="flex items-center justify-center p-4 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded mb-2">
-            <svg class="animate-bounce h-5 w-5 mr-3" viewBox="0 0 24 24" fill="currentColor">
-                <path
-                    d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 2.18l7 3.12v4.7c0 4.67-3.13 8.95-7 10.18-3.87-1.23-7-5.51-7-10.18V6.3l7-3.12zm-2 6.82h4v2h-4v-2zm0-4h4v2h-4V6z" />
-            </svg>
-            <span class="font-semibold">En desarrollo, espere el lanzamiento oficial...</span>
-        </div> --}}
-        <div class="bg-white overflow-x-auto shadow-lg overflow-y-auto p-2 rounded-lg border border-gray-300 mt-2 mb-2"
+        <div class="overflow-x-auto overflow-y-auto rounded-lg"
             id="index_table_card">
-            <div class="px-4">
+            <div>
                 <div id="index_alerts">
                     @if (session('success'))
                         <x-personal.alert type="success" message="{{ session('success') }}" />
@@ -105,7 +97,7 @@
                     @endif
                 </div>
             </div>
-            <div class="px-4" id="index_table">
+            <div id="index_table">
                 @livewire('components.beneficiary-table')
                 {{-- <livewire:components.beneficiary-table lazy="on-load" /> --}}
             </div>

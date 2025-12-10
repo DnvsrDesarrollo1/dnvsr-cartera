@@ -63,6 +63,14 @@
             <!-- Left Column: Details & Stats -->
             <div class="space-y-6">
 
+                <!-- Alerts -->
+                @if (session('success'))
+                    <div class="animate-fade-in-up">
+                        <x-personal.alert type="success" message="{{ session('success') }}"
+                            goto="{{ session('file') ?? null }}" />
+                    </div>
+                @endif
+
                 <!-- Key Stats Grid -->
                 <div id="status_indicators" class="grid grid-cols-2 gap-4">
                     <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
@@ -121,7 +129,7 @@
                                     const options = {
                                         series: [{{ $percentCapital }}, {{ $percentSaldo }}],
                                         labels: ['Capital Cancelado', 'Saldo Crédito'],
-                                        colors: ['#3B82F6', '#6366F1'], // blue-500, indigo-500 de Tailwind CSS
+                                        colors: ['#40916c', '#0f4c5c'], // Cyan y Gris Claro
                                         chart: {
                                             type: 'donut',
                                             height: 160,
@@ -159,7 +167,7 @@
                                                             label: 'Total Activado',
                                                             fontSize: '13px',
                                                             fontWeight: '400',
-                                                            color: '#6B7280',
+                                                            color: '#adb5bd',
                                                             formatter: function(w) {
                                                                 return 'Bs ' + parseFloat({{ $beneficiary->monto_activado }})
                                                                     .toLocaleString('es-BO', {
@@ -183,7 +191,9 @@
                                                 startAngle: -90,
                                                 endAngle: 270,
                                                 stroke: {
-                                                    colors: ['#3B82F6', '#6366F1'], // Asegurar que los bordes coincidan con los colores de las series
+                                                    colors: ['#40916c',
+                                                        '#0f4c5c'
+                                                    ], // Asegurar que los bordes coincidan con los colores de las series
                                                     width: 2
                                                 }
                                             }
@@ -228,13 +238,6 @@
                     @endforeach
                 </div>
 
-                <!-- Alerts -->
-                @if (session('success'))
-                    <div class="animate-fade-in-up">
-                        <x-personal.alert type="success" message="{{ session('success') }}"
-                            goto="{{ session('file') ?? null }}" />
-                    </div>
-                @endif
             </div>
 
             <!-- Right Column: Chart & Actions -->
@@ -393,8 +396,7 @@
                                 </div>
 
                                 <div class="mt-6 flex justify-end">
-                                    <x-personal.button submit="true"
-                                        class="bg-blue-600 hover:bg-blue-700 text-white"
+                                    <x-personal.button submit="true" class="bg-blue-600 hover:bg-blue-700 text-white"
                                         iconLeft="fas fa-calculator">
                                         Generar Previsualización
                                     </x-personal.button>
@@ -429,7 +431,7 @@
                         tickColor: '#e5e7eb',
                         labels: {
                             style: {
-                                color: '#6b7280',
+                                color: '#adb5bd',
                                 fontSize: '11px'
                             }
                         }
@@ -438,13 +440,13 @@
                         title: {
                             text: 'Monto (Bs)',
                             style: {
-                                color: '#6b7280'
+                                color: '#adb5bd'
                             }
                         },
                         gridLineColor: '#f3f4f6',
                         labels: {
                             style: {
-                                color: '#6b7280'
+                                color: '#adb5bd'
                             },
                             formatter: function() {
                                 return Highcharts.numberFormat(this.value, 0, ',', '.');
@@ -454,14 +456,14 @@
                         title: {
                             text: 'Cumplimiento',
                             style: {
-                                color: '#6b7280'
+                                color: '#adb5bd'
                             }
                         },
                         opposite: true,
                         labels: {
                             format: '{value}%',
                             style: {
-                                color: '#6b7280'
+                                color: '#adb5bd'
                             }
                         }
                     }],

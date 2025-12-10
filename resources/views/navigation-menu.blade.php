@@ -13,10 +13,10 @@
                         class="transition duration-150 ease-in-out">
                         {{ 'Beneficiarios' }}
                     </x-nav-link>
-                    <x-nav-link href="{{ route('bi.index') }}" :active="request()->routeIs('bi.*')"
+                    {{-- <x-nav-link href="{{ route('bi.index') }}" :active="request()->routeIs('bi.*')"
                         class="transition duration-150 ease-in-out">
                         {{ 'B.I.' }}
-                    </x-nav-link>
+                    </x-nav-link> --}}
                 </div>
             </div>
 
@@ -146,9 +146,9 @@
             <x-responsive-nav-link href="{{ route('beneficiario.index') }}" :active="request()->routeIs('beneficiario.*')">
                 {{ 'Beneficiarios' }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link href="{{ route('bi.index') }}" :active="request()->routeIs('bi.*')">
+            {{-- <x-responsive-nav-link href="{{ route('bi.index') }}" :active="request()->routeIs('bi.*')">
                 {{ 'B.I.' }}
-            </x-responsive-nav-link>
+            </x-responsive-nav-link> --}}
 
             <!-- Mobile Theme Toggle -->
             <div class="px-4 py-2 flex">
@@ -224,7 +224,8 @@
     <div class="absolute top-[58px] left-0 w-full flex justify-between overflow-hidden pointer-events-none z-50"
         style="transform: translateY(6px);">
         @foreach (range(1, 80) as $i)
-            <svg {{-- style="animation-delay: {{ $i * 10 }}ms;" --}} class="flex-shrink-0 transition-all {{ $i % 2 == 0 ? 'text-green-600 w-4 h-4 animate-duration-1000 animate-bounce' : 'text-red-600 w-5 h-5 animate-duration-1000 animate-pulse' }} drop-shadow-sm"
+            <svg {{-- style="animation-delay: {{ $i * 10 }}ms;" --}}
+                class="flex-shrink-0 transition-all {{ $i % 2 == 0 ? 'text-green-600 w-4 h-4 animate-duration-1000 animate-bounce' : 'text-red-600 w-5 h-5 animate-duration-1000 animate-pulse' }} drop-shadow-sm"
                 fill="currentColor" viewBox="144 144 512 512" xmlns="http://www.w3.org/2000/svg">
                 <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                 <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>

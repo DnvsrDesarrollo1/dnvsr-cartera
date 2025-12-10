@@ -109,7 +109,8 @@ class BeneficiaryController extends Controller
         if ($firstUnpaidPlan) {
             $fechaInicio = \Carbon\Carbon::parse($firstUnpaidPlan->fecha_ppg)->startOfDay();
             $diasMora = $fechaInicio->diffInDays(now()->startOfDay());
-            $showMora = true;
+            $diasMora = $diasMora > 0 ? $diasMora : 0;
+            $showMora = $diasMora > 0;
         }
 
         $mesesRestantes = $this->calculateRemainingMonths($beneficiary);

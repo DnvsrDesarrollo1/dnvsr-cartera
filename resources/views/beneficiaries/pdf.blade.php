@@ -242,7 +242,7 @@
                         <tr>
                             <td>Seguro Desgravamen:</td>
                             <td>
-                                {{ number_format($tasa, 2) }} %
+                                {{ number_format($tasa, 3) }} %
                             </td>
                             <td></td>
                             <td>Fecha Vencimiento del Plan:</td>

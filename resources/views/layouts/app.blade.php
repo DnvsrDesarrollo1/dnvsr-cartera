@@ -34,13 +34,42 @@
         integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 
+    <style>
+        :root {
+            --primary-blue: #2D5D7B;
+            --accent-blue: #3A7CA5;
+            --ice-blue: #D6E6F2;
+            --silver: #C0CFD8;
+            --white: #FFFFFF;
+            --glow: rgba(255, 255, 255, 0.5);
+        }
+
+        .snowflakes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 99;
+        }
+
+        .snowflake {
+            position: absolute;
+            background: var(--white);
+            border-radius: 75%;
+            opacity: 1;
+            box-shadow: 0 0 5px var(--glow);
+        }
+    </style>
+
     @livewireStyles
 </head>
 
 <body class="font-sans antialiased">
     <x-banner />
 
-    <div class="min-h-screen bg-gray-200" style="display: grid; grid-template-rows: auto 1fr auto;"
+    <div class="min-h-screen bg-gray-300" style="display: grid; grid-template-rows: auto 1fr auto;"
         x-data="{ down: true }">
         @livewire('navigation-menu')
 
@@ -80,10 +109,93 @@
                 </div>
             </div>
         </footer>
+        <div class="snowflakes" id="snowflakes"></div>
     </div>
     @stack('modals')
     @stack('scripts')
 
+    <script>
+        // Create snowflakes
+        const snowflakesContainer = document.getElementById('snowflakes');
+        const containerWidth = window.innerWidth;
+        const containerHeight = window.innerHeight;
+        const snowflakeCount = 500;
+        let scrollSpeedFactor = 1;
+
+        // Create initial snowflakes
+        for (let i = 0; i < snowflakeCount; i++) {
+            createSnowflake();
+        }
+
+        function createSnowflake() {
+            const snowflake = document.createElement('div');
+            snowflake.classList.add('snowflake');
+
+            // Randomize snowflake properties
+            const size = Math.random() * 5 + 2;
+            const startPositionX = Math.random() * containerWidth;
+            const startPositionY = Math.random() * containerHeight * -1;
+            const duration = Math.random() * 10 + 8;
+            const delay = Math.random() * 5;
+
+            // Set snowflake styles
+            snowflake.style.width = `${size}px`;
+            snowflake.style.height = `${size}px`;
+            snowflake.style.left = `${startPositionX}px`;
+            snowflake.style.top = `${startPositionY}px`;
+            snowflake.style.opacity = Math.random() * 0.7 + 0.3;
+
+            // Store snowflake properties for animation
+            snowflake.setAttribute('data-speed', Math.random() * 2 + 1);
+            snowflake.setAttribute('data-amplitude', Math.random() * 30 + 5);
+            snowflake.setAttribute('data-x', startPositionX);
+            snowflake.setAttribute('data-y', startPositionY);
+
+            snowflakesContainer.appendChild(snowflake);
+            animateSnowflake(snowflake);
+        }
+
+        function animateSnowflake(snowflake) {
+            const speed = parseFloat(snowflake.getAttribute('data-speed'));
+            const amplitude = parseFloat(snowflake.getAttribute('data-amplitude'));
+            let x = parseFloat(snowflake.getAttribute('data-x'));
+            let y = parseFloat(snowflake.getAttribute('data-y'));
+
+            function update() {
+                // Update position with scroll speed factor
+                y += speed * scrollSpeedFactor;
+                x += Math.sin(y / amplitude) * 0.5;
+
+                // Set new position
+                snowflake.style.transform = `translate(${Math.sin(y / 50) * amplitude}px, ${y}px)`;
+
+                // Reset if snowflake moves out of view
+                if (y > containerHeight) {
+                    y = -10;
+                    x = Math.random() * containerWidth;
+                    snowflake.setAttribute('data-x', x);
+                    snowflake.setAttribute('data-y', y);
+                } else {
+                    snowflake.setAttribute('data-y', y);
+                }
+
+                requestAnimationFrame(update);
+            }
+
+            update();
+        }
+
+        // Adjust snowfall speed based on scroll
+        const container = document.querySelector('.container');
+        container.addEventListener('scroll', () => {
+            const scrollPosition = container.scrollTop;
+            const maxScroll = container.scrollHeight - container.clientHeight;
+            scrollSpeedFactor = 1 + (scrollPosition / maxScroll) * 1.5;
+        });
+
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     @livewireScripts
