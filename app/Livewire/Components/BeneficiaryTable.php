@@ -53,20 +53,10 @@ class BeneficiaryTable extends Component
 
     public $selected = [];
 
-    public $selectAll = false;
 
-    public function updatedSelectAll($value)
-    {
-        if ($value) {
-            $this->selected = $this->getBeneficiaries()
-                ->paginate($this->perPage)
-                ->pluck('id')
-                ->map(fn ($id) => (string) $id)
-                ->toArray();
-        } else {
-            $this->selected = [];
-        }
-    }
+
+    // updatedSelectAll removed as logic is now handled in AlpineJS
+
 
     public function getSelectedCountProperty()
     {
@@ -149,26 +139,26 @@ class BeneficiaryTable extends Component
             'monto_credito',
             'saldo_credito',
         ])
-            ->with(['plans' => fn ($subquery) => $subquery->select('idepro', 'estado')])
+            ->with(['plans' => fn($subquery) => $subquery->select('idepro', 'estado')])
             ->when($this->search != '', function ($query) {
                 $query->where(function ($query) {
-                    $query->where('nombre', 'like', '%'.$this->search.'%')
-                        ->orWhere('ci', 'like', '%'.$this->search.'%')
-                        ->orWhere('idepro', 'like', '%'.$this->search.'%');
+                    $query->where('nombre', 'like', '%' . $this->search . '%')
+                        ->orWhere('ci', 'like', '%' . $this->search . '%')
+                        ->orWhere('idepro', 'like', '%' . $this->search . '%');
                 });
             })
-            ->when($this->filters['estado'] != '', fn ($query) => $query->where('estado', $this->filters['estado']))
-            ->when($this->filters['entidad_financiera'] != '', fn ($query) => $query->where('entidad_financiera', $this->filters['entidad_financiera']))
-            ->when($this->filters['departamento'] != '', fn ($query) => $query->where('departamento', $this->filters['departamento']))
-            ->when($this->filters['genero'] != '', fn ($query) => $query->where('genero', $this->filters['genero']))
-            ->when($this->filters['proyecto'] != '', fn ($query) => $query->where('proyecto', $this->filters['proyecto']))
-            ->when($this->filters['fecha_activacion_desde'] != '', fn ($query) => $query->whereDate('fecha_activacion', '>=', $this->filters['fecha_activacion_desde']))
-            ->when($this->filters['fecha_activacion_hasta'] != '', fn ($query) => $query->whereDate('fecha_activacion', '<=', $this->filters['fecha_activacion_hasta']))
-            ->when($this->filters['monto_activado_min'] != '', fn ($query) => $query->where('monto_activado', '>=', $this->filters['monto_activado_min']))
-            ->when($this->filters['monto_activado_max'] != '', fn ($query) => $query->where('monto_activado', '<=', $this->filters['monto_activado_max']))
-            ->when($this->filters['saldo_credito_min'] != '', fn ($query) => $query->where('saldo_credito', '>=', $this->filters['saldo_credito_min']))
-            ->when($this->filters['saldo_credito_max'] != '', fn ($query) => $query->where('saldo_credito', '<=', $this->filters['saldo_credito_max']))
-            ->when($this->filters['plazo_credito'] != '', fn ($query) => $query->where('plazo_credito', $this->filters['plazo_credito']));
+            ->when($this->filters['estado'] != '', fn($query) => $query->where('estado', $this->filters['estado']))
+            ->when($this->filters['entidad_financiera'] != '', fn($query) => $query->where('entidad_financiera', $this->filters['entidad_financiera']))
+            ->when($this->filters['departamento'] != '', fn($query) => $query->where('departamento', $this->filters['departamento']))
+            ->when($this->filters['genero'] != '', fn($query) => $query->where('genero', $this->filters['genero']))
+            ->when($this->filters['proyecto'] != '', fn($query) => $query->where('proyecto', $this->filters['proyecto']))
+            ->when($this->filters['fecha_activacion_desde'] != '', fn($query) => $query->whereDate('fecha_activacion', '>=', $this->filters['fecha_activacion_desde']))
+            ->when($this->filters['fecha_activacion_hasta'] != '', fn($query) => $query->whereDate('fecha_activacion', '<=', $this->filters['fecha_activacion_hasta']))
+            ->when($this->filters['monto_activado_min'] != '', fn($query) => $query->where('monto_activado', '>=', $this->filters['monto_activado_min']))
+            ->when($this->filters['monto_activado_max'] != '', fn($query) => $query->where('monto_activado', '<=', $this->filters['monto_activado_max']))
+            ->when($this->filters['saldo_credito_min'] != '', fn($query) => $query->where('saldo_credito', '>=', $this->filters['saldo_credito_min']))
+            ->when($this->filters['saldo_credito_max'] != '', fn($query) => $query->where('saldo_credito', '<=', $this->filters['saldo_credito_max']))
+            ->when($this->filters['plazo_credito'] != '', fn($query) => $query->where('plazo_credito', $this->filters['plazo_credito']));
 
         $query->orderBy($this->sortField, $this->sortDirection);
 

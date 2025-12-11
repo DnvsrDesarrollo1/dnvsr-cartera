@@ -27,6 +27,13 @@ class GenerateBeneficiaryPlansPdfsZip implements ShouldQueue
     protected $userId;
 
     /**
+     * The number of seconds the job can run before timing out.
+     *
+     * @var int
+     */
+    public $timeout = 1200;
+
+    /**
      * Create a new job instance.
      */
     public function __construct(array $beneficiaryIds, int $userId)
@@ -40,6 +47,9 @@ class GenerateBeneficiaryPlansPdfsZip implements ShouldQueue
      */
     public function handle(): void
     {
+        ini_set('memory_limit', '512M');
+        ini_set('max_execution_time', 1200);
+
         $user = User::find($this->userId);
         if (! $user) {
             Log::error('User not found in GenerateBeneficiaryPdfsZip job.', ['userId' => $this->userId]);
@@ -48,7 +58,21 @@ class GenerateBeneficiaryPlansPdfsZip implements ShouldQueue
         }
 
         try {
-            $beneficiaries = Beneficiary::find($this->beneficiaryIds);
+            // Eager load relationships with constraints to avoid N+1 problem
+            $beneficiaries = Beneficiary::with([
+                'plans' => function ($query) {
+                    $query->where('estado', '<>', 'INACTIVO')
+                        ->orderBy('fecha_ppg', 'asc');
+                },
+                'readjustments' => function ($query) {
+                    $query->where('estado', '<>', 'INACTIVO')
+                        ->orderBy('fecha_ppg', 'asc');
+                },
+                'helpers' => function ($query) {
+                    $query->where('estado', 'ACTIVO')
+                        ->orderBy('indice', 'asc');
+                },
+            ])->whereIn('id', $this->beneficiaryIds)->get();
 
             if ($beneficiaries->isEmpty()) {
                 Log::warning('No beneficiaries found for the given IDs in GenerateBeneficiaryPdfsZip job.', ['ids' => $this->beneficiaryIds]);
@@ -65,9 +89,8 @@ class GenerateBeneficiaryPlansPdfsZip implements ShouldQueue
 
             // Notificar al usuario que el archivo está listo
             $user->notify(new ExportReadyNotification($zipUrl, count($beneficiaries)));
-
         } catch (\Exception $e) {
-            Log::error('Failed to generate beneficiary PDF zip file for user '.$user->id, [
+            Log::error('Failed to generate beneficiary PDF zip file for user ' . $user->id, [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
@@ -82,11 +105,14 @@ class GenerateBeneficiaryPlansPdfsZip implements ShouldQueue
         }
 
         return $beneficiaries->map(function ($beneficiary) use ($exportPath) {
-            $plans = $this->getActivePlans($beneficiary->idepro);
-            $differs = $this->getActiveDiffers($beneficiary->idepro);
+            // Use eager loaded relationships
+            $plans = $beneficiary->plans->isNotEmpty() ? $beneficiary->plans : $beneficiary->readjustments;
+
+            // Map 'helpers' relation to $differs variable as expected by the view
+            $differs = $beneficiary->helpers;
 
             $cleanName = preg_replace('/[^A-Za-z0-9 \-]/', '_', $beneficiary->nombre);
-            $filePath = $exportPath.'/'.$cleanName.'-'.uniqid().'.pdf';
+            $filePath = $exportPath . '/' . $cleanName . '-' . uniqid() . '.pdf';
 
             PDF::loadView('beneficiaries.pdf', compact('beneficiary', 'plans', 'differs'))->save($filePath);
 
@@ -96,8 +122,8 @@ class GenerateBeneficiaryPlansPdfsZip implements ShouldQueue
 
     private function createZipFile($files)
     {
-        $zipName = 'beneficiarios_'.uniqid().'.zip';
-        $zipPath = storage_path('app/public/exports/'.$zipName);
+        $zipName = 'beneficiarios_' . uniqid() . '.zip';
+        $zipPath = storage_path('app/public/exports/' . $zipName);
 
         $zip = new ZipArchive;
         if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
@@ -121,23 +147,5 @@ class GenerateBeneficiaryPlansPdfsZip implements ShouldQueue
                 File::delete($file);
             }
         }
-    }
-
-    private function getActivePlans($idepro)
-    {
-        $plans = Plan::where('idepro', $idepro)
-            ->where('estado', '<>', 'INACTIVO')
-            ->orderBy('fecha_ppg', 'asc')
-            ->get();
-
-        return $plans->count() > 0 ? $plans : Readjustment::where('idepro', $idepro)
-            ->where('estado', '<>', 'INACTIVO')
-            ->orderBy('fecha_ppg', 'asc')
-            ->get();
-    }
-
-    private function getActiveDiffers($idepro)
-    {
-        return Helper::where('idepro', $idepro)->where('estado', 'ACTIVO')->orderBy('indice', 'asc')->get();
     }
 }

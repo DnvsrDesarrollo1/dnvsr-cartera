@@ -1,43 +1,53 @@
-<div>
-    @if ($selected)
-        <div class="flex flex-col sm:flex-row justify-end items-center gap-2 mb-2">
+<div x-data="{
+    selected: @entangle('selected'),
+    selectAll: false,
+    allIds: @js($beneficiaries->pluck('id')->map(fn($id) => (string) $id)->values()->all()),
+    toggleAll() {
+        this.selected = this.selectAll ? this.allIds : [];
+    }
+}">
+    <div x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100"
+        x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 transform scale-100"
+        x-transition:leave-end="opacity-0 transform scale-95" x-cloak
+        class="flex justify-end items-center gap-2 p-2 bg-white rounded-lg border border-gray-200 w-fit ml-auto">
+        @can('write plans')
             <div class="w-full sm:w-auto">
-                <x-personal.button iconLeft="fa-solid fa-bolt" class="w-full sm:w-auto"
-                    href="{{ route('plan.bulk-activation', ['data' => json_encode(collect($selected))]) }}">
-                    <span class="hidden sm:inline">Activación</span>
+                <x-personal.button iconLeft="fa-solid fa-bolt" variant="success" href="#" size="xs"
+                    x-on:click.prevent="window.open('{{ route('plan.bulk-activation', ['data' => 'placeholder']) }}'.replace('placeholder', encodeURIComponent(JSON.stringify(selected))), '_blank')">
+                    <span class="hidden sm:inline text">Activación</span>
                     <span class="sm:hidden">Activar Seleccionados</span>
-                    ({{ count($selected) }})
+                    (<span x-text="selected.length"></span>)
                 </x-personal.button>
             </div>
-            <div class="w-full sm:w-auto">
-                <x-personal.button variant="outline-secondary"
-                    href="{{ route('beneficiario.bulk-pdf', ['data' => json_encode(collect($selected))]) }}"
-                    iconLeft="fa-solid fa-file-pdf" class="w-full sm:w-auto">
-                    <span class="hidden sm:inline">PDF Planes</span>
-                    <span class="sm:hidden">Generar PDF</span>
-                    ({{ count($selected) }})
-                </x-personal.button>
-            </div>
-            <div class="w-full sm:w-auto">
-                <x-personal.button variant="outline-secondary"
-                    href="{{ route('beneficiario.bulk-pdf-extract', ['data' => json_encode(collect($selected))]) }}"
-                    iconLeft="fa-solid fa-file-pdf" class="w-full sm:w-auto">
-                    <span class="hidden sm:inline">PDF Extractos</span>
-                    <span class="sm:hidden">Generar PDF</span>
-                    ({{ count($selected) }})
-                </x-personal.button>
-            </div>
-            <div class="w-full sm:w-auto">
-                <x-personal.button variant="outline-secondary"
-                    href="{{ route('plan.bulk-xlsx', ['data' => json_encode(collect($selected))]) }}"
-                    iconLeft="fa-solid fa-file-pdf" class="w-full sm:w-auto">
-                    <span class="hidden sm:inline">XLSX Planes</span>
-                    <span class="sm:hidden">Generar XLSX</span>
-                    ({{ count($selected) }})
-                </x-personal.button>
-            </div>
+        @endcan
+        <div class="w-full sm:w-auto">
+            <x-personal.button variant="outline-info" href="#" size="xs"
+                x-on:click.prevent="window.open('{{ route('beneficiario.bulk-pdf', ['data' => 'placeholder']) }}'.replace('placeholder', encodeURIComponent(JSON.stringify(selected))), '_blank')"
+                iconLeft="fa-solid fa-file-pdf" class="w-full sm:w-auto">
+                <span class="hidden sm:inline">PDF Planes</span>
+                <span class="sm:hidden">Generar PDF</span>
+                (<span x-text="selected.length"></span>)
+            </x-personal.button>
         </div>
-    @endif
+        <div class="w-full sm:w-auto">
+            <x-personal.button variant="outline-info" href="#" size="xs"
+                x-on:click.prevent="window.open('{{ route('beneficiario.bulk-pdf-extract', ['data' => 'placeholder']) }}'.replace('placeholder', encodeURIComponent(JSON.stringify(selected))), '_blank')"
+                iconLeft="fa-solid fa-file-pdf" class="w-full sm:w-auto">
+                <span class="hidden sm:inline">PDF Extractos</span>
+                <span class="sm:hidden">Generar PDF</span>
+                (<span x-text="selected.length"></span>)
+            </x-personal.button>
+        </div>
+        <div class="w-full sm:w-auto">
+            <x-personal.button variant="outline-info" href="#" size="xs"
+                x-on:click.prevent="window.open('{{ route('plan.bulk-xlsx', ['data' => 'placeholder']) }}'.replace('placeholder', encodeURIComponent(JSON.stringify(selected))), '_blank')"
+                iconLeft="fa-solid fa-file-excel" class="w-full sm:w-auto">
+                <span class="hidden sm:inline">XLSX Planes</span>
+                <span class="sm:hidden">Generar XLSX</span>
+                (<span x-text="selected.length"></span>)
+            </x-personal.button>
+        </div>
+    </div>
     <div class="py-2 relative">
         <div class="flex items-center gap-3 bg-white p-2 rounded-lg shadow-sm border border-gray-400">
             <div class="flex-1 flex items-center gap-2">
@@ -50,7 +60,7 @@
                     </div>
                     <input type="text" wire:model.live.debounce.500ms="search" wire:keyup.enter="search"
                         placeholder="Buscar por nombre, CI o código..."
-                        class="w-full pl-10 pr-10 py-1.5 text-sm border border-gray-300 rounded-md bg-white focus:ring-blue-500 focus:border-blue-500 uppercase placeholder-gray-400 shadow-sm"
+                        class="w-full pl-10 pr-10 py-4 text-sm border border-gray-300 bg-white focus:ring-gray-500 focus:border-gray-500 uppercase placeholder-gray-400 shadow-sm"
                         oninput="this.value = this.value.toUpperCase()">
                     @if ($search)
                         <div class="absolute inset-y-0 right-0 flex items-center pr-3">
@@ -210,7 +220,7 @@
             <thead class="bg-gray-50">
                 <tr>
                     <th scope="col" class="p-4 sticky top-0 text-left">
-                        <input type="checkbox" wire:model.live="selectAll"
+                        <input type="checkbox" x-model="selectAll" @change="toggleAll()"
                             class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
                     </th>
                     @foreach (['nombre' => 'Nombre', 'ci' => 'CI/IDEPRO', 'estado' => 'Estado', 'monto_credito' => 'Monto Crédito (k)', 'saldo_credito' => 'Saldo Crédito (k)'] as $field => $label)
@@ -256,42 +266,62 @@
                     <tr wire:key="beneficiary-row-{{ $beneficiary->id }}"
                         class="hover:bg-gray-50 transition-colors duration-150">
                         <td class="p-4">
-                            <input type="checkbox" wire:model.live="selected" value="{{ $beneficiary->id }}"
+                            <input type="checkbox" x-model="selected" value="{{ $beneficiary->id }}"
                                 class="w-4 h-4 rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
                         </td>
                         <td class="px-4 py-3">
                             <div x-data="{ editing: false, value: '{{ $beneficiary->nombre }}' }"
-                                @click.away="if(editing) { editing = false; $wire.save('{{ $beneficiary->id }}', 'nombre', value) }">
+                                @can('write beneficiaries')
+                                    @click.away="if(editing) { editing = false; $wire.save('{{ $beneficiary->id }}', 'nombre', value) }"
+                                @endcan>
                                 <div class="flex items-center justify-between space-x-2" x-show="!editing">
-                                    <span @click="editing = true; $nextTick(() => $refs.input.focus())"
-                                        class="cursor-pointer text-sm text-gray-900 truncate max-w-[100px] sm:max-w-none hover:text-indigo-600"
-                                        x-text="value" title="{{ $beneficiary->nombre }}">
-                                    </span>
+                                    @can('write beneficiaries')
+                                        <span @click="editing = true; $nextTick(() => $refs.input.focus())"
+                                            class="cursor-pointer text-sm text-gray-900 truncate max-w-[100px] sm:max-w-none hover:text-indigo-600"
+                                            x-text="value" title="{{ $beneficiary->nombre }}">
+                                        </span>
+                                    @else
+                                        <span class="text-sm text-gray-900 truncate max-w-[100px] sm:max-w-none"
+                                            x-text="value" title="{{ $beneficiary->nombre }}">
+                                        </span>
+                                    @endcan
                                 </div>
-                                <div x-show="editing" x-cloak>
-                                    <input type="text" x-ref="input" x-model="value"
-                                        @keydown.enter="editing = false; $wire.save('{{ $beneficiary->id }}', 'nombre', value)"
-                                        @keydown.escape="editing = false"
-                                        class="w-full px-2 py-1 text-sm border border-indigo-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 uppercase"
-                                        oninput="this.value = this.value.toUpperCase()"
-                                        title="Presione Enter para guardar, o click fuera para guardar...">
-                                </div>
+                                @can('write beneficiaries')
+                                    <div x-show="editing" x-cloak>
+                                        <input type="text" x-ref="input" x-model="value"
+                                            @keydown.enter="editing = false; $wire.save('{{ $beneficiary->id }}', 'nombre', value)"
+                                            @keydown.escape="editing = false"
+                                            class="w-full px-2 py-1 text-sm border border-indigo-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 uppercase"
+                                            oninput="this.value = this.value.toUpperCase()"
+                                            title="Presione Enter para guardar, o click fuera para guardar...">
+                                    </div>
+                                @endcan
                             </div>
                         </td>
                         <td class="px-4 py-3 text-sm text-gray-600">
                             <div x-data="{ editing: false, value: '{{ $beneficiary->ci }}' }"
-                                @click.away="if(editing) { editing = false; $wire.save('{{ $beneficiary->id }}', 'ci', value) }">
-                                <div @click="editing = true; $nextTick(() => $refs.input.focus())"
-                                    class="cursor-pointer hover:text-indigo-600" x-show="!editing">
-                                    <div x-text="value" class="truncate max-w-[80px] sm:max-w-none"></div>
-                                </div>
-                                <div x-show="editing" x-cloak>
-                                    <input type="text" x-ref="input" x-model="value"
-                                        @keydown.enter="editing = false; $wire.save('{{ $beneficiary->id }}', 'ci', value)"
-                                        @keydown.escape="editing = false"
-                                        class="w-full px-2 py-1 text-sm border border-indigo-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 uppercase"
-                                        title="Presione Enter para guardar, o click fuera para guardar...">
-                                </div>
+                                @can('write beneficiaries')
+                                    @click.away="if(editing) { editing = false; $wire.save('{{ $beneficiary->id }}', 'ci', value) }"
+                                @endcan>
+                                @can('write beneficiaries')
+                                    <div @click="editing = true; $nextTick(() => $refs.input.focus())"
+                                        class="cursor-pointer hover:text-indigo-600" x-show="!editing">
+                                        <div x-text="value" class="truncate max-w-[80px] sm:max-w-none"></div>
+                                    </div>
+                                @else
+                                    <div x-show="!editing">
+                                        <div x-text="value" class="truncate max-w-[80px] sm:max-w-none"></div>
+                                    </div>
+                                @endcan
+                                @can('write beneficiaries')
+                                    <div x-show="editing" x-cloak>
+                                        <input type="text" x-ref="input" x-model="value"
+                                            @keydown.enter="editing = false; $wire.save('{{ $beneficiary->id }}', 'ci', value)"
+                                            @keydown.escape="editing = false"
+                                            class="w-full px-2 py-1 text-sm border border-indigo-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 uppercase"
+                                            title="Presione Enter para guardar, o click fuera para guardar...">
+                                    </div>
+                                @endcan
                             </div>
                             <div class="mt-1 text-xs text-gray-400 truncate max-w-[80px] sm:max-w-none">
                                 {{ $beneficiary->idepro }}
@@ -299,41 +329,89 @@
                         </td>
                         <td class="px-4 py-3">
                             <div x-data="{ editing: false, value: '{{ $beneficiary->estado }}' }"
-                                @click.away="if(editing) { editing = false; $wire.save('{{ $beneficiary->id }}', 'estado', value) }">
-                                <div @click="editing = true; $nextTick(() => $refs.select.focus())"
-                                    class="cursor-pointer" x-show="!editing">
-                                    <span @class([
-                                        'px-2 py-1 text-xs font-medium rounded-full whitespace-nowrap',
-                                        'bg-red-100 text-red-800' => $beneficiary->estado === 'BLOQUEADO',
-                                        'bg-blue-100 text-blue-800' => $beneficiary->estado === 'CANCELADO',
-                                        'bg-green-100 text-green-800' => $beneficiary->estado === 'ACTIVO',
-                                        'bg-yellow-100 text-yellow-800' => $beneficiary->estado === 'PENDIENTE',
-                                    ]) x-text="value"></span>
-                                </div>
-                                <div x-show="editing" x-cloak>
-                                    <select x-ref="select" x-model="value"
-                                        @change="editing = false; $wire.save('{{ $beneficiary->id }}', 'estado', value)"
-                                        @keydown.escape="editing = false"
-                                        class="w-full px-2 py-1 text-sm border border-indigo-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                                        title="Click fuera del campo para guardar cambios o presione ESC para cancelar...">
-                                        @foreach ($statusOptions as $status)
-                                            <option value="{{ $status }}">{{ $status }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                                @can('write beneficiaries')
+                                    @click.away="if(editing) { editing = false; $wire.save('{{ $beneficiary->id }}', 'estado', value) }"
+                                @endcan>
+                                @can('write beneficiaries')
+                                    <div @click="editing = true; $nextTick(() => $refs.select.focus())"
+                                        class="cursor-pointer" x-show="!editing">
+                                        <span @class([
+                                            'px-2 py-1 text-xs font-medium rounded-full whitespace-nowrap',
+                                            'bg-red-100 text-red-800' => $beneficiary->estado === 'BLOQUEADO',
+                                            'bg-blue-100 text-blue-800' => $beneficiary->estado === 'CANCELADO',
+                                            'bg-green-100 text-green-800' => $beneficiary->estado === 'ACTIVO',
+                                            'bg-yellow-100 text-yellow-800' => $beneficiary->estado === 'PENDIENTE',
+                                        ]) x-text="value"></span>
+                                    </div>
+                                @else
+                                    <div x-show="!editing">
+                                        <span @class([
+                                            'px-2 py-1 text-xs font-medium rounded-full whitespace-nowrap',
+                                            'bg-red-100 text-red-800' => $beneficiary->estado === 'BLOQUEADO',
+                                            'bg-blue-100 text-blue-800' => $beneficiary->estado === 'CANCELADO',
+                                            'bg-green-100 text-green-800' => $beneficiary->estado === 'ACTIVO',
+                                            'bg-yellow-100 text-yellow-800' => $beneficiary->estado === 'PENDIENTE',
+                                        ]) x-text="value"></span>
+                                    </div>
+                                @endcan
+                                @can('write beneficiaries')
+                                    <div x-show="editing" x-cloak>
+                                        <select x-ref="select" x-model="value"
+                                            @change="editing = false; $wire.save('{{ $beneficiary->id }}', 'estado', value)"
+                                            @keydown.escape="editing = false"
+                                            class="w-full px-2 py-1 text-sm border border-indigo-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                                            title="Click fuera del campo para guardar cambios o presione ESC para cancelar...">
+                                            @foreach ($statusOptions as $status)
+                                                <option value="{{ $status }}">{{ $status }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                @endcan
                             </div>
                         </td>
                         <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">
                             {{ number_format($beneficiary->monto_activado, 2) }}
                         </td>
                         <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">
-                            <span @class([
-                                'px-2 py-1 font-semibold rounded-full',
-                                'bg-blue-100 text-blue-800' => $beneficiary->saldo_credito <= 0,
-                                'bg-green-100 text-green-800' => $beneficiary->saldo_credito > 0,
-                            ])>
-                                {{ number_format($beneficiary->saldo_credito, 2) }}
-                            </span>
+                            @php
+                                $totalCredit = $beneficiary->monto_activado;
+                                $remainingCredit = $beneficiary->saldo_credito;
+
+                                // Calcular el monto pagado
+                                $montoPagado = $totalCredit - $remainingCredit;
+
+                                // Calcular el porcentaje de progreso de pago
+                                $progressPercentage = 0;
+                                if ($totalCredit > 0) {
+                                    $progressPercentage = ($montoPagado / $totalCredit) * 100;
+                                }
+
+                                // Asegurar que el porcentaje esté entre 0 y 100
+                                $progressPercentage = max(0, min(100, $progressPercentage));
+
+                                // Definir el color de la barra
+                                $progressBarColor = 'bg-blue-500'; // Color por defecto para progreso
+                                $textColor = 'text-blue-700';
+                                if ($remainingCredit <= 0) {
+                                    $progressBarColor = 'bg-green-500'; // Verde si está pagado o sobrepagado
+                                    $textColor = 'text-green-700';
+                                } elseif ($progressPercentage < 25) {
+                                    $progressBarColor = 'bg-red-500'; // Rojo si el progreso es bajo
+                                    $textColor = 'text-red-700';
+                                }
+                            @endphp
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs font-medium {{ $textColor }}">
+                                    {{ number_format($montoPagado, 2) }} / {{ number_format($totalCredit, 2) }}
+                                </span>
+                                <span class="text-xs font-medium {{ $textColor }}">
+                                    {{ round($progressPercentage) }}%
+                                </span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="h-2 rounded-full transition-all duration-500 {{ $progressBarColor }}"
+                                    style="width:{{ $progressPercentage }}%"></div>
+                            </div>
                         </td>
                         <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">
                             {{ count($beneficiary->plans->filter(fn($p) => $p->estado == 'VENCIDO')) }}
@@ -344,17 +422,17 @@
                             <div class="flex items-center justify-center space-x-2">
                                 <a href="{{ route('beneficiario.show', $beneficiary->ci) }}" target="_blank"
                                     title="Administrar Perfil"
-                                    class="text-indigo-600 hover:text-indigo-800 hover:scale-110 transition-all transform text-lg">
+                                    class="text-gray-600 hover:text-gray-800 hover:scale-110 transition-all transform text-lg">
                                     <i class="fa-solid fa-user-gear"></i>
                                 </a>
                                 <a href="{{ route('beneficiario.pdf', $beneficiary->ci) }}" target="_blank"
                                     title="Ver Plan de Pagos Vigente"
-                                    class="text-indigo-600 hover:text-indigo-800 hover:scale-110 transition-all transform text-lg">
+                                    class="text-gray-600 hover:text-gray-800 hover:scale-110 transition-all transform text-lg">
                                     <i class="fa-solid fa-calendar-days"></i>
                                 </a>
                                 <a href="{{ route('beneficiario.pdf-extract', $beneficiary->ci) }}" target="_blank"
                                     title="Ver Extracto de Pagos"
-                                    class="text-indigo-600 hover:text-indigo-800 hover:scale-110 transition-all transform text-lg">
+                                    class="text-gray-600 hover:text-gray-800 hover:scale-110 transition-all transform text-lg">
                                     <i class="fa-solid fa-book"></i>
                                 </a>
                             </div>

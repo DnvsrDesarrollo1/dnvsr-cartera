@@ -202,11 +202,11 @@ class BeneficiaryUpdate extends Component
             \App\Models\Insurance::where('idepro', $idepro)->delete();
             \App\Models\Plan::where('idepro', $idepro)->delete();
             \App\Models\Readjustment::where('idepro', $idepro)->delete();
-            \App\Models\Spend::where('idepro', $idepro)->delete();
-            \App\Models\Earn::where('idepro', $idepro)->delete();
-            \App\Models\Voucher::where('numprestamo', $idepro)->delete();
-            \App\Models\Payment::where('numprestamo', $idepro)->delete();
-            \App\Models\Helper::where('idepro', $idepro)->delete();
+            //\App\Models\Helper::where('idepro', $idepro)->delete();
+            //\App\Models\Spend::where('idepro', $idepro)->delete();
+            //\App\Models\Earn::where('idepro', $idepro)->delete();
+            //\App\Models\Voucher::where('numprestamo', $idepro)->delete();
+            //\App\Models\Payment::where('numprestamo', $idepro)->delete();
 
             $this->beneficiary->delete();
         });

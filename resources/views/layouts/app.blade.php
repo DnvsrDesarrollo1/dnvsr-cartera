@@ -187,12 +187,13 @@
 
         // Adjust snowfall speed based on scroll
         const container = document.querySelector('.container');
-        container.addEventListener('scroll', () => {
-            const scrollPosition = container.scrollTop;
-            const maxScroll = container.scrollHeight - container.clientHeight;
-            scrollSpeedFactor = 1 + (scrollPosition / maxScroll) * 1.5;
-        });
-
+        if (container) {
+            container.addEventListener('scroll', () => {
+                const scrollPosition = container.scrollTop;
+                const maxScroll = container.scrollHeight - container.clientHeight;
+                scrollSpeedFactor = 1 + (scrollPosition / maxScroll) * 1.5;
+            });
+        }
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>

@@ -42,21 +42,21 @@
             'bg-teal-800 text-white px-4 py-2 rounded-full transition duration-200 ease-in-out hover:bg-teal-900 active:bg-teal-950 focus:outline-none',
 
         'outline-primary' =>
-            'border border-blue-500 text-blue-500 bg-transparent px-4 py-2 rounded-full transition duration-200 ease-in-out hover:bg-blue-50 active:bg-blue-100 focus:outline-none',
+            'border border-blue-500 text-blue-500 bg-transparent px-4 py-2 rounded-full transition duration-200 ease-in-out hover:bg-blue-100 active:bg-blue-100 focus:outline-none',
         'outline-secondary' =>
-            'border border-gray-500 text-gray-500 bg-transparent px-4 py-2 rounded-full transition duration-200 ease-in-out hover:bg-gray-50 active:bg-gray-100 focus:outline-none',
+            'border border-gray-500 text-gray-500 bg-transparent px-4 py-2 rounded-full transition duration-200 ease-in-out hover:bg-gray-100 active:bg-gray-100 focus:outline-none',
         'outline-success' =>
-            'border border-green-600 text-green-600 bg-transparent px-4 py-2 rounded-full transition duration-200 ease-in-out hover:bg-green-50 active:bg-green-100 focus:outline-none',
+            'border border-green-600 text-green-600 bg-transparent px-4 py-2 rounded-full transition duration-200 ease-in-out hover:bg-green-100 active:bg-green-100 focus:outline-none',
         'outline-danger' =>
-            'border border-red-500 text-red-500 bg-transparent px-4 py-2 rounded-full transition duration-200 ease-in-out hover:bg-red-50 active:bg-red-100 focus:outline-none',
+            'border border-red-500 text-red-500 bg-transparent px-4 py-2 rounded-full transition duration-200 ease-in-out hover:bg-red-100 active:bg-red-100 focus:outline-none',
         'outline-warning' =>
-            'border border-yellow-500 text-yellow-500 bg-transparent px-4 py-2 rounded-full transition duration-200 ease-in-out hover:bg-yellow-50 active:bg-yellow-100 focus:outline-none',
+            'border border-yellow-500 text-yellow-500 bg-transparent px-4 py-2 rounded-full transition duration-200 ease-in-out hover:bg-yellow-100 active:bg-yellow-100 focus:outline-none',
         'outline-info' =>
-            'border border-cyan-500 text-cyan-500 bg-transparent px-4 py-2 rounded-full transition duration-200 ease-in-out hover:bg-cyan-50 active:bg-cyan-100 focus:outline-none',
+            'border border-cyan-500 text-cyan-500 bg-transparent px-4 py-2 rounded-full transition duration-200 ease-in-out hover:bg-cyan-100 active:bg-cyan-100 focus:outline-none',
         'outline-light' =>
-            'border border-gray-300 text-gray-600 bg-transparent px-4 py-2 rounded-full transition duration-200 ease-in-out hover:bg-gray-50 active:bg-gray-100 focus:outline-none',
+            'border border-gray-300 text-gray-600 bg-transparent px-4 py-2 rounded-full transition duration-200 ease-in-out hover:bg-gray-100 active:bg-gray-100 focus:outline-none',
         'outline-dark' =>
-            'border border-teal-800 text-teal-800 bg-transparent px-4 py-2 rounded-full transition duration-200 ease-in-out hover:bg-teal-50 active:bg-teal-100 focus:outline-none',
+            'border border-teal-800 text-teal-800 bg-transparent px-4 py-2 rounded-full transition duration-200 ease-in-out hover:bg-teal-100 active:bg-teal-100 focus:outline-none',
 
         'link' =>
             'bg-sky-100 text-purple-500 px-4 py-2 rounded-full transition duration-200 ease-in-out hover:underline focus:outline-none',

@@ -283,6 +283,7 @@ class BeneficiaryController extends Controller
 
     public function bulkPdf($data)
     {
+        //return $data;
         $decodedData = json_decode($data, true);
         $identificationNumbers = array_values($decodedData);
         $user = Auth::user();
@@ -290,6 +291,8 @@ class BeneficiaryController extends Controller
         if (! $user) {
             return redirect()->route('login')->with('error', 'Debes iniciar sesión para realizar esta acción.');
         }
+
+        //return $identificationNumbers;
 
         // Dispatch the job to the queue
         GenerateBeneficiaryPlansPdfsZip::dispatch($identificationNumbers, $user->id);

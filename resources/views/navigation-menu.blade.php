@@ -69,7 +69,7 @@
                                 {{ 'Carga de CSV' }}
                             </x-dropdown-link>
 
-                            @can(abilities: 'write beneficiaries')
+                            @can(abilities: 'write users')
                                 <x-dropdown-link href="{{ route('users.index') }}">
                                     {{ 'Gestionar Usuarios' }}
                                 </x-dropdown-link>
@@ -192,7 +192,7 @@
                     {{ 'Carga de Datos' }}
                 </x-responsive-nav-link>
 
-                @can('write beneficiaries')
+                @can('write users')
                     <x-responsive-nav-link href="{{ route('users.index') }}">
                         {{ 'Gestionar Usuarios' }}
                     </x-responsive-nav-link>
