@@ -39,6 +39,16 @@ class PlanMutator extends Component
 
     public function render()
     {
+        if ($this->affectedQuotas == '')
+        {
+            $this->affectedQuotas = 1;
+        }
+
+        if ($this->amountToInsert == '')
+        {
+            $this->amountToInsert = 100;
+        }
+
         $this->getNQuotas();
 
         $this->amountPerQuota = round($this->amountToInsert / $this->affectedQuotas, 4);

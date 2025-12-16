@@ -9,7 +9,11 @@
     <div x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100"
         x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 transform scale-100"
         x-transition:leave-end="opacity-0 transform scale-95" x-cloak
-        class="flex justify-end items-center gap-2 p-2 bg-white rounded-lg border border-gray-200 w-fit ml-auto">
+        class="relative flex justify-end items-center gap-2 p-2 bg-white rounded-lg border border-gray-200 w-fit ml-auto">
+        <div x-show="selected.length == 0" class="absolute top-0 left-0 w-full h-full bg-gray-100 opacity-50 rounded"
+            style="z-index: 99">
+
+        </div>
         @can('write plans')
             <div class="w-full sm:w-auto">
                 <x-personal.button iconLeft="fa-solid fa-bolt" variant="success" href="#" size="xs"

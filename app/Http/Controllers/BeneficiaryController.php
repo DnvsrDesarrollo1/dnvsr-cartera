@@ -374,7 +374,7 @@ class BeneficiaryController extends Controller
 
     private function getActiveDiffers($idepro)
     {
-        $differs = Helper::where('idepro', $idepro)->where('estado', 'ACTIVO')->orderBy('indice', 'asc')->get();
+        $differs = Helper::where('idepro', $idepro)->orderBy('indice', 'asc')->get();
 
         return $differs;
     }

@@ -46,7 +46,6 @@ trait ProcessTrait
                 'timed_out' => false,
                 'execution_time' => round($process->getLastOutputTime() ?? 0, 2),
             ];
-
         } catch (ProcessTimedOutException $e) {
             return [
                 'output' => [],
@@ -58,7 +57,7 @@ trait ProcessTrait
         } catch (\Exception $e) {
             return [
                 'output' => [],
-                'error' => ['Process execution failed: '.$e->getMessage()],
+                'error' => ['Process execution failed: ' . $e->getMessage()],
                 'status' => -1,
                 'timed_out' => false,
                 'execution_time' => 0,
@@ -138,8 +137,8 @@ trait ProcessTrait
 
             if (strlen($output) > $this->maxOutputLength || strlen($errorOutput) > $this->maxOutputLength) {
                 proc_terminate($process);
-                $output = substr($output, 0, $this->maxOutputLength)."\n[OUTPUT TRUNCATED]";
-                $errorOutput = substr($errorOutput, 0, $this->maxOutputLength)."\n[ERROR OUTPUT TRUNCATED]";
+                $output = substr($output, 0, $this->maxOutputLength) . "\n[OUTPUT TRUNCATED]";
+                $errorOutput = substr($errorOutput, 0, $this->maxOutputLength) . "\n[ERROR OUTPUT TRUNCATED]";
                 break;
             }
 
@@ -165,7 +164,7 @@ trait ProcessTrait
                     'output' => $this->sanitizeOutput($output),
                     'error' => array_merge(
                         $this->sanitizeOutput($errorOutput),
-                        ['Command execution timed out after '.$executionTime.' seconds']
+                        ['Command execution timed out after ' . $executionTime . ' seconds']
                     ),
                     'status' => 124,
                     'timed_out' => true,
@@ -179,7 +178,7 @@ trait ProcessTrait
         fclose($stdout);
         fclose($stderr);
         $returnCode = proc_close($process);
-        $executionTime = round(microtime(true) - $startTime, 2);
+        $executionTime = round((microtime(true) - $startTime) * 1000);
 
         return [
             'output' => $this->sanitizeOutput($output),
