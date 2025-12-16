@@ -219,12 +219,18 @@ trait ProcessTrait
         // Remover códigos ANSI primero
         $output = $this->removeAnsiCodes($output);
 
+        // Heurística: Si detectamos logs concatenados por falta de salto de línea "][", los separamos
+        // Ejemplo: ...texto[2025-...] -> ...texto\n[2025-...]
+        $output = preg_replace('/(?<!^|[\n\r])\[(\d{4}-\d{2}-\d{2})/', "\n[$1", $output);
+
         $lines = explode("\n", $output);
         $sanitizedLines = [];
 
         foreach ($lines as $line) {
             $line = mb_convert_encoding($line, 'UTF-8', 'UTF-8');
-            $cleanLine = preg_replace('/[\x00-\x1F\x7F]/u', '', $line);
+
+            // Preservar tabs (\t) pero remover otros controles
+            $cleanLine = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $line);
 
             if ($cleanLine !== '' && ! empty(trim($cleanLine))) {
                 $sanitizedLines[] = trim($cleanLine);
@@ -245,8 +251,12 @@ trait ProcessTrait
         // Patrón alternativo para códigos ANSI
         $text = preg_replace('/\x1b\[[0-9;]*m/', '', $text);
 
-        // Remover otros caracteres de control
-        $text = preg_replace('/[\x00-\x1F\x7F-\x9F]/u', '', $text);
+        // Remover otros caracteres de control pero PRESERVAR \n, \r, \t
+        // \x00-\x08 (0-8)
+        // \x0B-\x0C (11-12)
+        // \x0E-\x1F (14-31)
+        // \x7F-\x9F (127-159)
+        $text = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/u', '', $text);
 
         return $text;
     }
