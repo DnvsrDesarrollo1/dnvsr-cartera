@@ -26,8 +26,11 @@ trait ProcessTrait
             $this->timeout
         );
 
+        $startTime = microtime(true);
+
         try {
             $process->run();
+            $executionTime = round(microtime(true) - $startTime, 2);
 
             if ($process->isTerminated() && $process->getExitCode() === null) {
                 return [
@@ -35,7 +38,7 @@ trait ProcessTrait
                     'error' => ['Process terminated due to timeout'],
                     'status' => 124,
                     'timed_out' => true,
-                    'execution_time' => 0,
+                    'execution_time' => $executionTime,
                 ];
             }
 
@@ -44,7 +47,7 @@ trait ProcessTrait
                 'error' => $this->sanitizeOutput($process->getErrorOutput()),
                 'status' => $process->getExitCode(),
                 'timed_out' => false,
-                'execution_time' => round($process->getLastOutputTime() ?? 0, 2),
+                'execution_time' => $executionTime,
             ];
         } catch (ProcessTimedOutException $e) {
             return [
@@ -178,7 +181,7 @@ trait ProcessTrait
         fclose($stdout);
         fclose($stderr);
         $returnCode = proc_close($process);
-        $executionTime = round((microtime(true) - $startTime) * 1000);
+        $executionTime = round(microtime(true) - $startTime, 2);
 
         return [
             'output' => $this->sanitizeOutput($output),
