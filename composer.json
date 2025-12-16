@@ -6,7 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
-        "bacon/bacon-qr-code": "*",
+        "bacon/bacon-qr-code": "^3.0",
         "barryvdh/laravel-dompdf": "^3.0",
         "consoletvs/charts": "6.*",
         "laravel-lang/common": "^6.4",
@@ -17,7 +17,6 @@
         "livewire/livewire": "^3.5",
         "openspout/openspout": "^4.26",
         "phpoffice/phpspreadsheet": "^3.3",
-        "power-components/livewire-powergrid": "^6.0",
         "rap2hpoutre/fast-excel": "^5.6",
         "spatie/laravel-permission": "^6.10"
     },

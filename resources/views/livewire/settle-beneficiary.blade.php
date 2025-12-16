@@ -213,12 +213,11 @@
 
                                     <!-- Gastos Administrativos -->
                                     <div class="flex items-center space-x-2">
-                                        <label for="gastosAdm"
-                                            class="w-1/3 text-sm font-medium text-gray-700">Gastos Admin.:</label>
+                                        <label for="gastosAdm" class="w-1/3 text-sm font-medium text-gray-700">Gastos
+                                            Admin.:</label>
                                         <div class="w-2/3">
-                                            <input min="0" type="number"
-                                                wire:model.live="gastosAdm" id="gastosAdm"
-                                                step="0.10"
+                                            <input min="0" type="number" wire:model.live="gastosAdm"
+                                                id="gastosAdm" step="0.10"
                                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-8"
                                                 placeholder="0.00">
                                             @error('gastosAdm')
@@ -229,8 +228,8 @@
 
                                     <!-- Gastos Judiciales -->
                                     <div class="flex items-center space-x-2">
-                                        <label for="gastosJud"
-                                            class="w-1/3 text-sm font-medium text-gray-700">Gastos Jud.:</label>
+                                        <label for="gastosJud" class="w-1/3 text-sm font-medium text-gray-700">Gastos
+                                            Jud.:</label>
                                         <div class="w-2/3">
                                             <input min="0" type="number" wire:model.live="gastosJud"
                                                 id="gastosJud" step="0.10"
@@ -244,8 +243,8 @@
 
                                     <!-- Descuento -->
                                     <div class="flex items-center space-x-2">
-                                        <label for="descuento"
-                                            class="w-1/3 text-sm font-medium text-gray-700">Desc. G.A.:</label>
+                                        <label for="descuento" class="w-1/3 text-sm font-medium text-gray-700">Desc.
+                                            G.A.:</label>
                                         <div class="w-2/3">
                                             <input min="0" type="number" wire:model.live="descuento"
                                                 id="descuento" step="0.10"
@@ -260,21 +259,28 @@
                             </div>
 
                             <!-- Autocalculo a Liquidars -->
-                            <div class="space-y-1">
-                                <label for="totalSettle" class="block text-sm font-medium text-gray-700">
-                                    Campo de autocálculo y autodistribución:
-                                </label>
-                                <div class="relative rounded-md shadow-sm">
-                                    <input type="number" wire:model.live="totalSettle" id="totalSettle"
-                                        step="0.10"
-                                        class="block w-full bg-gray-200 rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 sm:text-sm py-2 px-3 border"
-                                        placeholder="0.00">
-                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                            <div class="space-y-1 flex items-center space-x-2">
+                                <div class="flex items-center space-x-2">
+                                    <label for="totalSettle" class="block text-sm font-medium text-gray-700">
+                                        Campo de autocálculo y autodistribución:
+                                    </label>
+                                    <div class="relative rounded-md shadow-sm">
+                                        <input type="number" wire:model.live="totalSettle" id="totalSettle"
+                                            step="0.10"
+                                            class="block w-full bg-gray-200 rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring-yellow-500 sm:text-sm py-2 px-3 border"
+                                            placeholder="0.00">
+                                        <div
+                                            class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        </div>
                                     </div>
+                                    @error('totalSettle')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
                                 </div>
-                                @error('totalSettle')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
+                                <div class="flex items-center space-x-2">
+                                    <input type="checkbox" name="isSettle" id="isSettle" wire:model.live="isSettle" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
+                                    <label for="isSettle" class="ml-2 text-sm font-medium text-gray-700">Liquidar</label>
+                                </div>
                             </div>
 
                             <!-- Estado -->
@@ -454,7 +460,8 @@
                                     <div>
                                         <x-personal.button variant="success" iconLeft="fa-solid fa-paper-plane"
                                             wire:click="save" wire:confirm="¿Está seguro de actualizar la solicitud?"
-                                            wire:loading.attr="disabled" wire:loading.class="opacity-75 cursor-not-allowed">
+                                            wire:loading.attr="disabled"
+                                            wire:loading.class="opacity-75 cursor-not-allowed">
                                             <span wire:loading.remove wire:target="save">Actualizar Solicitud</span>
                                             <span wire:loading wire:target="save">Liquidando/Cancelando....</span>
                                         </x-personal.button>

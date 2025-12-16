@@ -209,20 +209,14 @@
             </table>
 
             @php
-                $renderer = new BaconQrCode\Renderer\ImageRenderer(
-                    new BaconQrCode\Renderer\RendererStyle\RendererStyle(100),
-                    new BaconQrCode\Renderer\Image\SvgImageBackEnd(),
-                );
-                $writer = new BaconQrCode\Writer($renderer);
-                $qrUrl = base64_encode(
-                    $settlement->id . '_' . $settlement->beneficiary_id . '_' . $settlement->user_id,
-                );
-                $qrCode = $writer->writeString($qrUrl);
+                $qrContent = route('liquidacion.pdf', $settlement->id);
+
+                $qrPath = \App\Helpers\QrCodeHelper::generateFromApi($qrContent, 150); // Generamos el QR usando la API externa y obtenemos la ruta del archivo local
             @endphp
 
             <!-- Agregar antes del footer -->
-            <div style="text-align: center; margin: 20px 0;">
-                <img src="data:image/svg+xml;base64,{{ base64_encode($qrCode) }}" style="width: 100px;">
+            <div style="text-align: center; margin: 20px 0; ">
+                <img src="{{ $qrPath }}" width="150" height="150">
                 <p style="font-size: 9px; margin-top: 5px;">Código Unico de Liquidación</p>
             </div>
 

@@ -72,6 +72,8 @@ class SettleBeneficiary extends Component
 
     public $fecha_comprobante;
 
+    public $isSettle = true;
+
     public function render()
     {
         // Ensure totalSettle is numeric before calculations
@@ -202,6 +204,7 @@ class SettleBeneficiary extends Component
 
     public function save()
     {
+        $criteria = $this->isSettle ? 'LIQUIDACION' : 'PAGO AL CONTADO';
         // Filter out non-file items from anexos before validation
         $this->anexos = array_filter($this->anexos, function ($anexo) {
             return is_object($anexo) && method_exists($anexo, 'storeAs');
@@ -249,10 +252,10 @@ class SettleBeneficiary extends Component
                 null,
                 'CAPITAL',
                 $this->capSettle,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
+                $criteria . ':' . Auth::user()->name,
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
-                'CANCELACION/LIQUIDACION'
+                $criteria
             );
 
             $this->createPayment(
@@ -265,10 +268,10 @@ class SettleBeneficiary extends Component
                 null,
                 'CAPITAL DIFERIDO',
                 $this->capDifSettle,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
+                $criteria . ':' . Auth::user()->name,
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
-                'CANCELACION/LIQUIDACION'
+                $criteria
             );
 
             $this->createPayment(
@@ -281,10 +284,10 @@ class SettleBeneficiary extends Component
                 null,
                 'INTERES',
                 $this->intSettle,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
+                $criteria . ':' . Auth::user()->name,
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
-                'CANCELACION/LIQUIDACION'
+                $criteria
             );
 
             $this->createPayment(
@@ -297,10 +300,10 @@ class SettleBeneficiary extends Component
                 null,
                 'INTERES DIFERIDO',
                 $this->intDifSettle,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
+                $criteria . ':' . Auth::user()->name,
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
-                'CANCELACION/LIQUIDACION'
+                $criteria
             );
 
             $this->createPayment(
@@ -313,10 +316,10 @@ class SettleBeneficiary extends Component
                 null,
                 'INTERES DEVENGADO',
                 $this->intDevSettle,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
+                $criteria . ':' . Auth::user()->name,
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
-                'CANCELACION/LIQUIDACION'
+                $criteria
             );
 
             $this->createPayment(
@@ -329,10 +332,10 @@ class SettleBeneficiary extends Component
                 null,
                 'SEGURO DESGRAVAMEN',
                 $this->segSettle,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
+                $criteria . ':' . Auth::user()->name,
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
-                'CANCELACION/LIQUIDACION'
+                $criteria
             );
 
             $this->createPayment(
@@ -345,10 +348,10 @@ class SettleBeneficiary extends Component
                 null,
                 'SEGURO DESGRAVAMEN DEVENGADO',
                 $this->segDevSettle,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
+                $criteria . ':' . Auth::user()->name,
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
-                'CANCELACION/LIQUIDACION'
+                $criteria
             );
 
             $this->createPayment(
@@ -361,10 +364,10 @@ class SettleBeneficiary extends Component
                 null,
                 'OTROS',
                 $this->otrosSettle,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
+                $criteria . ':' . Auth::user()->name,
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
-                'CANCELACION/LIQUIDACION'
+                $criteria
             );
 
             $this->createPayment(
@@ -377,10 +380,10 @@ class SettleBeneficiary extends Component
                 null,
                 'GASTOS ADMINISTRATIVOS',
                 $this->gastosAdm,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
+                $criteria . ':' . Auth::user()->name,
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
-                'CANCELACION/LIQUIDACION'
+                $criteria
             );
 
             $this->createPayment(
@@ -393,10 +396,10 @@ class SettleBeneficiary extends Component
                 null,
                 'GASTOS JUDICIALES',
                 $this->gastosJud,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
+                $criteria . ':' . Auth::user()->name,
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
-                'CANCELACION/LIQUIDACION'
+                $criteria
             );
 
             $this->createPayment(
@@ -409,14 +412,14 @@ class SettleBeneficiary extends Component
                 null,
                 'DESCUENTO AL GASTO ADMINISTRATIVO',
                 $this->descuento,
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
+                $criteria . ':' . Auth::user()->name,
                 $this->beneficiary->getFirstQuote()->prppgnpag ?? 0,
                 null,
-                'CANCELACION/LIQUIDACION'
+                $criteria
             );
 
             $this->createVoucher(
-                strpos(strtoupper($this->comentarios), 'CONTADO') !== false ? ('PAGO CONTADO: ' . Auth::user()->name) : ('LIQUIDACION TOTAL: ' . Auth::user()->name),
+                $criteria . ':' . Auth::user()->name,
                 'CANCELACION/LIQUIDACION',
                 $this->fecha_comprobante,
                 null,
@@ -425,7 +428,7 @@ class SettleBeneficiary extends Component
                 $this->beneficiary->idepro,
                 $this->comprobante,
                 null,
-                'DEPOSITO POR CANCELACION/LIQUIDACION'
+                $criteria
             );
 
             $this->beneficiary->update([
@@ -509,7 +512,7 @@ class SettleBeneficiary extends Component
 
         $this->anexos = $this->settlement->id != null ? json_decode($this->settlement->anexos, true) : [];
 
-        session()->flash('message', 'Liquidación guardada exitosamente');
+        session()->flash('message', $criteria . ' se procesó exitosamente');
     }
 
     public function delete()

@@ -414,10 +414,12 @@
                             </div>
                             <div class="w-full bg-gray-200 rounded-full h-2">
                                 <div class="h-2 rounded-full transition-all duration-500 {{ $progressBarColor }}"
-                                    style="width:{{ $progressPercentage }}%"></div>
+                                    style="width:{{ $progressPercentage }}%">
+                                </div>
                             </div>
                         </td>
-                        <td class="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">
+                        <td
+                            class="px-4 py-3 text-sm whitespace-nowrap {{ count($beneficiary->plans->filter(fn($p) => $p->estado != 'CANCELADO')) == 0 ? 'text-transparent' : 'text-gray-600 ' }}">
                             {{ count($beneficiary->plans->filter(fn($p) => $p->estado == 'VENCIDO')) }}
                             /
                             {{ count($beneficiary->plans->filter(fn($p) => $p->estado != 'CANCELADO')) }}

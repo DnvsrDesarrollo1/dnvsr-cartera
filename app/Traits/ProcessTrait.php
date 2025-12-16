@@ -30,7 +30,7 @@ trait ProcessTrait
 
         try {
             $process->run();
-            $executionTime = round(microtime(true) - $startTime, 2);
+            $executionTime = round(microtime(true) - $startTime, 4);
 
             if ($process->isTerminated() && $process->getExitCode() === null) {
                 return [
@@ -154,7 +154,7 @@ trait ProcessTrait
 
             if (microtime(true) - $startTime > $this->timeout) {
                 proc_terminate($process);
-                $executionTime = round(microtime(true) - $startTime, 2);
+                $executionTime = round(microtime(true) - $startTime, 4);
 
                 $output .= stream_get_contents($stdout);
                 $errorOutput .= stream_get_contents($stderr);
@@ -181,7 +181,7 @@ trait ProcessTrait
         fclose($stdout);
         fclose($stderr);
         $returnCode = proc_close($process);
-        $executionTime = round(microtime(true) - $startTime, 2);
+        $executionTime = round(microtime(true) - $startTime, 4);
 
         return [
             'output' => $this->sanitizeOutput($output),
