@@ -211,7 +211,7 @@
             @php
                 $qrContent = route('liquidacion.pdf', $settlement->id);
 
-                $qrPath = \App\Helpers\QrCodeHelper::generateFromApi($qrContent, 150); // Generamos el QR usando la API externa y obtenemos la ruta del archivo local
+                $qrPath = \App\Helpers\QrCodeHelper::generateFromApi($qrContent, 150);
             @endphp
 
             <!-- Agregar antes del footer -->

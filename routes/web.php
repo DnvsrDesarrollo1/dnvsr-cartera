@@ -46,7 +46,6 @@ Route::middleware([
         ]);
 
         return redirect()->route('beneficiario.pdf', $cedula);
-
     })->name('beneficiario.pdf.switch-status');
 
     Route::get('beneficiario/{cedula}/pdf-extract', [\App\Http\Controllers\BeneficiaryController::class, 'pdfExtract'])->name('beneficiario.pdf-extract');

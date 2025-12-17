@@ -280,7 +280,7 @@
                                 @endcan>
                                 <div class="flex items-center justify-between space-x-2" x-show="!editing">
                                     @can('write beneficiaries')
-                                        <span @click="editing = true; $nextTick(() => $refs.input.focus())"
+                                        <span @dblclick="editing = true; $nextTick(() => $refs.input.focus())"
                                             class="cursor-pointer text-sm text-gray-900 truncate max-w-[100px] sm:max-w-none hover:text-indigo-600"
                                             x-text="value" title="{{ $beneficiary->nombre }}">
                                         </span>
@@ -308,7 +308,7 @@
                                     @click.away="if(editing) { editing = false; $wire.save('{{ $beneficiary->id }}', 'ci', value) }"
                                 @endcan>
                                 @can('write beneficiaries')
-                                    <div @click="editing = true; $nextTick(() => $refs.input.focus())"
+                                    <div @dblclick="editing = true; $nextTick(() => $refs.input.focus())"
                                         class="cursor-pointer hover:text-indigo-600" x-show="!editing">
                                         <div x-text="value" class="truncate max-w-[80px] sm:max-w-none"></div>
                                     </div>
@@ -337,7 +337,7 @@
                                     @click.away="if(editing) { editing = false; $wire.save('{{ $beneficiary->id }}', 'estado', value) }"
                                 @endcan>
                                 @can('write beneficiaries')
-                                    <div @click="editing = true; $nextTick(() => $refs.select.focus())"
+                                    <div @dblclick="editing = true; $nextTick(() => $refs.select.focus())"
                                         class="cursor-pointer" x-show="!editing">
                                         <span @class([
                                             'px-2 py-1 text-xs font-medium rounded-full whitespace-nowrap',
@@ -419,7 +419,7 @@
                             </div>
                         </td>
                         <td
-                            class="px-4 py-3 text-sm whitespace-nowrap {{ count($beneficiary->plans->filter(fn($p) => $p->estado != 'CANCELADO')) == 0 ? 'text-transparent' : 'text-gray-600 ' }}">
+                            class="px-4 py-3 text-sm whitespace-nowrap {{ count($beneficiary->plans->filter(fn($p) => $p->estado != 'CANCELADO')) == 0 ? 'text-white' : 'text-gray-600 ' }}">
                             {{ count($beneficiary->plans->filter(fn($p) => $p->estado == 'VENCIDO')) }}
                             /
                             {{ count($beneficiary->plans->filter(fn($p) => $p->estado != 'CANCELADO')) }}
