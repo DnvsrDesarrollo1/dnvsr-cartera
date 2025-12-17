@@ -420,7 +420,7 @@ class SettleBeneficiary extends Component
 
             $this->createVoucher(
                 $criteria . ':' . Auth::user()->name,
-                'CANCELACION/LIQUIDACION',
+                $criteria,
                 $this->fecha_comprobante,
                 null,
                 ($this->capSettle) + ($this->capDifSettle) + ($this->intSettle) + ($this->intDevSettle) + ($this->intDifSettle) + ($this->segSettle) + ($this->segDevSettle) + ($this->otrosSettle) + ($this->gastosAdm) + ($this->gastosJud),
