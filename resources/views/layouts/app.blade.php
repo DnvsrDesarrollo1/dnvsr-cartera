@@ -94,7 +94,7 @@
             <div>
                 <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 text-center">
                     <p class="text-sm text-gray-800 dark:text-gray-100 mt-2">
-                        &copy; {{ date('Y') }} {{ config('app.name', 'Laravel') }}
+                        &copy; {{ date('Y') }} {{ config('app.name', 'Laravel') }} ({{now()->format('d/m/Y H:i:s')}})
                     </p>
                     <p class="text-sm text-gray-400 dark:text-gray-100">
                         (release) | v.
