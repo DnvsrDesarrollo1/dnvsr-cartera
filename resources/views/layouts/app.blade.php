@@ -94,11 +94,10 @@
             <div>
                 <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 text-center">
                     <p class="text-sm text-gray-800 dark:text-gray-100 mt-2">
-                        &copy; {{ date('Y') }} {{ config('app.name', 'Laravel') }} ({{now()->format('d/m/Y H:i:s')}})
+                        &copy; {{ date('Y') }} {{ config('app.name', 'Laravel') }}
                     </p>
                     <p class="text-sm text-gray-400 dark:text-gray-100">
-                        (release) | v.
-                        {{ trim(shell_exec('git -C ' . base_path() . ' describe --tags --always --dirty')) }}.
+                        (release) | v.{{app()->version()}}
                     </p>
                     <p class="text-sm text-gray-800 font-bold dark:text-gray-100">
                         Agencia Estatal de Vivienda - Direccion Nacional de Vivienda Social Residual.

@@ -23,6 +23,7 @@ class Beneficiary extends Model
         'entidad_financiera',
         'cod_proy',
         'idepro',
+        'cod_promotor',
         'cod_fondesif',
         'proyecto',
         'genero',

@@ -36,6 +36,8 @@ class CreateBeneficiary extends Component
     public $gastos_judiciales = 0;
     public $gastos_notariales = 0;
 
+    public $reactivacion = false;
+
     public $rules = [
         'nombre' => 'required',
         'ci' => 'required',
@@ -79,9 +81,17 @@ class CreateBeneficiary extends Component
 
     public function render()
     {
+        $error = '';
+        if (\App\Models\Beneficiary::where('ci', $this->ci)->exists())
+        {
+            $error = 'Carnet de identidad ya existe!';
+        }
+
         $this->idepro = $this->ci . $this->departamentos[$this->expedido];
 
-        return view('livewire.beneficiaries.create-beneficiary');
+        return view('livewire.beneficiaries.create-beneficiary', [
+            'error' => $error,
+        ]);
     }
 
     public function mount()
@@ -103,6 +113,7 @@ class CreateBeneficiary extends Component
             'entidad_financiera' => strtoupper($this->entidad_financiera),
             'cod_proy' => $this->cod_proy,
             'idepro' => $this->idepro,
+            'cod_promotor' => $this->reactivacion ? 'SI' : 'NO',
             'cod_fondesif' => $this->cod_fondesif,
             'proyecto' => $this->proyecto,
             'genero' => $this->genero,

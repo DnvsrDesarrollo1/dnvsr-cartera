@@ -11,7 +11,7 @@
         x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
         x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100"
         x-transition:leave-end="opacity-0" x-cloak
-        class="fixed inset-0 overflow-y-auto z-50 flex items-center justify-center">
+        class="fixed inset-0 overflow-y-auto z-[199] flex items-center justify-center">
         <div class="fixed inset-0 transition-opacity" @click="openNewBeneficiary = false">
             <div class="absolute inset-0 bg-gray-500 opacity-25"></div>
         </div>
@@ -69,6 +69,9 @@
                             <label for="ci" class="block text-sm font-medium text-gray-700">C.I.</label>
                             <input type="text" id="ci" wire:model.live="ci"
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            @if ($error != '')
+                                <span class="text-red-500 text-xs">{{ $error }}</span>
+                            @endif
                             @error('ci')
                                 <span class="text-red-500 text-xs">{{ $message }}</span>
                             @enderror
@@ -360,6 +363,13 @@
             </form>
             <div class="bg-gray-200 px-4 py-3 border-b border-gray-200 flex justify-between items-center"
                 id="create_beneficiary_footer">
+                <div class="flex items-center">
+                    <input type="checkbox" id="reactivacion" wire:model="reactivacion"
+                        class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                    <label for="reactivacion" class="ml-2 block text-sm text-gray-900">
+                        Reactivación
+                    </label>
+                </div>
                 <button wire:click="saveBeneficiary" wire:loading.attr="disabled"
                     wire:confirm="¿Estas seguro(a) de crear el perfil?"
                     class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"

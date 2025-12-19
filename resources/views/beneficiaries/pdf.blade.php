@@ -213,8 +213,8 @@
                             <td>Proyecto:</td>
                             <td>{{ $beneficiary->proyecto }}</td>
                             <td></td>
-                            <td>{{-- Fecha Emision: --}}</td>
-                            <td>{{-- {{ date('d/m/Y', strtotime(now())) }} --}}</td>
+                            <td>{{ $beneficiary->cod_promotor == 'SI' ? 'Fecha Reactivacion:' : '' }}</td>
+                            <td>{{ $beneficiary->cod_promotor == 'SI' ? date('d/m/Y', strtotime($plans->first()->created_at)) : '' }}</td>
                         </tr>
                         <tr>
                             <td>C.I. / Codigo Prestamo:</td>
