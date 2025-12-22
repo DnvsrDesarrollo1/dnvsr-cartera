@@ -21,6 +21,8 @@ class PlanMutator extends Component
     public $amountPerQuota;
     public $amountCriteria = 'GASTOS JUDICIALES';
 
+    public $maxQuotas;
+
     public function mount(Beneficiary $beneficiary)
     {
         $this->beneficiary = $beneficiary->load('plans');
@@ -39,15 +41,21 @@ class PlanMutator extends Component
 
     public function render()
     {
-        if ($this->affectedQuotas == '')
-        {
+        if ($this->affectedQuotas == '') {
             $this->affectedQuotas = 1;
         }
 
-        if ($this->amountToInsert == '')
-        {
+        if ($this->amountToInsert == '') {
             $this->amountToInsert = 100;
         }
+
+        $this->maxQuotas = $this->plan = $this->beneficiary
+            ->plans
+            ->filter(function ($quota) {
+                return $quota->estado != 'CANCELADO';
+            })
+            ->sortBy('fecha_ppg')
+            ->count();
 
         $this->getNQuotas();
 

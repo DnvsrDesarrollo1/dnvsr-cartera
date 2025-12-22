@@ -72,7 +72,7 @@
                                     Capital:
                                 </label>
                                 <div class="relative rounded-md shadow-sm">
-                                    <input min="0" type="number" wire:model.live="capSettle" id="capSettle"
+                                    <input min="0" type="number" wire:model.live="capSettle" id="capSettle" readonly
                                         step="0.10"
                                         class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border"
                                         placeholder="0.00">
@@ -90,7 +90,7 @@
                                     Capital Diferido:
                                 </label>
                                 <div class="relative rounded-md shadow-sm">
-                                    <input min="0" type="number" wire:model.live="capDifSettle"
+                                    <input min="0" type="number" wire:model.live="capDifSettle" readonly
                                         id="capDifSettle" step="0.10"
                                         class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border"
                                         placeholder="0.00">
@@ -109,7 +109,7 @@
                                     Interés Devengado:
                                 </label>
                                 <div class="relative rounded-md shadow-sm">
-                                    <input min="0" type="number" wire:model.live="intDevSettle"
+                                    <input min="0" type="number" wire:model.live="intDevSettle" readonly
                                         id="intDevSettle" step="0.10"
                                         class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border"
                                         placeholder="0.00">
@@ -127,7 +127,7 @@
                                     Interés: (de {{ $diasMora }} días)
                                 </label>
                                 <div class="relative rounded-md shadow-sm">
-                                    <input min="0" type="number" wire:model.live="intSettle" id="intSettle"
+                                    <input min="0" type="number" wire:model.live="intSettle" id="intSettle" readonly
                                         step="0.10"
                                         class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border"
                                         placeholder="0.00">
@@ -145,7 +145,7 @@
                                     Interés Diferido:
                                 </label>
                                 <div class="relative rounded-md shadow-sm">
-                                    <input min="0" type="number" wire:model.live="intDifSettle"
+                                    <input min="0" type="number" wire:model.live="intDifSettle" readonly
                                         id="intDifSettle" step="0.10"
                                         class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border"
                                         placeholder="0.00">
@@ -163,7 +163,7 @@
                                     Seguro Devengado:
                                 </label>
                                 <div class="relative rounded-md shadow-sm">
-                                    <input min="0" type="number" wire:model.live="segDevSettle"
+                                    <input min="0" type="number" wire:model.live="segDevSettle" readonly
                                         id="segDevSettle" step="0.10"
                                         class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-2 px-3 border"
                                         placeholder="0.00">
