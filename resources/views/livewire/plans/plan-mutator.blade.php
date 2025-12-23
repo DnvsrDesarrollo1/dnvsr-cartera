@@ -55,9 +55,9 @@
                                         <input type="number" name="affectedQuotas" id="affectedQuotas"
                                             wire:model.live="affectedQuotas" wire:change="getNQuotas" min="0"
                                             max="{{ $maxQuotas }}"
-                                            class="block w-full rounded-lg border-gray-200 bg-white pr-4 pl-8 py-2.5 text-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm transition-all focus:outline-none focus:ring-2">
+                                            class="block w-full rounded-lg border-gray-200 bg-white px-4 py-2.5 text-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm transition-all focus:outline-none focus:ring-2">
                                         <div
-                                            class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                            class="absolute inset-y-0 right-8 flex items-center pr-3 pointer-events-none">
                                             <span class="text-gray-400 text-xs">/ {{ $maxQuotas }}</span>
                                         </div>
                                     </div>
@@ -161,7 +161,7 @@
                                             </path>
                                         </svg>
                                     </div>
-                                    <span class="text-sm font-medium text-indigo-600">Calculando proyección...</span>
+                                    <span class="text-sm font-medium text-indigo-600">Calculando y generando escenario...</span>
                                 </div>
                             </div>
 
@@ -191,7 +191,7 @@
                                             <td class="px-6 py-3 text-sm font-medium w-16">
                                                 <span
                                                     class="px-2 py-0.5 text-xs text-gray-500 font-mono">
-                                                    {{ $quota->prppgnpag }})
+                                                    {{ $loop->iteration }})
                                                 </span>
                                             </td>
                                             <td class="px-6 py-3 text-sm font-medium w-16">

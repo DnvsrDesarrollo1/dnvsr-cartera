@@ -83,12 +83,111 @@ class GenerateBeneficiaryExtractPdfsZip implements ShouldQueue
         }
 
         return $beneficiaries->map(function ($beneficiary) use ($exportPath) {
-            $payments = $this->getPayments($beneficiary->idepro);
+
+            // Logic synchronized from BeneficiaryController::pdfExtract
+
+            // Precargamos las relaciones para evitar consultas N+1
+            $noLegacy = $beneficiary->vouchers()
+                ->with('payments')
+                ->where(function ($query) {
+                    $query->whereNull('obs_pago')
+                        ->orWhere('obs_pago', '')
+                        ->orWhere('obs_pago', '!=', 'LEGACY 22/24');
+                })->orderBy('numpago', 'ASC')->get();
+
+            $legacy = $beneficiary->vouchers()
+                ->with('payments')
+                ->where('obs_pago', 'LEGACY 22/24')
+                ->orderBy('fecha_pago')
+                ->orderBy('numpago')
+                ->get();
+
+            // Precalculamos los totales para evitar consultas repetitivas
+            $devengadoInt = \App\Models\Earn::where('idepro', $beneficiary->idepro)->sum('interes');
+            $devengadoSeg = \App\Models\Earn::where('idepro', $beneficiary->idepro)->sum('seguro');
+            $diferidoCap = $beneficiary->helpers()->sum('capital');
+            $diferidoInt = $beneficiary->helpers()->sum('interes');
+            $gastos = \App\Models\Spend::where('idepro', $beneficiary->idepro)->where('estado', 'ACTIVO')->sum('monto');
+
+            // Precalculamos los pagos por tipo para cada voucher
+            $paymentsByVoucher = [];
+            foreach ($noLegacy as $voucher) {
+                // Usamos la relación ya cargada con eager loading
+                $payments = $voucher->payments->filter(fn($p) => $p->prtdtnpag === $voucher->numpago);
+
+                $paymentsByVoucher[$voucher->numtramite][$voucher->numpago] = [
+                    'capital' => $payments->filter(fn($p) => str_starts_with($p->prtdtdesc, 'CAPITAL') && ! str_contains($p->prtdtdesc, 'DIF'))
+                        ->sum('montopago'),
+                    'capital_diferido' => $payments->filter(fn($p) => str_contains($p->prtdtdesc, 'CAPITAL DIF'))
+                        ->sum('montopago'),
+                    'interes_diferido' => $payments->filter(fn($p) => str_contains($p->prtdtdesc, 'INTERES DIF'))
+                        ->sum('montopago'),
+                    'amortizacion' => $payments->filter(fn($p) => str_starts_with($p->prtdtdesc, 'AMR'))
+                        ->sum('montopago'),
+                    'intereses' => $payments->filter(fn($p) => str_starts_with($p->prtdtdesc, 'INTERES') && ! str_contains($p->prtdtdesc, 'DIF'))
+                        ->sum('montopago'),
+                    'seguros' => $payments->filter(fn($p) => str_starts_with($p->prtdtdesc, 'SEGU'))
+                        ->sum('montopago'),
+                    'otros' => $payments->filter(fn($p) => str_starts_with($p->prtdtdesc, 'OTR'))
+                        ->sum('montopago') + $payments->filter(fn($p) => str_starts_with($p->prtdtdesc, 'GAS'))
+                        ->sum('montopago')
+                ];
+            }
+
+            // Hacemos lo mismo para los pagos legacy
+            $paymentsByLegacyVoucher = [];
+            foreach ($legacy as $voucher) {
+                $payments = $voucher->payments->filter(fn($p) => $p->prtdtnpag === $voucher->numpago);
+
+                $paymentsByLegacyVoucher[$voucher->numtramite][$voucher->numpago] = [
+                    'capital' => $payments->filter(fn($p) => str_starts_with($p->prtdtdesc, 'CAPITAL'))
+                        ->sum('montopago'),
+                    'capital_diferido' => $payments->filter(fn($p) => str_contains($p->prtdtdesc, 'DIFER'))
+                        ->sum('montopago'),
+                    'amortizacion' => $payments->filter(fn($p) => str_starts_with($p->prtdtdesc, 'AMR'))
+                        ->sum('montopago'),
+                    'intereses' => $payments->filter(fn($p) => str_starts_with($p->prtdtdesc, 'INTE'))
+                        ->sum('montopago'),
+                    'seguros' => $payments->filter(fn($p) => str_starts_with($p->prtdtdesc, 'SEGU'))
+                        ->sum('montopago'),
+                    'otros' => $payments->filter(fn($p) => str_starts_with($p->prtdtdesc, 'OTR'))
+                        ->sum('montopago'),
+                ];
+            }
+
+            // Calculamos el total de capital pagado una sola vez
+            $capitalPagado = $beneficiary->payments()
+                ->where('prtdtdesc', 'LIKE', 'CAPI%')
+                ->where('prtdtdesc', 'NOT LIKE', '%DIF%')
+                ->where(function ($query) {
+                    $query->whereNull('observacion')
+                        ->orWhere('observacion', '')
+                        ->orWhere('observacion', '!=', 'LEGACY 22/24');
+                })
+                ->sum('montopago');
+
+            // Calculamos el monto en diferimientos una sola vez
+            $montoDiferimientos = $beneficiary->helpers->where('estado', 'ACTIVO')->sum('capital');
 
             $cleanName = preg_replace('/[^A-Za-z0-9 \-]/', '_', $beneficiary->nombre);
             $filePath = $exportPath . '/' . $cleanName . '-' . uniqid() . '.pdf';
 
-            PDF::loadView('beneficiaries.pdf-extract', compact('beneficiary', 'payments'))->save($filePath);
+            // Pass all calculated variables strictly matching the controller
+            PDF::loadView('beneficiaries.pdf-extract', compact(
+                'beneficiary',
+                'noLegacy',
+                'legacy',
+                'devengadoInt',
+                'devengadoSeg',
+                'diferidoCap',
+                'diferidoInt',
+                'gastos',
+                'paymentsByVoucher',
+                'paymentsByLegacyVoucher',
+                'capitalPagado',
+                'montoDiferimientos'
+            ))->save($filePath);
+
             return $filePath;
         })->toArray();
     }
@@ -120,16 +219,5 @@ class GenerateBeneficiaryExtractPdfsZip implements ShouldQueue
                 File::delete($file);
             }
         }
-    }
-
-    private function getPayments($idepro, $type = null)
-    {
-        $query = Payment::where('numprestamo', $idepro)->orderBy('fecha_pago', 'DESC');
-
-        if ($type) {
-            $query->where('prtdtdesc', 'like', "%$type%");
-        }
-
-        return $query->get();
     }
 }

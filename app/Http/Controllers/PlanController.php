@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\GenerateBeneficiaryCsvZip;
+use App\Jobs\BulkActivationJob;
 use App\Models\Beneficiary;
 use App\Models\Plan;
 use App\Models\Readjustment;
@@ -386,89 +387,18 @@ class PlanController extends Controller
     public function bulkActivation($data)
     {
         $decodedData = json_decode($data, true);
-        // return $decodedData;
         $interestRate = -1;
         $secureRate = -1;
         $identificationNumbers = array_diff(array_values($decodedData), [$interestRate]);
+        $user = Auth::user();
 
-        // return $interestRate . ' ' . $secureRate . ' ' . json_encode($identificationNumbers);
+        BulkActivationJob::dispatch($identificationNumbers, $interestRate, $secureRate, $user->id);
 
-        $beneficiaries = Beneficiary::find($identificationNumbers)
-            ->where('estado', '<>', 'CANCELADO');
-        // ->where('estado', '<>', 'BLOQUEADO');
-
-        try {
-            DB::transaction(function () use ($beneficiaries, $interestRate, $secureRate) {
-                foreach ($beneficiaries as $beneficiary) {
-                    $this->activateBeneficiary($beneficiary, $interestRate, $secureRate);
-                }
-            });
-
-            return redirect()->route('beneficiario.index')
-                ->with('success', "La activación masiva-automática de {$beneficiaries->count()} beneficiarios fue realizada");
-        } catch (\Exception $e) {
-            return redirect()->route('beneficiario.index')
-                ->with('error', "La activación masiva-automática de {$beneficiaries->count()} beneficiarios no fue realizada ->" . $e->getMessage());
-        }
+        return redirect()->route('beneficiario.index')
+            ->with('success', "La activación masiva de " . count($identificationNumbers) . " beneficiarios ha iniciado en segundo plano. Se le notificará cuando termine.");
     }
 
-    public function activateBeneficiary(Beneficiary $beneficiary, $interestRate, $secureRate)
-    {
-        $initialCapital = $beneficiary->saldo_credito ?? 0;
-        if ($initialCapital <= 0) {
-            $initialCapital = $beneficiary->total_activado - ($beneficiary->payments()->where('prtdtdesc', 'like', '%CAPI%')->sum('montopago') ?? 0);
-        }
 
-        $finPlazo = date(
-            'Y-m-d',
-            // strtotime($beneficiary->fecha_activacion . ' + 20 years'));
-            strtotime($beneficiary->fecha_activacion . ' + ' . $beneficiary->plazo_credito . ' months')
-        );
-
-        // // DETERMINAR LA CANTIDAD DE MESES/CUOTAS QUE SE VAN A GENERAR
-
-        $date1 = date('Y-m-d', strtotime($beneficiary->fecha_extendida ?? $beneficiary->fecha_activacion));
-        // $date1 = now();
-        // $date1 = '2025-08-15';
-        $date2 = $finPlazo;
-        $d1 = new \DateTime($date2);
-        $d2 = new \DateTime($date1);
-        $MonthsX = $d2->diff($d1);
-        $months = (($MonthsX->y) * 12) + ($MonthsX->m) + (($MonthsX->invert) ? -1 : 0) + (($MonthsX->d > 15) ? 1 : 0);
-
-        $sequential = $beneficiary->plans()->exists() ? 'on' : null;
-
-        // // DETERMINAR LA FECHA DE LA PRIMERA CUOTA
-
-        // $startDate = '2025-08-15'; //PARA CONSIDERAR EL MES DESPUES DEL ESPECIFICADO
-        // $startDate = now(); // PARA CONSIDERAR EL MES SIGUIENTE A AHORA
-        $startDate = date('Y-m-d', strtotime($beneficiary->fecha_extendida ?? $beneficiary->fecha_activacion));
-
-        if ($interestRate < 0 || $interestRate == -1 || $interestRate == '-1') {
-            $interestRate = ($beneficiary->tasa_interes > 0) ? $beneficiary->tasa_interes : 0;
-        }
-
-        if ($secureRate < 0 || $secureRate == -1 || $secureRate == '-1') {
-            $secureRate = ($beneficiary->insurance && $beneficiary->insurance->exists()) ? $beneficiary->insurance->tasa_seguro : 0.04;
-        }
-
-        $planData = $this->generarPlan(
-            (float) $initialCapital,
-            \App\Models\Spend::where('idepro', $beneficiary->idepro)->where('estado', 'ACTIVO')->sum('monto') ?? 0,
-            // $beneficiary->plazo_credito,
-            $months,
-            $interestRate,
-            $secureRate,
-            $sequential,
-            $beneficiary->plazo_credito,
-            $startDate,
-            \App\Models\Earn::where('idepro', $beneficiary->idepro)->sum('interes') ?? 0,
-            \App\Models\Earn::where('idepro', $beneficiary->idepro)->sum('seguro') ?? 0,
-        );
-
-        $this->deactivateRelatedRecords($beneficiary);
-        $this->createNewPlans($beneficiary, $planData);
-    }
 
     public function deactivateRelatedRecords(Beneficiary $beneficiary)
     {
@@ -483,27 +413,7 @@ class PlanController extends Controller
         }
     }
 
-    public function createNewPlans(Beneficiary $beneficiary, $planData)
-    {
-        $newPlans = $planData->map(function ($item) use ($beneficiary) {
-            return [
-                'idepro' => $beneficiary->idepro,
-                'fecha_ppg' => $item->vencimiento,
-                'prppgnpag' => $item->nro_cuota,
-                'prppgcapi' => ($item->abono_capital),
-                'prppginte' => ($item->interes),
-                'prppggral' => ($item->interes_devengado),
-                'prppgsegu' => ($item->seguro),
-                'prppgotro' => ($item->gastos_judiciales),
-                'prppgcarg' => ($item->seguro_devengado),
-                'prppgtota' => ($item->total_cuota),
-                'estado' => 'ACTIVO',
-                'user_id' => Auth::user()->id ?? 1,
-            ];
-        })->toArray();
 
-        Plan::insert($newPlans);
-    }
 
     public function bulkAdjust($data)
     {
