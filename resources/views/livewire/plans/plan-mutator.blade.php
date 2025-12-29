@@ -8,14 +8,14 @@
         </x-personal.button>
 
         <!-- Modal Background -->
-        <div x-show="mutatorModal" @keyup.escape.window="mutatorModal = false"
-            x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
-            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" x-cloak
-            class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm p-4 sm:p-6">
+        <div x-show="mutatorModal" @keyup.escape.window="mutatorModal = false" x-transition:enter="ease-out duration-150"
+            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+            x-transition:leave="ease-in duration-100" x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0" x-cloak
+            class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4 sm:p-6">
 
             <!-- Modal Content -->
-            <div class="w-full max-w-7xl transform overflow-hidden rounded-2xl bg-white shadow-2xl transition-all"
+            <div class="w-full max-w-7xl overflow-hidden rounded-2xl bg-white shadow-xl"
                 @click.outside="mutatorModal = false">
 
                 <!-- Header -->
@@ -53,7 +53,7 @@
                                     </label>
                                     <div class="relative">
                                         <input type="number" name="affectedQuotas" id="affectedQuotas"
-                                            wire:model.live="affectedQuotas" wire:change="getNQuotas" min="0"
+                                            wire:model.live="affectedQuotas" wire:change="getNQuotas" min="1"
                                             max="{{ $maxQuotas }}"
                                             class="block w-full rounded-lg border-gray-200 bg-white px-4 py-2.5 text-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm transition-all focus:outline-none focus:ring-2">
                                         <div
@@ -76,6 +76,7 @@
                                         </div>
                                         <input type="number" name="amountToInsert" id="amountToInsert"
                                             wire:model.live="amountToInsert" step="0.01"
+                                            wire:change="getNQuotas"
                                             class="block w-full rounded-lg border-gray-200 pl-7 px-4 py-2.5 text-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm transition-all focus:outline-none focus:ring-2"
                                             placeholder="0.00">
                                     </div>
@@ -149,8 +150,8 @@
                         <div class="flex-1 overflow-auto relative custom-scrollbar">
                             <!-- Loading Overlay -->
                             <div wire:loading.flex wire:target="getNQuotas"
-                                class="absolute inset-0 bg-white/80 backdrop-blur-[1px] z-10 items-center justify-center">
-                                <div class="flex flex-col items-center animate-pulse">
+                                class="absolute inset-0 bg-white/90 z-10 items-center justify-center">
+                                <div class="flex flex-col items-center">
                                     <div class="h-8 w-8 text-indigo-500 mb-2">
                                         <svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none"
                                             viewBox="0 0 24 24">
@@ -161,7 +162,8 @@
                                             </path>
                                         </svg>
                                     </div>
-                                    <span class="text-sm font-medium text-indigo-600">Calculando y generando escenario...</span>
+                                    <span class="text-sm font-medium text-indigo-600">Calculando y generando
+                                        escenario...</span>
                                 </div>
                             </div>
 
@@ -170,7 +172,7 @@
                                     <tr>
                                         <th scope="col"
                                             class="px-6 py-3 text-left text-xs font-bold text-gray-400 uppercase tracking-wider bg-white">
-                                            </th>
+                                        </th>
                                         <th scope="col"
                                             class="px-6 py-3 text-left text-xs font-bold text-gray-400 uppercase tracking-wider bg-white">
                                             N° Cuota</th>
@@ -187,10 +189,9 @@
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-50 text-gray-600">
                                     @foreach ($plan as $quota)
-                                        <tr class="hover:bg-indigo-50/30 transition-colors group">
+                                        <tr class="hover:bg-indigo-50/30 group">
                                             <td class="px-6 py-3 text-sm font-medium w-16">
-                                                <span
-                                                    class="px-2 py-0.5 text-xs text-gray-500 font-mono">
+                                                <span class="px-2 py-0.5 text-xs text-gray-500 font-mono">
                                                     {{ $loop->iteration }})
                                                 </span>
                                             </td>
@@ -207,8 +208,7 @@
                                             <!-- Column: Otros -->
                                             <td class="px-6 py-3 text-right text-sm">
                                                 <div class="flex flex-col items-end gap-0.5">
-                                                    <div
-                                                        class="flex items-center gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
+                                                    <div class="flex items-center gap-1.5 opacity-70">
                                                         <span
                                                             class="text-gray-400 line-through text-xs decoration-gray-300">{{ number_format($quota->prppgotro, 2) }}</span>
                                                         <span
@@ -222,8 +222,7 @@
                                             <!-- Column: Total -->
                                             <td class="px-6 py-3 text-right text-sm">
                                                 <div class="flex flex-col items-end gap-0.5">
-                                                    <div
-                                                        class="flex items-center gap-1.5 text-xs opacity-60 group-hover:opacity-100 transition-opacity">
+                                                    <div class="flex items-center gap-1.5 text-xs opacity-70">
                                                         <span
                                                             class="text-gray-400 line-through">{{ number_format($quota->prppgtota, 2) }}</span>
                                                         <span

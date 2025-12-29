@@ -285,7 +285,7 @@
                             <p class="text-sm text-gray-500 mb-4">Registre nuevos pagos o vea el historial detallado.
                             </p>
                         </div>
-                        <div class="flex flex-col gap-2">
+                        <div class="flex flex-wrap gap-2">
                             @if ($hasPayments)
                                 <livewire:payment-modal lazy :beneficiary="$beneficiary" title="Historial de Pagos" />
                             @else

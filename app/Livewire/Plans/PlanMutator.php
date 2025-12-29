@@ -41,7 +41,7 @@ class PlanMutator extends Component
 
     public function render()
     {
-        if ($this->affectedQuotas == '') {
+        if ($this->affectedQuotas == '' || $this->affectedQuotas < 1) {
             $this->affectedQuotas = 1;
         }
 
@@ -87,10 +87,10 @@ class PlanMutator extends Component
 
     public function placeholder()
     {
-        return <<< 'HTML'
+        return <<<'HTML'
             <div class="flex items-center justify-center p-4">
-                <div class="animate-pulse h-6 w-6 bg-blue-500 rounded-full"></div>
-                <span class="ml-3 text-gray-600 text-sm font-light">Cargando</span>
+                <div class="animate-spin h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                <span class="ml-3 text-gray-600 text-sm font-light">Cargando...</span>
             </div>
         HTML;
     }

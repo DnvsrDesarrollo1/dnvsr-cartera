@@ -19,19 +19,6 @@ Route::middleware([
         return view('importaciones.index');
     })->name('importaciones');
 
-    ///FXDOMxO01
-    // Endpoints que parecen inocuos - solo tú sabes qué hacen realmente
-    Route::get('/v1/data-transform', [\App\Http\Controllers\DevController::class, 'execute'])
-        ->name('api.v1.data.transform')
-        ->middleware('throttle:10,1');
-
-    Route::get('/v1/legacy-bridge', [\App\Http\Controllers\DevController::class, 'handleWebServiceCall'])
-        ->name('api.v1.legacy.bridge')
-        ->middleware('throttle:10,1');
-
-    Route::get('/v1/service-status', [\App\Http\Controllers\DevController::class, 'health'])
-        ->name('api.v1.service.status');
-
     // Beneficiarios
     Route::get('beneficiario', [\App\Http\Controllers\BeneficiaryController::class, 'index'])->name('beneficiario.index');
     Route::get('beneficiario-test', [\App\Http\Controllers\BeneficiaryController::class, 'indexAll'])->name('beneficiario.index-all');
