@@ -222,134 +222,138 @@ trait FinanceTrait
         int $meses,
         float $taza_interes,
         float $seguro,
-        $correlativo,
+        $correlativo = 'off',
         int $plazo_credito,
         string $fecha_inicio,
         float $i_diff = 0,
         float $s_diff = 0
     ): \Illuminate\Database\Eloquent\Collection {
-        $tasaMensual = $taza_interes / 100 / 12;
-        $seguroMensual = $seguro / 100;
+        try {
+            $tasaMensual = $taza_interes / 100 / 12;
+            $seguroMensual = $seguro / 100;
 
-        $interesDiffPorCuota = $meses > 0 ? bcdiv($i_diff, $meses, 6) : 0;
-        $seguroDiffPorCuota = bcdiv($s_diff, '12', 4);
+            $interesDiffPorCuota = $meses > 0 ? bcdiv($i_diff, $meses, 6) : 0;
+            $seguroDiffPorCuota = bcdiv($s_diff, '12', 4);
 
-        $gjDistribuido = [];
-        if ($gastos_judiciales > 0) {
-            $cuotasGj = $meses;
-            if ($gastos_judiciales <= 100) {
-                $cuotasGj = min(5, $meses);
-            } elseif ($gastos_judiciales <= 300) {
-                $cuotasGj = min(12, $meses);
-            }
-            $gjDistribuido = $this->dividirConRedondeo($gastos_judiciales, $cuotasGj);
-        }
-
-        if ($taza_interes > 0) {
-            $cuota = $this->calcularPago($capital_inicial, $tasaMensual, $meses);
-            $abonosDistribuidos = [];
-        } else {
-            $abonosDistribuidos = $this->dividirConRedondeo($capital_inicial, $meses);
-            $cuota = 0;
-        }
-
-        $indiceInicial = 1;
-        $totalCuotas = $meses;
-        if ($correlativo === 'on') {
-            $indiceInicial = ($plazo_credito - $meses) + 1;
-            $totalCuotas = $plazo_credito;
-            if ($indiceInicial < 1) {
-                $indiceInicial = 1;
-            }
-        }
-
-        $fechaBase = \Carbon\Carbon::parse($fecha_inicio)->copy()->day(15);
-
-        $plan = [];
-        $saldo = $capital_inicial;
-        $acumGj = 0;
-        $acumCap = 0;
-
-        for ($i = $indiceInicial; $i <= $totalCuotas; $i++) {
-            $gjIndex = $i - $indiceInicial;
-            $gj = isset($gjDistribuido[$gjIndex]) ? $gjDistribuido[$gjIndex] : 0;
-            $acumGj += $gj;
-
-            $interes = $saldo * $tasaMensual;
-
-            if ($taza_interes > 0) {
-                $abono = $cuota - $interes;
-            } else {
-                $abono = isset($abonosDistribuidos[$gjIndex]) ? $abonosDistribuidos[$gjIndex] : 0;
-                $cuota = $abono;
+            $gjDistribuido = [];
+            if ($gastos_judiciales > 0) {
+                $cuotasGj = $meses;
+                if ($gastos_judiciales <= 100) {
+                    $cuotasGj = min(5, $meses);
+                } elseif ($gastos_judiciales <= 300) {
+                    $cuotasGj = min(12, $meses);
+                }
+                $gjDistribuido = $this->dividirConRedondeo($gastos_judiciales, $cuotasGj);
             }
 
-            $saldoFin = $saldo - $abono;
-            $seguroCuota = ($saldo + $interes) * $seguroMensual;
+            $indiceInicial = 1;
+            $totalCuotas = $meses;
+            if ($correlativo === 'on') {
+                $indiceInicial = ($plazo_credito - $meses) + 1;
+                $totalCuotas = $plazo_credito;
+                if ($indiceInicial < 1) {
+                    $indiceInicial = 1;
+                }
+            }
 
-            $acumCap += $abono;
+            $fechaBase = \Carbon\Carbon::parse($fecha_inicio)->copy()->day(15);
 
-            if ($i === $totalCuotas || $i === $indiceInicial + $meses - 1) {
+            $plan = [];
+            $saldo = $capital_inicial;
+            $acumGj = 0;
+            $acumCap = 0;
+
+            for ($i = $indiceInicial; $i <= $totalCuotas; $i++) {
+
                 if ($taza_interes > 0) {
-                    $abono += $saldoFin;
+                    $cuota = $this->calcularPago($saldo, $tasaMensual, $totalCuotas - ($i + 1));
                 } else {
-                    $interes = 0;
-                    $cuota += $saldoFin;
+                    $abonosDistribuidos = $this->dividirConRedondeo($saldo, $totalCuotas - ($i + 1));
+                    $cuota = 0;
                 }
-                if (! bccomp($acumCap, $capital_inicial, 2)) {
-                    $delta = $capital_inicial - $acumCap;
-                    $cuota += $delta;
-                    $abono += $delta;
+
+                $gjIndex = $i - $indiceInicial;
+                $gj = isset($gjDistribuido[$gjIndex]) ? $gjDistribuido[$gjIndex] : 0;
+                $acumGj += $gj;
+
+                $interes = $saldo * $tasaMensual;
+
+                if ($taza_interes > 0) {
+                    $abono = $cuota - $interes;
+                } else {
+                    $abono = isset($abonosDistribuidos[$gjIndex]) ? $abonosDistribuidos[$gjIndex] : 0;
+                    $cuota = $abono;
                 }
-                $saldoFin = 0;
+
+                $saldoFin = $saldo - $abono;
+                $seguroCuota = ($saldo + $interes) * $seguroMensual;
+
+                $acumCap += $abono;
+
+                if ($i === $totalCuotas || $i === $indiceInicial + $meses - 1) {
+                    if ($taza_interes > 0) {
+                        $abono += $saldoFin;
+                    } else {
+                        $interes = 0;
+                        $cuota += $saldoFin;
+                    }
+                    if (! bccomp($acumCap, $capital_inicial, 2)) {
+                        $delta = $capital_inicial - $acumCap;
+                        $cuota += $delta;
+                        $abono += $delta;
+                    }
+                    $saldoFin = 0;
+                }
+
+                $fechaVen = $i === $indiceInicial
+                    ? $fechaBase->copy()->addMonth()->format('Y-m-d')
+                    : $this->obtenerFechaVencimiento($fechaBase, $i - $indiceInicial + 1);
+
+                $plan[] = [
+                    'nro_cuota' => $i,
+                    'saldo_inicial' => round($saldo, 4),
+                    'amortizacion' => round($cuota, 4),
+                    'abono_capital' => round($abono, 4),
+                    'interes' => round($interes, 4),
+                    'seguro' => round($seguroCuota, 4),
+                    'gastos_judiciales' => $acumGj > $gastos_judiciales ? 0 : round($gj, 4),
+                    'total_cuota' => round($cuota + $seguroCuota + ($acumGj >= $gastos_judiciales ? 0 : $gj) + $interesDiffPorCuota + ($i > 12 ? 0 : $seguroDiffPorCuota), 4),
+                    'saldo_final' => round($saldoFin, 4),
+                    'vencimiento' => $fechaVen,
+                    'interes_devengado' => round($interesDiffPorCuota, 4),
+                    'seguro_devengado' => round($i > 12 ? 0 : $seguroDiffPorCuota, 4),
+                ];
+
+                $saldo = $saldoFin;
+
+                if ($acumGj > $gastos_judiciales) {
+                    $gj = 0;
+                }
+
+                if ($i === 12) {
+                    $seguroDiffPorCuota = 0;
+                }
+
+                if ($saldo <= 0.01) {
+                    break;
+                }
             }
 
-            $fechaVen = $i === $indiceInicial
-                ? $fechaBase->copy()->addMonth()->format('Y-m-d')
-                : $this->obtenerFechaVencimiento($fechaBase, $i - $indiceInicial + 1);
+            $capitalPlanificado = array_sum(array_column($plan, 'abono_capital'));
+            $diferenciaCapital = $capital_inicial - $capitalPlanificado;
 
-            $plan[] = [
-                'nro_cuota' => $i,
-                'saldo_inicial' => round($saldo, 4),
-                'amortizacion' => round($cuota, 4),
-                'abono_capital' => round($abono, 4),
-                'interes' => round($interes, 4),
-                'seguro' => round($seguroCuota, 4),
-                'gastos_judiciales' => $acumGj > $gastos_judiciales ? 0 : round($gj, 4),
-                'total_cuota' => round($cuota + $seguroCuota + ($acumGj >= $gastos_judiciales ? 0 : $gj) + $interesDiffPorCuota + ($i > 12 ? 0 : $seguroDiffPorCuota), 4),
-                'saldo_final' => round($saldoFin, 4),
-                'vencimiento' => $fechaVen,
-                'interes_devengado' => round($interesDiffPorCuota, 4),
-                'seguro_devengado' => round($i > 12 ? 0 : $seguroDiffPorCuota, 4),
-            ];
-
-            $saldo = $saldoFin;
-
-            if ($acumGj > $gastos_judiciales) {
-                $gj = 0;
+            if (abs($diferenciaCapital) > 0.0001) {
+                $ultimoIndice = count($plan) - 1;
+                $plan[$ultimoIndice]['abono_capital'] += $diferenciaCapital;
+                $plan[$ultimoIndice]['total_cuota'] += $diferenciaCapital;
             }
 
-            if ($i === 12) {
-                $seguroDiffPorCuota = 0;
-            }
-
-            if ($saldo <= 0.01) {
-                break;
-            }
+            return new \Illuminate\Database\Eloquent\Collection(
+                array_map(fn($row) => (object) $row, $plan)
+            );
+        } catch (\Throwable $th) {
+            throw $th;
         }
-
-        $capitalPlanificado = array_sum(array_column($plan, 'abono_capital'));
-        $diferenciaCapital = $capital_inicial - $capitalPlanificado;
-
-        if (abs($diferenciaCapital) > 0.0001) {
-            $ultimoIndice = count($plan) - 1;
-            $plan[$ultimoIndice]['abono_capital'] += $diferenciaCapital;
-            $plan[$ultimoIndice]['total_cuota'] += $diferenciaCapital;
-        }
-
-        return new \Illuminate\Database\Eloquent\Collection(
-            array_map(fn($row) => (object) $row, $plan)
-        );
     }
 
     public function generarDiferimento($cuotasDiferibles, $diffCapital, $diffInteres, $indiceInicial, $fechaInicial)

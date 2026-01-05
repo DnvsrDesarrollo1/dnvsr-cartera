@@ -398,8 +398,6 @@ class PlanController extends Controller
             ->with('success', "La activación masiva de " . count($identificationNumbers) . " beneficiarios ha iniciado en segundo plano. Se le notificará cuando termine.");
     }
 
-
-
     public function deactivateRelatedRecords(Beneficiary $beneficiary)
     {
         $relatedModels = [

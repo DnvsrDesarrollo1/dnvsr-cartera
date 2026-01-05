@@ -164,12 +164,12 @@
                                                         total: {
                                                             show: true,
                                                             showAlways: false,
-                                                            label: 'Total Activado',
+                                                            label: 'Saldo Actual',
                                                             fontSize: '13px',
                                                             fontWeight: '400',
                                                             color: '#adb5bd',
                                                             formatter: function(w) {
-                                                                return 'Bs ' + parseFloat({{ $beneficiary->monto_activado }})
+                                                                return 'Bs ' + parseFloat({{ $beneficiary->saldo_credito }})
                                                                     .toLocaleString('es-BO', {
                                                                         minimumFractionDigits: 2,
                                                                         maximumFractionDigits: 2

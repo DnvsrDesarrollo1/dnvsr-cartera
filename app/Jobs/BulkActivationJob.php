@@ -45,7 +45,8 @@ class BulkActivationJob implements ShouldQueue
     public function handle()
     {
         $beneficiaries = Beneficiary::whereIn('id', $this->identificationNumbers)
-            ->where('estado', '<>', 'CANCELADO')
+            ->where('estado', '!=', 'CANCELADO')
+            ->where('estado', '!=', 'BLOQUEADO')
             ->get();
 
         foreach ($beneficiaries as $beneficiary) {
@@ -93,7 +94,7 @@ class BulkActivationJob implements ShouldQueue
         $MonthsX = $d2->diff($d1);
         $months = (($MonthsX->y) * 12) + ($MonthsX->m) + (($MonthsX->invert) ? -1 : 0) + (($MonthsX->d > 15) ? 1 : 0);
 
-        $sequential = $beneficiary->plans()->exists() ? 'on' : null;
+        $sequential = 'off';
 
         $startDate = date('Y-m-d', strtotime($beneficiary->fecha_extendida ?? $beneficiary->fecha_activacion));
 
