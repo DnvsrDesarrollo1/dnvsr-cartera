@@ -113,7 +113,7 @@
     @stack('modals')
     @stack('scripts')
 
-    <script>
+    <script-disabled>
         // Create snowflakes
         const snowflakesContainer = document.getElementById('snowflakes');
         const containerWidth = window.innerWidth;
@@ -193,7 +193,7 @@
                 scrollSpeedFactor = 1 + (scrollPosition / maxScroll) * 1.5;
             });
         }
-    </script>
+    </script-disabled>
 
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

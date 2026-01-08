@@ -222,7 +222,7 @@
 
     <!-- Decoracion navideña, retirar despues del 6 de enero LOL -->
     <div class="absolute top-[58px] left-0 w-full flex justify-between overflow-hidden pointer-events-none z-50"
-        style="transform: translateY(6px);">
+        style="display:none; transform: translateY(6px);">
         @foreach (range(1, 80) as $i)
             <svg {{-- style="animation-delay: {{ $i * 10 }}ms;" --}}
                 class="flex-shrink-0 transition-all {{ $i % 2 == 0 ? 'text-green-600 w-4 h-4 animate-duration-1000 animate-bounce' : 'text-red-600 w-5 h-5 animate-duration-1000 animate-pulse' }} drop-shadow-sm"
